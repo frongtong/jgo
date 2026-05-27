@@ -83,9 +83,8 @@
                                                     <tr
                                                         class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                                         <th style="width:5%;" class="text-center">#</th>
-                                                        <th style="width:25%;" class="text-center">หัวข้อ TH</th>
-                                                        <th style="width:25%;" class="text-center">หัวข้อ EN</th>
-                                                        <th style="width:25%;" class="text-center">รายละเอียด</th>
+                                                        <th style="width:25%;" class="text-center">รูปภาพ</th>
+
                                                         <th style="width:15%;" class="text-center">Status</th>
                                                         <th style="width:15%;" class="text-center">Updated at</th>
                                                         <th style="width:10%;" class="text-center">Action</th>
@@ -97,9 +96,8 @@
                                                             <tr data-id="{{ $item->id }}" class="menu-layout">
                                                                 <td class="text-center">
                                                                     {{ $items->pages->start + $index + 1 }}</td>
-                                                                <td>{!! wordwrap($item->title_th) !!}</td>
-                                                                <td>{!! wordwrap($item->title_en) !!}</td>
-                                                                <td><p>{!! wordwrap($item->message_th) !!}</p></td>
+                                                                <td> <img src="{{ asset($item->img_bg) }}" alt="" width="100%"></td>
+                                                              
                                                                 <td class="text-center">
                                                                     <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
                                                                         <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>

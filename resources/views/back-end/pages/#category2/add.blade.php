@@ -36,17 +36,32 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="card-title text-center py-3">
-                                                <!-- <h5>หมวดหมู่รอง</h5> -->
+                                                <h5>หมวดหมู่รอง</h5>
                                             </div>
                                             <div class="container-fluid">
                                                 <div class="row mb-3">
-                                                    <div class="col-md-12 mb-3">
-                                                        <label class="form-label">หมวดหมู่รอง<span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" placeholder="หมวดหมู่รอง" name="name_th" id="name_th" required>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">ชื่อ_ไทย<span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="ชื่อ_ไทย" name="name_th" id="name_th" required>
                                                     </div>
-                                                   
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">ชื่อ_อังกฤษ<span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="ชื่อ_อังกฤษ" name="name_en" id="name_en" required>
+                                                    </div>
                                                 </div>
-                                                
+                                                <div class="card mb-4">
+                                                    <div class="card-header bg-dark">
+                                                        <h5 class="mt-5 text-white">เว็บไซต์สำหรับการติดตาม</h5>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="col-md-12 mb-6">
+
+                                                            <div id="form-container-Url"></div>
+                                                            <button id="addFormUrl" type="button"
+                                                            class="btn btn-dark shadow-md ml-2 mb-3">+</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
                                             </div>
                                         </div>

@@ -37,15 +37,15 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="card-title text-center py-3">
-                                                <h5>หมวดหมู่</h5>
+                                                <!-- <h5>หมวดหมู่</h5> -->
                                             </div>
                                             <div class="container-fluid">
                                                 <div class="row mb-3">
-                                                    <div class="col-md-6 mb-3">
-                                                        <label class="form-label">ชื่อ<span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" placeholder="ชื่อ" name="name_th" id="name_th" required>
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">ชื่อหมวดหมู่<span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="ชื่อหมวดหมู่" name="name_th" id="name_th" required>
                                                     </div>
-                                                  
+                                                   
                                                 </div>
                                             </div>
                                             <!-- <div class="row mb-3">

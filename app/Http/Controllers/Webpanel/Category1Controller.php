@@ -44,7 +44,7 @@ class Category1Controller extends Controller
         $items->pages = new Category1();
         $items->pages->start = ($items->perPage() * $items->currentPage()) - $items->perPage();
         $navs = [
-            '0' => ['url' => "javascript:void(0)", 'name' => "สมัค", "last" => 0],
+            '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/$this->folder", 'name' => "หมวดหมู่", "last" => 1],
         ];
         return view("$this->prefix.pages.$this->folder.index", [
@@ -59,7 +59,7 @@ class Category1Controller extends Controller
     public function add(Request $request)
     {
         $navs = [
-            '0' => ['url' => "javascript:void(0)", 'name' => "หมวดหมู่", "last" => 0],
+            '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/$this->folder", 'name' => "หมวดหมู่", "last" => 1],
             '2' => ['url' => "$this->segment/$this->folder/add", 'name' => "Add", "last" => 2],
         ];
@@ -75,7 +75,7 @@ class Category1Controller extends Controller
     {
         $data = Category1::find($id);
         $navs = [
-            '0' => ['url' => "javascript:void(0)", 'name' => "หมวดหมู่", "last" => 0],
+            '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/$this->folder", 'name' => "หมวดหมู่", "last" => 1],
             '2' => ['url' => "$this->segment/$this->folder/edit/$id", 'name' => "Edit", "last" => 2],
         ];

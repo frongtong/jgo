@@ -50,7 +50,7 @@ class Category2Controller extends Controller
         $items->pages = new Category2();
         $items->pages->start = ($items->perPage() * $items->currentPage()) - $items->perPage();
         $navs = [
-            '0' => ['url' => "javascript:void(0)", 'name' => "ผลิตภัณฑ์ของเรา", "last" => 0],
+            '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/category1", 'name' => "หมวดหมู่", "last" => 1],
             '2' => ['url' => "$this->segment/$this->folder/$category1_id", 'name' => "หมวดหมู่รอง", "last" => 2],
 
@@ -68,7 +68,7 @@ class Category2Controller extends Controller
     public function add(Request $request, $category1_id, $id=null)
     {
         $navs = [
-            '0' => ['url' => "javascript:void(0)", 'name' => "ผลิตภัณฑ์ของเรา", "last" => 0],
+            '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/category1", 'name' => "หมวดหมู่", "last" => 1],
             '2' => ['url' => "$this->segment/$this->folder/$category1_id", 'name' => "หมวดหมู่รอง", "last" => 2],
             '3' => ['url' => "$this->segment/$this->folder/add/$category1_id", 'name' => "Add", "last" => 3],
@@ -86,7 +86,7 @@ class Category2Controller extends Controller
     {
         $data = Category2::find($id);
         $navs = [
-            '0' => ['url' => "javascript:void(0)", 'name' => "ผลิตภัณฑ์ของเรา", "last" => 0],
+            '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/category1", 'name' => "หมวดหมู่", "last" => 1],
             '2' => ['url' => "$this->segment/$this->folder/$category1_id", 'name' => "หมวดหมู่รอง", "last" => 2],
             '3' => ['url' => "$this->segment/$this->folder/$category1_id/edit/$id", 'name' => "Edit", "last" => 3],

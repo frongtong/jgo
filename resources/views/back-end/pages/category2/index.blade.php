@@ -75,8 +75,8 @@
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                                         <th style="width:5%;" class="text-center">#</th>
                                                         <th style="width:30%;" class="text-left">ชื่อ</th>
-                                                        <th style="width:30%;" class="text-left">Name</th>
-                                                        <th style="width:15%;" class="text-center">หมวดหมู่รอง</th>
+                                                     
+                                                       
                                                         <th style="width:10%;" class="text-center">Status</th>
                                                         <th style="width:10%;" class="text-center">Action</th>
                                                     </tr>
@@ -86,10 +86,6 @@
                                                         <tr>
                                                             <td class="text-center">{{ $items->pages->start + $index + 1 }}</td>
                                                             <td>{{ $item->name_th }}</td>
-                                                            <td>{{ $item->name_en }}</td>
-                                                            <td class="text-center">
-                                                                <a href="{{ url("$segment/category3/$category1_id/$item->id") }}" class="btn btn-success">ดู</a>
-                                                            </td>
                                                             <td class="text-center">
                                                                 <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
                                                                     <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>

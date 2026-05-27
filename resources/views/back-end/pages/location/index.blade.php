@@ -83,37 +83,40 @@
                                                 {{ $items->currentPage() }} to {{ $items->total() }} of
                                                 {{ $items->total() }} entries</b></div>
                                         <div class="table-responsive">
-                                            <table class="table align-middle table-row-dashed fs-6 gy-5"
-                                                id="kt_ecommerce_products_table">
+                                            <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_ecommerce_products_table">
                                                 <thead>
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                                         <th style="width:5%;" class="text-center">#</th>
-                                                        <th style="width:30%;" class="text-left">ชื่อ</th>
-                                                        <!-- <th style="width:30%;" class="text-left">Name</th> -->
-                                                        <th style="width:15%;" class="text-center">หมวดหมู่รอง</th>
-                                                        <th style="width:10%;" class="text-center">Status</th>
+                                                        <th style="width:25%;" class="text-left">ชื่อ (Location Name)</th>
+                                                        <th style="width:25%;" class="text-left">สังกัด (Parent/Province)</th>
+
                                                         <th style="width:10%;" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach ($items as $index => $item)
-                                                        <tr>
-                                                            <td class="text-center">{{ $items->pages->start + $index + 1 }}</td>
-                                                            <td>{{ $item->name_th }}</td>
-                                                            <!-- <td>{{ $item->name_en }}</td> -->
-                                                            <td class="text-center">
-                                                                <a href="{{ url("$segment/category2/$item->id") }}" class="btn btn-success">ดู</a>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
-                                                                    <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
-                                                                </label>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <a href="{{ url("$segment/$folder/edit/$item->id") }}" ><i class="fa fa-edit fa-2x" style="margin-right:5px;"></i></a>
-                                                                <a href="javascript:void(0);" onclick="deleteItem({{ $item->id }})"><i class="fa fa-trash fa-2x" style="margin-right:5px;"></i></a>
-                                                            </td>
-                                                        </tr>
+                                                    <tr>
+                                                        <td class="text-center">{{ $items->pages->start + $index + 1 }}</td>
+                                                        <td>
+                                                            {{ $item->name }}
+                                                            @if($item->parent_id == null)
+                                                            <span class="badge badge-light-primary ms-2">Province</span>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if($item->parent_id != null)
+                                                            {{-- ดึงชื่อจังหวัดจากความสัมพันธ์ parent() ที่ตั้งไว้ใน Model --}}
+                                                            {{ $item->parent->name ?? 'ไม่ระบุ' }}
+                                                            @else
+                                                            <span class="text-muted">-</span>
+                                                            @endif
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <a href="{{ url("$segment/$folder/edit/$item->id") }}"><i class="fa fa-edit fa-2x" style="margin-right:5px;"></i></a>
+                                                            <a href="javascript:void(0);" onclick="deleteItem({{ $item->id }})"><i class="fa fa-trash fa-2x" style="margin-right:5px;"></i></a>
+                                                        </td>
+                                                    </tr>
                                                     @endforeach
                                                 </tbody>
                                             </table>
@@ -196,31 +199,33 @@
             showLoaderOnConfirm: true,
             preConfirm: () => {
                 return fetch(fullUrl + '/destroy', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ id: id })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(response.statusText);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        Swal.fire("ลบแล้ว!", "ข้อมูลของคุณถูกลบแล้ว", "success").then(() => {
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire("ล้มเหลว!", "ไม่สามารถลบข้อมูลได้", "error");
-                    }
-                })
-                .catch(error => {
-                    Swal.showValidationMessage(`Request failed: ${error}`);
-                });
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            id: id
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire("ลบแล้ว!", "ข้อมูลของคุณถูกลบแล้ว", "success").then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire("ล้มเหลว!", "ไม่สามารถลบข้อมูลได้", "error");
+                        }
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Request failed: ${error}`);
+                    });
             }
         });
     }

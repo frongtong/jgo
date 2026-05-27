@@ -30,44 +30,57 @@
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
                     <div class="d-flex flex-column flex-column-fluid">
                         <div id="kt_app_content" class="app-content  flex-column-fluid ">
-							<form id="form_submit" action="" method="POST" enctype="multipart/form-data">
-							{{-- <form id="form_submit" action="{{ route('webpanel.category1.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data"> --}}
+                            <form id="form_submit" action="" method="POST" enctype="multipart/form-data">
+                                {{-- <form id="form_submit" action="{{ route('webpanel.category1.add') }}" method="POST" enctype="multipart/form-data"> --}}
                                 @csrf
                                 <div id="kt_app_content_container" class="app-container  container-xxl ">
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="card-title text-center py-3">
-                                                <!-- <h5>หมวดหมู่</h5> -->
+                                                <!-- <h5>จังหวัด</h5> -->
                                             </div>
                                             <div class="container-fluid">
                                                 <div class="row mb-3">
                                                     <div class="col-md-12 mb-3">
-                                                        <label class="form-label">ชื่อหมวดหมู่<span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" placeholder="ชื่อหมวดหมู่" name="name_th" id="name_th" value="{{ $data->name_th }}" required>
+                                                        <label class="form-label">ชื่อ<span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="ชื่อ" name="name" id="name" required>
                                                     </div>
-                                                   
+
+                                                </div>
+                                            </div>
+                                            <div class="row mb-3">
+                                                <div class="col-md-12 mb-3">
+                                                    <label class="form-label">สังกัดจังหวัด (ถ้าเป็นอำเภอให้เลือกจังหวัด)</label>
+                                                    <select name="parent_id" class="form-select form-select-solid">
+                                                        <option value="">-- ไม่ระบุ (เป็นจังหวัด) --</option>
+                                                        @foreach($parents as $p)
+                                                        <option value="{{ $p->id }}">{{ $p->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <small class="text-muted">* เว้นว่างไว้หากรายการนี้คือจังหวัด</small>
                                                 </div>
                                             </div>
                                             <!-- <div class="row mb-3">
                                                 <div class="intro-y col-span-12 sm:col-span-6">
-                                                    <span class="input-group-text">รายละเอียด <span class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">TH</span></span>
-                                                    <textarea class="form-control mt-3" id="description_th" rows="5" name="description_th">{{ $data->description_th }}</textarea>
+
+                                                    <span class="input-group-text">รายละเอียด <span
+                                                            class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">TH</span></span>
+                                                    <textarea class="form-control mt-3" id="description_th" rows="5" name="description_th"></textarea>
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="intro-y col-span-12 sm:col-span-6">
-                                                    <span class="input-group-text">รายละเอียด <span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">EN</span></span>
-                                                    <textarea class="form-control mt-3" id="description_en" rows="5" name="description_en">{{ $data->description_en }}</textarea>
+
+                                                    <span class="input-group-text">รายละเอียด <span
+                                                            class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">EN</span></span>
+
+                                                    <textarea class="form-control mt-3" id="description_en" rows="5" name="description_en"></textarea>
                                                 </div>
                                             </div>
                                             <div class="row mb-3">
                                                 <div class="intro-y col-span-12 sm:col-span-6">
-                                                    <label class="form-label">รูปตัวอย่าง</label>
+                                                    <label class="form-label">รูปภาพ</label>
                                                     <span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">ขนาดรูปแนะนำ 1174x766</span> <small class="help-block"> * รองรับไฟล์ <strong class="text-danger">(jpg, jpeg, png, webp)</strong> เท่านั้น</small>
-                                                    <div class="intro-y col-span-12 sm:col-span-6">
-                                                        <img src="{{ asset($data->image) }}" style="width:300px" class="img-fluid mt-3" alt="Preview" />
-                                                    </div>
-                                                    <p>ชื่อไฟล์ : <b class="text-danger"> {{ basename($data->image) }}</b></p>
                                                     <div class="input-group mb-10">
                                                         <input class="form-control" type="file" name="image" accept="image/jpg, image/jpeg, image/png">
                                                     </div>
@@ -132,4 +145,5 @@
         removeButtons: 'PasteFromWord'
     });
 </script>
+
 </html>

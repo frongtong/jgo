@@ -30,8 +30,8 @@
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
                     <div class="d-flex flex-column flex-column-fluid">
                         <div id="kt_app_content" class="app-content  flex-column-fluid ">
-							<form id="form_submit" action="" method="POST" enctype="multipart/form-data">
-							{{-- <form id="form_submit" action="{{ route('webpanel.category1.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data"> --}}
+                            <form id="form_submit" action="" method="POST" enctype="multipart/form-data">
+                                {{-- <form id="form_submit" action="{{ route('webpanel.category1.update', ['id' => $data->id]) }}" method="POST" enctype="multipart/form-data"> --}}
                                 @csrf
                                 <div id="kt_app_content_container" class="app-container  container-xxl ">
                                     <div class="card">
@@ -42,10 +42,25 @@
                                             <div class="container-fluid">
                                                 <div class="row mb-3">
                                                     <div class="col-md-12 mb-3">
-                                                        <label class="form-label">ชื่อหมวดหมู่<span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" placeholder="ชื่อหมวดหมู่" name="name_th" id="name_th" value="{{ $data->name_th }}" required>
+                                                        <label class="form-label">ชื่อ<span class="text-danger">*</span></label>
+                                                        <input type="text" class="form-control" placeholder="ชื่อ" name="name" id="name" value="{{ $data->name }}" required>
                                                     </div>
-                                                   
+
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <div class="col-md-12 mb-3">
+                                                        <label class="form-label">สังกัดจังหวัด (ถ้าเป็นอำเภอให้เลือกจังหวัด)</label>
+                                                        <select name="parent_id" class="form-select form-select-solid">
+                                                            <option value="">-- ไม่ระบุ (เป็นจังหวัด) --</option>
+                                                            @foreach($parents as $p)
+                                                            {{-- ตรวจสอบว่า p->id ตรงกับ parent_id ของข้อมูลที่กำลังแก้ไขหรือไม่ --}}
+                                                            <option value="{{ $p->id }}" {{ $data->parent_id == $p->id ? 'selected' : '' }}>
+                                                                {{ $p->name }}
+                                                            </option>
+                                                            @endforeach
+                                                        </select>
+                                                        <small class="text-muted">* เว้นว่างไว้หากรายการนี้คือจังหวัด</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <!-- <div class="row mb-3">
@@ -132,4 +147,5 @@
         removeButtons: 'PasteFromWord'
     });
 </script>
+
 </html>

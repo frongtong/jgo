@@ -187,7 +187,7 @@ class CompanyHomeController extends Controller
                         unlink($oldImagePath);
                     }
                 }
-                $name = $path . '/companyhome-img-' . time() . '.' . $file->getClientOriginalExtension();
+                $name = $path . '/company-img-' . time() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path($path), $name);
                 $data->banner = $name;
             }

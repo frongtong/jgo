@@ -47,21 +47,7 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/update-sort-order', [Webpanel\HomeController::class, 'updateSortOrder']); 
             Route::post('/update_row/{id}', [Webpanel\HomeController::class, 'updateRowOrder']);
 
-            Route::prefix('company')->group(function () {
-                Route::get('/', [Webpanel\CompanyHomeController::class, 'index'])->name('home.company');
-                Route::get('/add', [Webpanel\CompanyHomeController::class, 'add']);
-                Route::post('/add', [Webpanel\CompanyHomeController::class, 'insert']);
-                Route::get('/edit/{id}', [Webpanel\CompanyHomeController::class, 'edit'])->where(['id' => '[0-9]+']);
-                Route::post('/edit/{id}', [Webpanel\CompanyHomeController::class, 'update'])->where(['id' => '[0-9]+']);
-                Route::get('/destroy/{id}', [Webpanel\CompanyHomeController::class, 'destroy'])->where(['id' => '[0-9]+']);
-                Route::post('/update-status', [Webpanel\CompanyHomeController::class, 'updateStatus']);
-            });
-            Route::prefix('icon')->group(function () {
-                Route::get('/', [Webpanel\CompanyHomeController::class, 'index_icon'])->name('home.icon');
-                Route::get('/edit/{id}', [Webpanel\CompanyHomeController::class, 'edit_icon'])->where(['id' => '[0-9]+']);
-                Route::post('/edit/{id}', [Webpanel\CompanyHomeController::class, 'update_icon'])->where(['id' => '[0-9]+']);
-                Route::get('/destroy/{id}', [Webpanel\CompanyHomeController::class, 'destroy_icon'])->where(['id' => '[0-9]+']);
-            });
+        
         });
         Route::prefix('member')->group(function () {
             Route::get('/', [Webpanel\MemberController::class, 'index'])->name('webpanel.member');
@@ -74,7 +60,15 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::get('/destroy/{id}', [Webpanel\MemberController::class, 'destroy'])->where(['id' => '[0-9]+']);
             Route::post('/destroy/logo', [Webpanel\MemberController::class, 'destroy_logo'])->where(['id' => '[0-9]+']);
         });
-        
+         Route::prefix('company')->group(function () {
+                Route::get('/', [Webpanel\CompanyController::class, 'index'])->name('home.company');
+                Route::get('/add', [Webpanel\CompanyController::class, 'add']);
+                Route::post('/add', [Webpanel\CompanyController::class, 'insert']);
+                Route::get('/edit/{id}', [Webpanel\CompanyController::class, 'edit'])->where(['id' => '[0-9]+']);
+                Route::post('/edit/{id}', [Webpanel\CompanyController::class, 'update'])->where(['id' => '[0-9]+']);
+                Route::get('/destroy/{id}', [Webpanel\CompanyController::class, 'destroy'])->where(['id' => '[0-9]+']);
+                Route::post('/update-status', [Webpanel\CompanyController::class, 'updateStatus']);
+        });
         Route::prefix('/bannersub')->group(function () {
             Route::get('/', [Webpanel\BannerSubController::class, 'index'])->name('webpanel.bannersub');
             Route::get('/add', [Webpanel\BannerSubController::class, 'add']);
@@ -129,7 +123,25 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('{category1_id}/update-sort-order', [Webpanel\Category2Controller::class, 'updateSortOrder']); //หลิว
         });
 
-
+        Route::prefix('location')->group(function () {
+            // หน้าหลักรายการสถานที่ทั้งหมด
+            Route::get('/', [Webpanel\LocationController::class, 'index'])->name('webpanel.location');
+            
+            // หน้าเพิ่มสถานที่ (จังหวัด/อำเภอ)
+            Route::get('/add', [Webpanel\LocationController::class, 'add'])->name('webpanel.location.add');
+            Route::post('/add', [Webpanel\LocationController::class, 'insert']);
+            
+            // หน้าแก้ไขสถานที่
+            Route::get('/edit/{id}', [Webpanel\LocationController::class, 'edit'])->where(['id' => '[0-9]+']);
+            Route::post('/edit/{id}', [Webpanel\LocationController::class, 'update'])->where(['id' => '[0-9]+'])->name('webpanel.location.update');
+            
+            // การจัดการอื่นๆ
+            Route::post('/destroy', [Webpanel\LocationController::class, 'destroy']);
+            Route::post('/update-status', [Webpanel\LocationController::class, 'updateStatus']);
+            
+            // หากต้องการเพิ่ม Sort Order ในอนาคต
+            Route::post('/update-sort-order', [Webpanel\LocationController::class, 'updateSortOrder']);
+        });
         Route::prefix('product_detail')->group(function () {
             Route::get('/', [Webpanel\ProductDetailController::class, 'index'])->name('webpanel.product_detail');
             Route::get('/add', [Webpanel\ProductDetailController::class, 'add'])->name('webpanel.product_detail.add');
