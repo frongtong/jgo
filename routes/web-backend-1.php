@@ -8,7 +8,10 @@ Route::get('webpanel/login', [Webpanel\AuthController::class, 'getLogin']);
 Route::post('webpanel/login', [Webpanel\AuthController::class, 'postLogin']);
 Route::get('webpanel/logout', [Webpanel\AuthController::class, 'logOut']);
 Route::get('/handle', [Webpanel\NewsnewController::class, 'handle'])->where(['id' => '[0-9]+']);
-
+Route::get(
+    'api/location/city/{id}',
+    [Webpanel\CompanyController::class, 'getCity']
+);
 Route::group(['middleware' => 'Admin'], function () {
 
 
@@ -61,7 +64,7 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/destroy/logo', [Webpanel\MemberController::class, 'destroy_logo'])->where(['id' => '[0-9]+']);
         });
          Route::prefix('company')->group(function () {
-                Route::get('/', [Webpanel\CompanyController::class, 'index'])->name('home.company');
+                Route::get('/', [Webpanel\CompanyController::class, 'index'])->name('webpanel.company');
                 Route::get('/add', [Webpanel\CompanyController::class, 'add']);
                 Route::post('/add', [Webpanel\CompanyController::class, 'insert']);
                 Route::get('/edit/{id}', [Webpanel\CompanyController::class, 'edit'])->where(['id' => '[0-9]+']);
@@ -69,6 +72,8 @@ Route::group(['middleware' => 'Admin'], function () {
                 Route::get('/destroy/{id}', [Webpanel\CompanyController::class, 'destroy'])->where(['id' => '[0-9]+']);
                 Route::post('/update-status', [Webpanel\CompanyController::class, 'updateStatus']);
         });
+
+
         Route::prefix('/bannersub')->group(function () {
             Route::get('/', [Webpanel\BannerSubController::class, 'index'])->name('webpanel.bannersub');
             Route::get('/add', [Webpanel\BannerSubController::class, 'add']);

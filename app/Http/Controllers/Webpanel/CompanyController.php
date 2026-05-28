@@ -122,13 +122,12 @@ class CompanyController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function add(Request $request)
+   public function add(Request $request)
     {
 
-        $countries = Location::where(
-            'type',
-            'country'
-        )->get();
+        $provinces = Location::whereNull('parent_id')
+            ->orderBy('name', 'asc')
+            ->get();
 
         $navs = [
 
@@ -159,12 +158,19 @@ class CompanyController extends Controller
                 'prefix' => $this->prefix,
                 'folder' => $this->folder,
                 'navs' => $navs,
-                'countries' => $countries
+                'provinces' => $provinces
             ]
         );
     }
 
+       public function getCity($id)
+    {
+        $items = Location::where('parent_id', $id)
+            ->orderBy('name', 'asc')
+            ->get();
 
+        return response()->json($items);
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -173,50 +179,53 @@ class CompanyController extends Controller
     */
 
     public function edit(Request $request, $id)
-    {
+{
+    $data = CompanyModel::find($id);
 
-        $data = CompanyModel::find($id);
+    $provinces = Location::whereNull('parent_id')
+        ->orderBy('name', 'asc')
+        ->get();
 
-        $countries = Location::where(
-            'type',
-            'country'
-        )->get();
+    $cities = Location::where(
+        'parent_id',
+        $data->province_id
+    )->orderBy('name', 'asc')->get();
 
-        $navs = [
+    $navs = [
 
-            '0' => [
-                'url' => "javascript:void(0)",
-                'name' => "จัดการงาน",
-                "last" => 0
-            ],
+        '0' => [
+            'url' => "javascript:void(0)",
+            'name' => "จัดการงาน",
+            "last" => 0
+        ],
 
-            '1' => [
-                'url' => "$this->segment/$this->folder",
-                'name' => "บริษัท",
-                "last" => 1
-            ],
+        '1' => [
+            'url' => "$this->segment/$this->folder",
+            'name' => "บริษัท",
+            "last" => 1
+        ],
 
-            '2' => [
-                'url' => "$this->segment/$this->folder/edit/$id",
-                'name' => "Edit",
-                "last" => 2
-            ],
+        '2' => [
+            'url' => "$this->segment/$this->folder/edit/$id",
+            'name' => "Edit",
+            "last" => 2
+        ],
 
-        ];
+    ];
 
-        return view(
-            "$this->prefix.pages.$this->folder.edit",
-            [
-                'segment' => $this->segment,
-                'prefix' => $this->prefix,
-                'folder' => $this->folder,
-                'navs' => $navs,
-                'data' => $data,
-                'countries' => $countries
-            ]
-        );
-    }
-
+    return view(
+        "$this->prefix.pages.$this->folder.edit",
+        [
+            'segment' => $this->segment,
+            'prefix' => $this->prefix,
+            'folder' => $this->folder,
+            'navs' => $navs,
+            'data' => $data,
+            'provinces' => $provinces,
+            'cities' => $cities
+        ]
+    );
+}
 
 
     /*

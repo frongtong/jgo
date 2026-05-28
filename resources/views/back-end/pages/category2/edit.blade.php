@@ -47,34 +47,7 @@
                                                   
                                                 </div>
                                             </div>
-                                            <div class="card mb-4">
-                                                <div class="card-header bg-dark">
-                                                    <h5 class="mt-5 text-white">เว็บไซต์สำหรับการติดตาม</h5>
-                                                </div>
-                                                <div class="card-body">
-                                                    <div class="col-md-12 mb-6">
-                                                        <div id="form-container-Url">
-                                                            @foreach ($data->category2_link as $item)
-                                                                <div class="input-group mb-3">
-                                                                    <div class="col-md-12 mb-3">
-                                                                        <label class="form-label">URL Shop<span class="text-danger">*</span></label>
-                                                                        <input type="text" class="form-control mr-2" name="urls[]" placeholder="Enter URL" value="{{ $item->url }}" required />
-                                                                    </div>
-                                                                    <div class="col-md-12 mb-3">
-                                                                        <label class="form-label">รูปแพลตฟอร์ม<span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">* รองรับไฟล์ (svg) เท่านั้น</span></label>
-                                                                        <p>ชื่อไฟล์ : <b class="text-danger"> {{ basename($item->image) }}</b></p>
-                                                                        <input type="file" class="form-control" name="images[]" accept="image/*" value="{{ asset($item->image) }}" accept="image/svg"/>
-                                                                        <img src="{{ asset($item->image) }}" style="width:80px" class="img-fluid mt-3" alt="Preview" />
-                                                                    </div>
-                                                                    <input type="hidden" name="id_link[]" value="{{ $item->id }}">
-                                                                    <button type="button" class="btn btn-danger" onclick="delete_path_img_url({{ $item->id }})">Remove</button>
-                                                                </div>
-                                                            @endforeach
-                                                        </div>
-                                                        <button id="addFormUrl" type="button" class="btn btn-dark shadow-md ml-2 mb-3">+</button>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                         
                                         </div>
                                     </div>
                                     <div class="row">

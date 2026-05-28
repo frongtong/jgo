@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BannerController;
 
 
-Route::get('/banners', [BannerController::class, 'index']);
 Route::prefix('member')->group(function () {
 
     Route::post(
@@ -21,6 +20,8 @@ Route::prefix('member')->group(function () {
     Route::middleware('auth:sanctum')
     ->group(function () {
 
+    
+        Route::get('/banners', [BannerController::class, 'index']);
         Route::post(
             'profile',
             [MemberController::class, 'profile']

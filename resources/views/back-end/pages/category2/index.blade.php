@@ -91,9 +91,30 @@
                                                                     <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
                                                                 </label>
                                                             </td>
-                                                            <td class="text-center">
-                                                                <a href="{{ url("$segment/$folder/$category1_id/edit/$item->id") }}"><i class="fa fa-edit fa-2x" style="margin-right:5px;"></i></a>
-                                                                <a href="javascript:void(0);" onclick="deleteItem({{ $item->id }})"><i class="fa fa-trash fa-2x" style="margin-right:5px;"></i></a>
+                                                           
+                                                             <td class="text-center">
+                                                           
+                                                               <a href="{{ url("$segment/$folder/$category1_id/edit/$item->id") }}"
+                                                                    class="btn btn-icon btn-light-warning btn-sm">
+
+                                                                    <i class="ki-duotone ki-pencil fs-2">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                    </i>
+
+                                                                </a>
+
+                                                                <button type="button"
+                                                                    onclick="deleteItem({{ $item->id }})"
+                                                                    class="btn btn-icon btn-light-danger btn-sm">
+
+                                                                    <i class="ki-duotone ki-trash fs-2">
+                                                                        <span class="path1"></span>
+                                                                        <span class="path2"></span>
+                                                                        <span class="path3"></span>
+                                                                    </i>
+
+                                                                </button>
                                                             </td>
                                                         </tr>
                                                     @endforeach

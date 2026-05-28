@@ -42,7 +42,7 @@ class CompanyModel extends Model
     public function country()
     {
         return $this->belongsTo(
-            LocationModel::class,
+            Location::class,
             'country_id'
         );
     }
@@ -50,7 +50,7 @@ class CompanyModel extends Model
     public function province()
     {
         return $this->belongsTo(
-            LocationModel::class,
+            Location::class,
             'province_id'
         );
     }
@@ -58,7 +58,7 @@ class CompanyModel extends Model
     public function city()
     {
         return $this->belongsTo(
-            LocationModel::class,
+            Location::class,
             'city_id'
         );
     }
