@@ -104,7 +104,7 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/destroy/url', [Webpanel\AttributeController::class, 'destroy_url'])->where(['id' => '[0-9]+']);
             Route::post('/update-status', [Webpanel\AttributeController::class, 'updateStatus']);
         });
-          Route::prefix('category1')->group(function () {
+        Route::prefix('category1')->group(function () {
             Route::get('/', [Webpanel\Category1Controller::class, 'index'])->name('webpanel.category1');
             Route::get('/add', [Webpanel\Category1Controller::class, 'add'])->name('webpanel.category1.add');
             Route::post('/add', [Webpanel\Category1Controller::class, 'insert']);
@@ -127,6 +127,17 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/{category1_id}/update-status', [Webpanel\Category2Controller::class, 'updateStatus']);
             Route::post('{category1_id}/update-sort-order', [Webpanel\Category2Controller::class, 'updateSortOrder']); //หลิว
         });
+        Route::prefix('job')->group(function () {
+            Route::get('/', [Webpanel\JobController::class, 'index'])->name('webpanel.job');
+            Route::get('/add', [Webpanel\JobController::class, 'add'])->name('webpanel.job.add');
+            Route::post('/add', [Webpanel\JobController::class, 'insert']);
+               Route::post('/edit/{id}', [Webpanel\JobController::class, 'update'])->where(['id' => '[0-9]+'])->name('webpanel.job.update');
+            Route::get('/edit/{id}', [Webpanel\JobController::class, 'edit'])->where(['id' => '[0-9]+']);
+         
+            Route::post('/destroy', [Webpanel\JobController::class, 'destroy']);
+            Route::post('/update-status', [Webpanel\JobController::class, 'updateStatus']);
+            Route::post('/update-sort-order', [Webpanel\JobController::class, 'updateSortOrder']); //หลิว
+        });
 
         Route::prefix('location')->group(function () {
             // หน้าหลักรายการสถานที่ทั้งหมด
@@ -143,8 +154,6 @@ Route::group(['middleware' => 'Admin'], function () {
             // การจัดการอื่นๆ
             Route::post('/destroy', [Webpanel\LocationController::class, 'destroy']);
             Route::post('/update-status', [Webpanel\LocationController::class, 'updateStatus']);
-            
-            // หากต้องการเพิ่ม Sort Order ในอนาคต
             Route::post('/update-sort-order', [Webpanel\LocationController::class, 'updateSortOrder']);
         });
         Route::prefix('product_detail')->group(function () {
