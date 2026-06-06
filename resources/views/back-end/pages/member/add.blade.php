@@ -45,7 +45,7 @@
     <!--begin::Content container-->
     <div id="kt_app_content_container" class="app-container container-xxl">
 
-        <form action="{{ url('webpanel/member/add') }}"
+        <form action="{{ url('api/member/login') }}"
             id="form_submit"
             method="POST"
             enctype="multipart/form-data">

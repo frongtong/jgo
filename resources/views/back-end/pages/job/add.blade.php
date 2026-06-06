@@ -289,9 +289,9 @@
                                                         <select name="currency"
                                                             class="form-select form-select-solid">
 
-                                                            <option value="THB">
+                                                            <option value="">
 
-                                                                THB
+                                                                เลือก
 
                                                             </option>
 
@@ -301,11 +301,7 @@
 
                                                             </option>
 
-                                                            <option value="USD">
-
-                                                                USD
-
-                                                            </option>
+                                                           
 
                                                         </select>
 

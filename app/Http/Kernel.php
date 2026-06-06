@@ -67,5 +67,7 @@ class Kernel extends HttpKernel
         'Admin' => \App\Http\Middleware\Admin::class, 
         'User' => \App\Http\Middleware\User::class,
         'Language' => \App\Http\Middleware\Language::class,
+        'check.token' => \App\Http\Middleware\CheckApiToken::class,
+
     ];
 }

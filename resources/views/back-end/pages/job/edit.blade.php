@@ -281,30 +281,7 @@
 
                                                 </div>
 
-                                                <div class="col-md-6">
-
-                                                    <label class="form-label">
-                                                        เมือง
-                                                    </label>
-
-                                                    <select name="city_id"
-                                                        id="city_id"
-                                                        class="form-select">
-
-                                                        @foreach($cities as $city)
-
-                                                        <option value="{{ $city->id }}"
-                                                            {{ $data->city_id == $city->id ? 'selected' : '' }}>
-
-                                                            {{ $city->name }}
-
-                                                        </option>
-
-                                                        @endforeach
-
-                                                    </select>
-
-                                                </div>
+                                               
 
                                             </div>
 

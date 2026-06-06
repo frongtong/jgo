@@ -4,9 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BannerController;
+use App\Http\Controllers\Api\JobController;
 
 
-Route::prefix('member')->group(function () {
 
     Route::post(
         'register',
@@ -17,20 +17,25 @@ Route::prefix('member')->group(function () {
         'login',
         [MemberController::class, 'login']
     );
-    Route::middleware('auth:sanctum')
-    ->group(function () {
+    
+    Route::middleware([
+            'auth:api_member'
+        ])->group(function () {
+
 
     
         Route::get('/banners', [BannerController::class, 'index']);
-        Route::post(
-            'profile',
-            [MemberController::class, 'profile']
-        );
-        Route::post(
-            'logout',
-            [MemberController::class, 'logout']
-        );
+        Route::get('/jobs', [JobController::class, 'index']);
+        Route::prefix('member')->group(function () {
+            Route::post(
+                'profile',
+                [MemberController::class, 'profile']
+            );
+            Route::post(
+                'logout',
+                [MemberController::class, 'logout']
+            );
+
+        });
 
     });
-
-});

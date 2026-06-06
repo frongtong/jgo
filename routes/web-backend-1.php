@@ -138,6 +138,17 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/update-status', [Webpanel\JobController::class, 'updateStatus']);
             Route::post('/update-sort-order', [Webpanel\JobController::class, 'updateSortOrder']); //หลิว
         });
+         Route::prefix('jobapplication')->group(function () {
+            Route::get('/', [Webpanel\JobApplicationController::class, 'index'])->name('webpanel.job_application');
+            Route::get('/add', [Webpanel\JobApplicationController::class, 'add'])->name('webpanel.job_application.add');
+            Route::post('/add', [Webpanel\JobApplicationController::class, 'insert']);
+               Route::post('/edit/{id}', [Webpanel\JobApplicationController::class, 'update'])->where(['id' => '[0-9]+'])->name('webpanel.job.update');
+            Route::get('/edit/{id}', [Webpanel\JobApplicationController::class, 'edit'])->where(['id' => '[0-9]+']);
+         
+            Route::post('/destroy', [Webpanel\JobApplicationController::class, 'destroy']);
+            Route::post('/update-status', [Webpanel\JobApplicationController::class, 'updateStatus']);
+            Route::post('/update-sort-order', [Webpanel\JobApplicationController::class, 'updateSortOrder']); //หลิว
+        });
 
         Route::prefix('location')->group(function () {
             // หน้าหลักรายการสถานที่ทั้งหมด

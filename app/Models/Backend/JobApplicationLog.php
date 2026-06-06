@@ -2,33 +2,21 @@
 
 namespace App\Models\Backend;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class JobApplicationLog extends Model
 {
-    use HasFactory;
-
     protected $table = 'job_application_logs';
 
-    protected $fillable = [
-
-        'application_id',
-
-        'old_status',
-        'new_status',
-
-        'remark',
-
-        'created_by',
-
-    ];
+    protected $guarded = [];
 
     public $timestamps = false;
 
+    const UPDATED_AT = null;
+
     /*
     |--------------------------------------------------------------------------
-    | RELATION
+    | Application
     |--------------------------------------------------------------------------
     */
 
@@ -37,6 +25,20 @@ class JobApplicationLog extends Model
         return $this->belongsTo(
             JobApplication::class,
             'application_id'
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Created By
+    |--------------------------------------------------------------------------
+    */
+
+    public function creator()
+    {
+        return $this->belongsTo(
+            \App\Models\Authuse\Admin::class,
+            'created_by'
         );
     }
 }

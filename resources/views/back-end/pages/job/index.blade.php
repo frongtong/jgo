@@ -328,7 +328,7 @@
                                                             <!-- PROVINCE -->
                                                             <td>
 
-                                                                {{ $item->province->name_th ?? '-' }}
+                                                                {{ $item->province->name ?? '-' }}
 
                                                             </td>
 
