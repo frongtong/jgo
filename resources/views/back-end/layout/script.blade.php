@@ -111,7 +111,7 @@
                 allowedExtensions = ["jpg", "jpeg", "png", "webp", "mp4", "mov", "avi", "mkv", "xlsx"];
                 maxSize = 100;
             }  else {
-                allowedExtensions = ["jpg", "jpeg", "png", "webp","svg"];
+                allowedExtensions = ["jpg", "jpeg", "png", "webp","svg","pdf"];
                 maxSize = 10;
             }
 
