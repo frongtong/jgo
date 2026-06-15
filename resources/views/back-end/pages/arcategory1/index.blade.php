@@ -102,7 +102,7 @@
                                                             <td>{{ $item->name_th }}</td>
                                                             <!-- <td>{{ $item->name_en }}</td> -->
                                                             <td class="text-center">
-                                                                <a href="{{ url("$segment/videoctegory2/$item->id") }}" class="btn btn-success">ดู</a>
+                                                                <a href="{{ url("$segment/arctegory2/$item->id") }}" class="btn btn-success">ดู</a>
                                                             </td>
                                                             <td class="text-center">
                                                                 <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
@@ -189,7 +189,7 @@
 <script>
     var fullUrl = window.location.origin + window.location.pathname;
 
-    $(document).ready(function() {
+   $(document).ready(function() {
     $('.update-status').on('change', function() {
 
         var id = $(this).data('id');
@@ -229,6 +229,7 @@
 
     });
 });
+
     function deleteItem(id) {
         Swal.fire({
             title: "ลบข้อมูล",

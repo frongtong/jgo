@@ -43,131 +43,92 @@
                         <div id="kt_app_content" class="app-content flex-column-fluid">
                             <!--begin::Content container-->
                             <div id="kt_app_content_container" class="app-container container-xxl">
-                                <form id="form_submit" action="" method="POST" enctype="multipart/form-data" onsubmit="return check_add();">
-                                @csrf
-                                    <div class="row">
-                                        <div class="col-md-9 mb-5">
-                                            <div class="card card-flush py-4">
-                                                <div class="card-header">
-                                                    <div class="card-title">
-                                                        <h2>บทความ</h2>
-                                                    </div>
-                                                </div>
-                                                <div class="card-body pt-0">
-                                                    <div class="row mb-3">
-                                                        <div class="intro-y col-6">
-                                                            <label class="form-label">ประเภทพื้นหลัง</label>
-                                                            <div class="input-group mb-10">
-                                                                <select class="form-select" name="category"
-                                                                    id="categorySelect">
-                                                                    <option value="">ประเภทพื้นหลัง</option>
-                                                                    <option value="img_bg">รูปภาพ</option>
-                                                                    <option value="video_bg">ไฟล์ video</option>
-                                                                    <option value="url_bg">URL</option>
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                               <form id="form_submit"
+    action=""
+    method="POST"
+    enctype="multipart/form-data">
 
-                                                    <!-- Image background input -->
-                                                    <div class="row mb-3" id="imgBgField" style="display: none;">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">รูปภาพเเบนเนอร์</label>
-                                                            <span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">ขนาดรูปแนะนำ 1600x800</span> <small class="help-block"> * รองรับไฟล์ <strong class="text-danger">(jpg, jpeg, png, webp)</strong> เท่านั้น</small>
-                                                            <div class="input-group mb-10">
-                                                                <input class="form-control" type="file" name="img_bg" accept="image/*">
-                                                            </div>
-                                                        </div>
-                                                    </div>
+    @csrf
 
-                                                    <!-- Video background input -->
-                                                    <div class="row mb-3" id="videoBgField" style="display: none;">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">วิดีโอเเบนเนอร์</label> <small class="help-block"><strong class="text-danger"> * รองรับไฟล์ (mp4, mov, avi, mkv) เท่านั้น, ขนาดไฟล์ต้องไม่เกิน 100 MB</strong></small>
-                                                            <div class="input-group mb-10">
-                                                                <input class="form-control" type="file" name="video_bg" accept="video/*">
-                                                            </div>
-                                                        </div>
-                                                    </div>
+    <div class="row">
+        <div class="col-md-9 mb-5">
+            <div class="card card-flush py-4">
 
-                                                    <!-- URL background input -->
-                                                    <div class="row mb-3" id="urlBgField" style="display: none;">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">URL</label>
-                                                            <div class="input-group mb-10">
-                                                                <input class="form-control" type="text"
-                                                                    name="url_bg">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <hr>
-                                                   <div class="row mb-3">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">หัวข้อ<span
-                                                                    class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">TH</span> <small class="text-danger">กรุณาเลือก</small></label>
-                                                            <div class="input-group mb-10">
-                                                                <textarea class="form-control" name="title_th" rows="1"></textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                <div class="card-header">
+                    <div class="card-title">
+                        <h2>เพิ่มข้อมูลแบนเนอร์</h2>
+                    </div>
+                </div>
 
-                                                      <div class="row mb-3">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">หัวข้อ<span
-                                                                    class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">EN</span> <small class="text-danger">กรุณาเลือก</small></label>
-                                                            <div class="input-group mb-10">
-                                                                <textarea class="form-control" name="title_en" rows="1"></textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                <div class="card-body pt-0">
 
+                    {{-- รูปภาพ Banner --}}
+                    <div class="row mb-5">
+                        <div class="col-md-12">
+                            <label class="form-label">
+                                รูปภาพแบนเนอร์
+                            </label>
 
-                                                    <div class="row mb-3">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">ข้อความ<span
-                                                                    class="badge badge-light-success fw-bold fs-8 px-2 py-1 ms-2">TH</span></label>
-                                                            <div class="input-group mb-10">
-                                                                <textarea class="form-control" name="message_th" rows="4"></textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                            <span
+                                class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">
+                                ขนาดรูปแนะนำ 1600x800
+                            </span>
 
-                                                    <div class="row mb-3">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">ข้อความ<span
-                                                                    class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">EN</span></label>
-                                                            <div class="input-group mb-10">
-                                                                <textarea class="form-control" name="message_en" rows="4"></textarea>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row mb-3">
-                                                        <div class="intro-y col-span-12 sm:col-span-6">
-                                                            <label class="form-label">URL เชื่อมหน้า</label>
-                                                            <div class="input-group mb-10">
-                                                                <input class="form-control" type="text"
-                                                                    name="link">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
+                            <small class="help-block">
+                                * รองรับไฟล์
+                                <strong class="text-danger">
+                                    (jpg, jpeg, png, webp)
+                                </strong>
+                            </small>
 
+                            <div class="input-group mt-3">
+                                <input class="form-control"
+                                    type="file"
+                                    name="img_bg"
+                                    accept=".jpg,.jpeg,.png,.webp"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
 
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <div class="d-flex justify-content-end mt-5">
-                                                <a href="{{ url("$segment/$folder") }}" id=""
-                                                    class="btn btn-light me-2">Cancel</a>
-                                                <button type="submit" class="btn btn-primary"
-                                                    style="background: #1C2842;"><span class="indicator-label">Save
-                                                        Changes</span></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
+                    {{-- URL --}}
+                    <div class="row mb-5">
+                        <div class="col-md-12">
+                            <label class="form-label">
+                                URL เชื่อมหน้า
+                            </label>
+
+                            <input class="form-control"
+                                type="text"
+                                name="link"
+                                placeholder="https://example.com">
+                        </div>
+                    </div>
+
+                 
+
+                  
+                  
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-5">
+        <a href="{{ url("$segment/$folder") }}"
+            class="btn btn-light me-2">
+            Cancel
+        </a>
+
+        <button type="submit"
+            class="btn btn-primary"
+            style="background:#1C2842;">
+            Save
+        </button>
+    </div>
+
+</form>
                             </div>
                         </div>
                     </div>

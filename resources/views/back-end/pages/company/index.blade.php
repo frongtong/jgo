@@ -464,35 +464,46 @@
     |--------------------------------------------------------------------------
     */
 
-    $(document).ready(function () {
+   $(document).ready(function() {
+    $('.update-status').on('change', function() {
 
-        $('.update-status').on('change', function () {
+        var id = $(this).data('id');
+        var status = $(this).is(':checked') ? "on" : "off";
 
-            var id = $(this).data('id');
+        $.ajax({
+            url: fullUrl + "/update-status",
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: id,
+                status: status
+            },
+            success: function(response) {
 
-            var status =
-                $(this).is(':checked')
-                ? "on"
-                : "off";
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Update status successfully',
+                    timer: 1200,
+                    showConfirmButton: false
+                });
 
-            $.ajax({
+            },
+            error: function() {
 
-                url: fullUrl + "/update-status",
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Update status failed',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
 
-                type: 'POST',
-
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: id,
-                    status: status
-                },
-
-            });
-
+            }
         });
 
     });
-
+    });
 
 
     /*

@@ -262,7 +262,70 @@ Route::group(['middleware' => 'Admin'], function () {
                     Route::post('/destroy/url', [Webpanel\VideoCategory2Controller::class, 'destroy_url'])->where(['id' => '[0-9]+']);
                     Route::post('/{category1_id}/update-status', [Webpanel\VideoCategory2Controller::class, 'updateStatus']);
                     Route::post('{category1_id}/update-sort-order', [Webpanel\VideoCategory2Controller::class, 'updateSortOrder']); //หลิว
-                });
+        });
+        Route::prefix('article')->group(function () {
+
+            Route::get('/', [Webpanel\ArticleController::class, 'index'])
+                ->name('webpanel.article');
+
+            Route::get('/add', [Webpanel\ArticleController::class, 'add'])
+                ->name('webpanel.article.add');
+
+            Route::post('/add', [Webpanel\ArticleController::class, 'insert']);
+
+            Route::get('/edit/{id}', [Webpanel\ArticleController::class, 'edit'])
+                ->where(['id' => '[0-9]+']);
+
+            Route::post('/edit/{id}', [Webpanel\ArticleController::class, 'update'])
+                ->where(['id' => '[0-9]+'])
+                ->name('webpanel.article.update');
+
+            Route::get('/subcategory/{id}', [Webpanel\ArticleController::class, 'getSubCategory'])
+                ->where(['id' => '[0-9]+']);
+
+            Route::post('/destroy', [Webpanel\ArticleController::class, 'destroy']);
+
+            Route::post('/update-status', [Webpanel\ArticleController::class, 'updateStatus']);
+
+            Route::post('/update-sort-order', [Webpanel\ArticleController::class, 'updateSortOrder']);
+
+        });
+        Route::prefix('arcategory1')->group(function () {
+
+            Route::get('/', [Webpanel\ArticleCategory1Controller::class, 'index'])
+                ->name('webpanel.arcategory1');
+
+            Route::get('/add', [Webpanel\ArticleCategory1Controller::class, 'add'])
+                ->name('webpanel.arcategory1.add');
+
+            Route::post('/add', [Webpanel\ArticleCategory1Controller::class, 'insert']);
+
+            Route::get('/edit/{id}', [Webpanel\ArticleCategory1Controller::class, 'edit'])
+                ->where(['id' => '[0-9]+']);
+
+            Route::post('/edit/{id}', [Webpanel\ArticleCategory1Controller::class, 'update'])
+                ->where(['id' => '[0-9]+'])
+                ->name('webpanel.arcategory1.update');
+
+            Route::post('/destroy', [Webpanel\ArticleCategory1Controller::class, 'destroy']);
+
+            Route::post('/update-status', [Webpanel\ArticleCategory1Controller::class, 'updateStatus']);
+
+            Route::post('/update-sort-order', [Webpanel\ArticleCategory1Controller::class, 'updateSortOrder']);
+
+        });
+        Route::prefix('arcategory2')->group(function () {
+                    Route::get('/get/{category1_id}', [Webpanel\ArticleCategory2Controller::class, 'getCategory2']);
+                    Route::get('/{category1_id}', [Webpanel\ArticleCategory2Controller::class, 'index'])->where(['category1_id' => '[0-9]+'])->name('webpanel.arcategory2');
+                    Route::get('/add/{category1_id}', [Webpanel\ArticleCategory2Controller::class, 'add'])->where('category1_id', '[0-9]+')->name('webpanel.arcategory2.add');
+                    Route::post('/add/{category1_id}', [Webpanel\ArticleCategory2Controller::class, 'insert'])->name('webpanel.category2.insert');
+                    Route::get('{category1_id}/edit/{id}', [Webpanel\ArticleCategory2Controller::class, 'edit'])->where(['id' => '[0-9]+']);
+                    Route::post('{category1_id}/edit/{id}', [Webpanel\ArticleCategory2Controller::class, 'update'])->where(['id' => '[0-9]+'])->name('webpanel.arcategory2.update');
+                    Route::post('{category1_id}/destroy', [Webpanel\ArticleCategory2Controller::class, 'destroy']);
+                    Route::post('/destroy/url', [Webpanel\ArticleCategory2Controller::class, 'destroy_url'])->where(['id' => '[0-9]+']);
+                    Route::post('/{category1_id}/update-status', [Webpanel\ArticleCategory2Controller::class, 'updateStatus']);
+                    Route::post('{category1_id}/update-sort-order', [Webpanel\ArticleCategory2Controller::class, 'updateSortOrder']); //หลิว
+        });
                 
 
                 Route::prefix('administrator')->group(function () {
@@ -304,3 +367,5 @@ Route::group(['middleware' => 'Admin'], function () {
                 });
             });
         });
+        
+        

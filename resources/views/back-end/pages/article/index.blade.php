@@ -74,7 +74,7 @@
                                                         class="form-control"
                                                         name="search"
                                                         value="{{ request('search') }}"
-                                                        placeholder="Search Video">
+                                                        placeholder="Search article">
 
                                                 </div>
 

@@ -46,8 +46,7 @@
                                 <div class="card card-flush">
                                     <div class="card-header align-items-center py-5 gap-2 gap-md-5">
                                         <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
-
-                                            <a href="{{ url("$segment/$folder/add") }}" class="btn btn-primary">Add</a>
+                                            <a href="{{ url("$segment/arcategory2/add/$category1_id") }}" class="btn btn-primary">Add</a>
                                         </div>
                                     </div>
                                     <div class="card-body pt-0">
@@ -58,19 +57,6 @@
                                                     Keywords
                                                     <input type="text" class="form-control form-control-solid ps-10" id="keyword" name="keyword" value="{{ @Request::get('keyword') }}" placeholder="Keywords">
                                                 </div>
-                                                {{-- <div class="col-md-2">
-                                                    Status
-                                                    <select id="status" name="status"
-                                                        class="form-select form-select-solid">
-                                                        <option value="">All</option>
-                                                        <option value="Y"
-                                                            @if (@Request::get('status') == 'Y') selected @endif>Active
-                                                        </option>
-                                                        <option value="N"
-                                                            @if (@Request::get('status') == 'N') selected @endif>Inactive
-                                                        </option>
-                                                    </select>
-                                                </div> --}}
                                                 <div class="col-md-4">
                                                     <button style="margin-top:15px;"
                                                         class="btn btn-md btn-success">Search</button>
@@ -89,8 +75,8 @@
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
                                                         <th style="width:5%;" class="text-center">#</th>
                                                         <th style="width:30%;" class="text-left">ชื่อ</th>
-                                                        <!-- <th style="width:30%;" class="text-left">Name</th> -->
-                                                        <th style="width:15%;" class="text-center">หมวดหมู่รอง</th>
+                                                     
+                                                       
                                                         <th style="width:10%;" class="text-center">Status</th>
                                                         <th style="width:10%;" class="text-center">Action</th>
                                                     </tr>
@@ -100,18 +86,15 @@
                                                         <tr>
                                                             <td class="text-center">{{ $items->pages->start + $index + 1 }}</td>
                                                             <td>{{ $item->name_th }}</td>
-                                                            <!-- <td>{{ $item->name_en }}</td> -->
-                                                            <td class="text-center">
-                                                                <a href="{{ url("$segment/videoctegory2/$item->id") }}" class="btn btn-success">ดู</a>
-                                                            </td>
                                                             <td class="text-center">
                                                                 <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
                                                                     <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
                                                                 </label>
                                                             </td>
-                                                            <td class="text-center">
                                                            
-                                                               <a href="{{ url("$segment/$folder/edit/$item->id") }}"
+                                                             <td class="text-center">
+                                                           
+                                                               <a href="{{ url("$segment/$folder/$category1_id/edit/$item->id") }}"
                                                                     class="btn btn-icon btn-light-warning btn-sm">
 
                                                                     <i class="ki-duotone ki-pencil fs-2">
@@ -135,6 +118,8 @@
                                                             </td>
                                                         </tr>
                                                     @endforeach
+
+
                                                 </tbody>
                                             </table>
                                         </div>
@@ -229,6 +214,7 @@
 
     });
 });
+
     function deleteItem(id) {
         Swal.fire({
             title: "ลบข้อมูล",

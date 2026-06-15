@@ -188,23 +188,46 @@
 <!--end::Body-->
 <script>
     var fullUrl = window.location.origin + window.location.pathname;
+$(document).ready(function() {
+    $('.update-status').on('change', function() {
 
-    $(document).ready(function() {
-        $('.update-status').on('change', function() {
-            var id = $(this).data('id');
-            var status = $(this).is(':checked') ? "on" : "off";
+        var id = $(this).data('id');
+        var status = $(this).is(':checked') ? "on" : "off";
 
-            $.ajax({
-                url: fullUrl + "/update-status",
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: id,
-                    status: status
-                },
-            });
+        $.ajax({
+            url: fullUrl + "/update-status",
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: id,
+                status: status
+            },
+            success: function(response) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Update status successfully',
+                    timer: 1200,
+                    showConfirmButton: false
+                });
+
+            },
+            error: function() {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Update status failed',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+            }
         });
+
     });
+});
 
     function deleteItem(id) {
         Swal.fire({
