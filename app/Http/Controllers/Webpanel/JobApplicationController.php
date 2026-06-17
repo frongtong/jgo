@@ -31,7 +31,7 @@ class JobApplicationController extends Controller
 
         $query = JobApplication::with([
             'member',
-            'job'
+            'job.company'
         ]);
 
         if ($search) {

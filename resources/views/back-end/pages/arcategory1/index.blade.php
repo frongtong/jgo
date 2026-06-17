@@ -102,7 +102,7 @@
                                                             <td>{{ $item->name_th }}</td>
                                                             <!-- <td>{{ $item->name_en }}</td> -->
                                                             <td class="text-center">
-                                                                <a href="{{ url("$segment/arctegory2/$item->id") }}" class="btn btn-success">ดู</a>
+                                                                <a href="{{ url("$segment/arcategory2/$item->id") }}" class="btn btn-success">ดู</a>
                                                             </td>
                                                             <td class="text-center">
                                                                 <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">

@@ -130,11 +130,7 @@ class VoCategory2Controller extends Controller
 
         if ($VoCategory2) {
 
-            foreach ($VoCategory2->VoCategory2_link as $cat_image) {
-                Storage::disk('public')->delete($cat_image->image);
-            }
-
-            $VoCategory2->VoCategory2_link()->delete();
+      
             $VoCategory2->delete();
             return response()->json(['success' => true]);
         }
@@ -167,6 +163,7 @@ class VoCategory2Controller extends Controller
                 $data->updated_at = date('Y-m-d H:i:s');
             }
             $data->name_th = $request->name_th;
+             $data->status = "on";
             if ($data->save()) {
 
 

@@ -113,7 +113,7 @@
                                                         <th width="15%">หมวดหมู่รอง</th>
 
                                                         <th width="15%">วันที่แสดง</th>
-
+                                                        <th style="width:10%;" class="text-center">Status</th>
                                                         <th width="10%" class="text-center">
                                                             #
                                                         </th>
@@ -168,6 +168,11 @@
                                                                 : '-'
                                                             }}
 
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
+                                                                <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
+                                                            </label>
                                                         </td>
 
                                                         <td class="text-center">
@@ -274,23 +279,48 @@
 <!--end::Body-->
 <script>
     var fullUrl = window.location.origin + window.location.pathname;
+ $(document).ready(function() {
+    $('.update-status').on('change', function() {
 
-    $(document).ready(function() {
-        $('.update-status').on('change', function() {
-            var id = $(this).data('id');
-            var status = $(this).is(':checked') ? "on" : "off";
+        var id = $(this).data('id');
+        var status = $(this).is(':checked') ? "on" : "off";
 
-            $.ajax({
-                url: fullUrl + "/update-status",
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    id: id,
-                    status: status
-                },
-            });
+        $.ajax({
+            url: fullUrl + "/update-status",
+            type: 'POST',
+            data: {
+                _token: '{{ csrf_token() }}',
+                id: id,
+                status: status
+            },
+
+            
+            success: function(response) {
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Update status successfully',
+                    timer: 1200,
+                    showConfirmButton: false
+                });
+
+            },
+            error: function() {
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Update status failed',
+                    timer: 1500,
+                    showConfirmButton: false
+                });
+
+            }
         });
+
     });
+});
 
     function deleteItem(id) {
         Swal.fire({

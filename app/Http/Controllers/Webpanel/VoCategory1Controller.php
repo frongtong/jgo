@@ -139,7 +139,7 @@ class VoCategory1Controller extends Controller
                 $data->updated_at = date('Y-m-d H:i:s');
             }
             $data->name_th = $request->name_th;
-         
+            $data->status = "on";
 
             if ($data->save()) {
                 DB::commit();

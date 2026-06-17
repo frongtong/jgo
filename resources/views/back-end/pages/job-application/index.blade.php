@@ -189,8 +189,15 @@
                                                             </td>
 
                                                             <td>
+<div class="fw-bold">
 
-                                                                {{ $item->job->title_th ?? '-' }}
+                                                                   {{ $item->job->title_th ?? '-' }}
+                                                                </div>
+
+                                                                <div class="text-muted fs-7">
+
+                                                                 {{ $item->job->company->name_th ?? '-' }}
+                                                                </div>
 
                                                             </td>
 

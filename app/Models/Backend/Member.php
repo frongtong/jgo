@@ -74,4 +74,14 @@ class Member extends Authenticatable
             'parent_id'
         );
     }
+    public function workExperiences()
+    {
+        return $this->hasMany(MemberWorkExperience::class, 'member_id', 'id');
+    }
+
+    public function trainingCourses()
+    {
+        return $this->hasMany(MemberTrainingCourse::class, 'member_id', 'id');
+    }
+ 
 }

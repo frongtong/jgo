@@ -129,12 +129,7 @@ class ArticleCategory2Controller extends Controller
         $ArticleCategory2 = ArticleCategory2::find($id);
 
         if ($ArticleCategory2) {
-
-            foreach ($ArticleCategory2->ArticleCategory2_link as $cat_image) {
-                Storage::disk('public')->delete($cat_image->image);
-            }
-
-            $ArticleCategory2->ArticleCategory2_link()->delete();
+    
             $ArticleCategory2->delete();
             return response()->json(['success' => true]);
         }
@@ -166,7 +161,9 @@ class ArticleCategory2Controller extends Controller
                 $data = ArticleCategory2::find($id);
                 $data->updated_at = date('Y-m-d H:i:s');
             }
-            $data->name_th = $request->name_th;
+            $data->name_th = $request->name_th; 
+            $data->status = "on";
+
             if ($data->save()) {
 
 

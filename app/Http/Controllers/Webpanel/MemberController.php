@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Backend\Member;
 use App\Models\Backend\MemberProfile;
+use App\Models\Backend\MemberEducation;
 
 class MemberController extends Controller
 {
@@ -126,40 +127,60 @@ class MemberController extends Controller
     | Edit
     |--------------------------------------------------------------------------
     */
+public function edit(Request $request, $id)
+{
+    $data = Member::with([
+        'profile',
+        'parent',
+        'educations'
+    ])->findOrFail($id);
 
-    public function edit(Request $request, $id)
-    {
-        $data = Member::with([
-            'profile',
-            'parent'
-        ])->find($id);
+    // แยกข้อมูลการศึกษาตามระดับ
+    $educations = $data->educations->keyBy('education_level');
 
-        $navs = [
-            '0' => [
-                'url' => "javascript:void(0)",
-                'name' => "ระบบสมาชิก",
-                'last' => 0
-            ],
-            '1' => [
-                'url' => "$this->segment/$this->folder",
-                'name' => "สมาชิก",
-                'last' => 0
-            ],
-            '2' => [
-                'url' => "$this->segment/$this->folder/edit/$id",
-                'name' => "Edit",
-                'last' => 1
-            ],
-        ];
+   $educationData = [
 
-        return view("$this->prefix.pages.$this->folder.edit", [
-            'segment' => $this->segment,
-            'prefix' => $this->prefix,
-            'folder' => $this->folder,
-            'navs' => $navs,
-            'row' => $data
-        ]);
-    }
+    'secondary' => $educations->get('secondary'),
+
+    'high_vocational' => $educations->get('high_vocational'),
+
+    'bachelor' => $educations->get('bachelor'),
+
+    'master' => $educations->get('master'),
+
+    'doctor' => $educations->get('doctor'),
+
+];
+    $navs = [
+        '0' => [
+            'url' => "javascript:void(0)",
+            'name' => "ระบบสมาชิก",
+            'last' => 0
+        ],
+        '1' => [
+            'url' => "$this->segment/$this->folder",
+            'name' => "สมาชิก",
+            'last' => 0
+        ],
+        '2' => [
+            'url' => "$this->segment/$this->folder/edit/$id",
+            'name' => "Edit",
+            'last' => 1
+        ],
+    ];
+
+    return view("$this->prefix.pages.$this->folder.edit", [
+        'segment' => $this->segment,
+        'prefix' => $this->prefix,
+        'folder' => $this->folder,
+        'navs' => $navs,
+        'row' => $data,
+
+        // Education
+        'educationData' => $educationData,
+
+    ]);
+}
 
     /*
     |--------------------------------------------------------------------------
@@ -417,6 +438,51 @@ class MemberController extends Controller
             }
 
             $profile->save();
+
+$educationData = [
+
+    'secondary' => $request->secondary,
+
+    'high_vocational' => $request->high_vocational,
+
+    'bachelor' => $request->bachelor,
+
+    'master' => $request->master,
+
+    'doctor' => $request->doctor,
+
+];
+
+        foreach ($educationData as $level => $data) {
+
+            if (empty($data['institution_name'])) {
+                continue;
+            }
+
+            MemberEducation::updateOrCreate(
+
+                [
+                    'id' => $data['id'] ?? null
+                ],
+
+                [
+                    'member_id'        => $member->id,
+                    'education_level'  => $level,
+                    'education_type'   => $data['education_type'] ?? 'ปกติ',
+                    'institution_name' => $data['institution_name'] ?? null,
+                    'faculty'          => $data['faculty'] ?? null,
+                    'major'            => $data['major'] ?? null,
+                    'gpa'              => $data['gpa'] ?? null,
+                    'start_month'      => $data['start_month'] ?? null,
+                    'start_year'       => $data['start_year'] ?? null,
+                    'end_month'        => $data['end_month'] ?? null,
+                    'end_year'         => $data['end_year'] ?? null,
+                    'is_current'       => $data['is_current'] ?? 0,
+                    'study_status'     => $data['study_status'] ?? 'graduated',
+                    'note'             => $data['note'] ?? null,
+                ]
+            );
+        }
 
             DB::commit();
 

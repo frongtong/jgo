@@ -348,9 +348,166 @@
                             </div>
 
                         </div>
+                        
 
                     </div>
+@php
 
+$educationConfig = [
+
+    'secondary' => [
+        'title' => 'มัธยมศึกษาตอนต้น'
+    ],
+
+    'high_vocational' => [
+        'title' => 'มัธยมศึกษาตอนปลาย / ปวช. / ปวส.'
+    ],
+
+    'bachelor' => [
+        'title' => 'ปริญญาตรี'
+    ],
+
+
+];
+
+$months = [
+    1 => 'มกราคม',
+    2 => 'กุมภาพันธ์',
+    3 => 'มีนาคม',
+    4 => 'เมษายน',
+    5 => 'พฤษภาคม',
+    6 => 'มิถุนายน',
+    7 => 'กรกฎาคม',
+    8 => 'สิงหาคม',
+    9 => 'กันยายน',
+    10 => 'ตุลาคม',
+    11 => 'พฤศจิกายน',
+    12 => 'ธันวาคม'
+];
+
+@endphp
+
+@foreach($educationConfig as $key => $config)
+
+@php
+$item = $educationData[$key] ?? null;
+@endphp
+
+<div class="card card-flush py-4 mb-5">
+
+    <div class="card-header">
+        <div class="card-title">
+            <h2>{{ $config['title'] }}</h2>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <input type="hidden"
+            name="{{ $key }}[id]"
+            value="{{ @$item->id }}">
+
+        <input type="hidden"
+            name="{{ $key }}[education_level]"
+            value="{{ $key }}">
+
+        <div class="row">
+
+            <!-- ชื่อสถาบัน -->
+            <div class="col-md-12 mb-5">
+
+                <label class="form-label">
+                    ชื่อสถาบัน
+                </label>
+
+                <input type="text"
+                    class="form-control"
+                    name="{{ $key }}[institution_name]"
+                    value="{{ @$item->institution_name }}">
+
+            </div>
+
+            <!-- สาขาวิชา -->
+            <div class="col-md-12 mb-5">
+
+                <label class="form-label">
+                    สาขาวิชา
+                </label>
+
+                <input type="text"
+                    class="form-control"
+                    name="{{ $key }}[major]"
+                    value="{{ @$item->major }}">
+
+            </div>
+
+            <!-- เดือน -->
+            <div class="col-md-6 mb-5">
+
+                <label class="form-label">
+                    เริ่มเรียน (เดือน)
+                </label>
+
+                <select
+                    class="form-select"
+                    name="{{ $key }}[start_month]">
+
+                    <option value="">
+                        เลือกเดือน
+                    </option>
+
+                    @foreach($months as $monthNo => $monthName)
+
+                        <option value="{{ $monthNo }}"
+                            {{ @$item->start_month == $monthNo ? 'selected' : '' }}>
+
+                            {{ $monthName }}
+
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </div>
+
+            <!-- ปี -->
+            <div class="col-md-6 mb-5">
+
+                <label class="form-label">
+                    เริ่มเรียน (พ.ศ.)
+                </label>
+
+                <select
+                    class="form-select"
+                    name="{{ $key }}[start_year]">
+
+                    <option value="">
+                        เลือกปี
+                    </option>
+
+                    @for($year = date('Y') + 543; $year >= 2500; $year--)
+
+                        <option value="{{ $year }}"
+                            {{ @$item->start_year == $year ? 'selected' : '' }}>
+
+                            {{ $year }}
+
+                        </option>
+
+                    @endfor
+
+                </select>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@endforeach
                 </div>
 
                 <!-- Right -->

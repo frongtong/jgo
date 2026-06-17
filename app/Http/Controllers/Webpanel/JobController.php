@@ -333,6 +333,7 @@ class JobController extends Controller
             $data->age_max = $request->age_max;
 
             $data->qty = $request->qty;
+            $data->date = $request->date;
 
             $data->province_id = $request->province_id;
 

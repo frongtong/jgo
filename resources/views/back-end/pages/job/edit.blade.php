@@ -280,6 +280,19 @@
                                                     </select>
 
                                                 </div>
+                                                 <div class="col-md-6">
+
+                                                        <label class="form-label">
+
+                                                            วันที่
+
+                                                        </label>
+
+                                                        <input type="date"
+                                                            class="form-control"
+                                                            name="date"  value="{{ $data->date }}">
+
+                                                    </div>
 
                                                
 

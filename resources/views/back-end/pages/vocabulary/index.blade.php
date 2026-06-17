@@ -175,18 +175,25 @@
                             <a href="{{ url("$segment/$folder/edit/$item->id") }}"
                                 class="btn btn-icon btn-light-warning btn-sm">
 
-                                <i class="ki-duotone ki-pencil fs-2"></i>
+                                <i class="ki-duotone ki-pencil fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                </i>
 
                             </a>
 
-                            <button
-                                type="button"
+                            <button type="button"
                                 onclick="deleteItem({{ $item->id }})"
                                 class="btn btn-icon btn-light-danger btn-sm">
 
-                                <i class="ki-duotone ki-trash fs-2"></i>
+                                <i class="ki-duotone ki-trash fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
 
                             </button>
+
 
                         </td>
 

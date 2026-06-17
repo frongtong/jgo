@@ -328,7 +328,7 @@
                                                 <!-- LOCATION -->
                                                 <div class="row mb-5">
 
-                                                    <div class="col-md-12">
+                                                    <div class="col-md-6">
 
                                                         <label class="form-label">
 
@@ -357,6 +357,19 @@
                                                             @endforeach
 
                                                         </select>
+
+                                                    </div>
+                                                    <div class="col-md-6">
+
+                                                        <label class="form-label">
+
+                                                            วันที่
+
+                                                        </label>
+
+                                                        <input type="date"
+                                                            class="form-control"
+                                                            name="date">
 
                                                     </div>
 

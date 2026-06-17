@@ -42,6 +42,7 @@ class Job extends Model
 
         'province_id',
         'city_id',
+        'date',
 
         'work_time',
         'overtime',
