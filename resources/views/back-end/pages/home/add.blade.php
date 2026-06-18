@@ -43,92 +43,92 @@
                         <div id="kt_app_content" class="app-content flex-column-fluid">
                             <!--begin::Content container-->
                             <div id="kt_app_content_container" class="app-container container-xxl">
-                               <form id="form_submit"
-    action=""
-    method="POST"
-    enctype="multipart/form-data">
+                                <form id="form_submit"
+                                    action=""
+                                    method="POST"
+                                    enctype="multipart/form-data">
 
-    @csrf
+                                    @csrf
 
-    <div class="row">
-        <div class="col-md-9 mb-5">
-            <div class="card card-flush py-4">
+                                    <div class="row">
+                                        <div class="col-md-9 mb-5">
+                                            <div class="card card-flush py-4">
 
-                <div class="card-header">
-                    <div class="card-title">
-                        <h2>เพิ่มข้อมูลแบนเนอร์</h2>
-                    </div>
-                </div>
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>เพิ่มข้อมูลแบนเนอร์</h2>
+                                                    </div>
+                                                </div>
 
-                <div class="card-body pt-0">
+                                                <div class="card-body pt-0">
 
-                    {{-- รูปภาพ Banner --}}
-                    <div class="row mb-5">
-                        <div class="col-md-12">
-                            <label class="form-label">
-                                รูปภาพแบนเนอร์
-                            </label>
+                                                    {{-- รูปภาพ Banner --}}
+                                                    <div class="row mb-5">
+                                                        <div class="col-md-12">
+                                                            <label class="form-label">
+                                                                รูปภาพแบนเนอร์
+                                                            </label>
 
-                            <span
-                                class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">
-                                ขนาดรูปแนะนำ 1600x800
-                            </span>
+                                                            <span
+                                                                class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">
+                                                                ขนาดรูปแนะนำ 362x170
+                                                            </span>
 
-                            <small class="help-block">
-                                * รองรับไฟล์
-                                <strong class="text-danger">
-                                    (jpg, jpeg, png, webp)
-                                </strong>
-                            </small>
+                                                            <small class="help-block">
+                                                                * รองรับไฟล์
+                                                                <strong class="text-danger">
+                                                                    (jpg, jpeg, png, webp)
+                                                                </strong>
+                                                            </small>
 
-                            <div class="input-group mt-3">
-                                <input class="form-control"
-                                    type="file"
-                                    name="img_bg"
-                                    accept=".jpg,.jpeg,.png,.webp"
-                                    required>
-                            </div>
-                        </div>
-                    </div>
+                                                            <div class="input-group mt-3">
+                                                                <input class="form-control"
+                                                                    type="file"
+                                                                    name="img_bg"
+                                                                    accept=".jpg,.jpeg,.png,.webp"
+                                                                    required>
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                    {{-- URL --}}
-                    <div class="row mb-5">
-                        <div class="col-md-12">
-                            <label class="form-label">
-                                URL เชื่อมหน้า
-                            </label>
+                                                    {{-- URL --}}
+                                                    <div class="row mb-5">
+                                                        <div class="col-md-12">
+                                                            <label class="form-label">
+                                                                URL เชื่อมหน้า
+                                                            </label>
 
-                            <input class="form-control"
-                                type="text"
-                                name="link"
-                                placeholder="https://example.com">
-                        </div>
-                    </div>
+                                                            <input class="form-control"
+                                                                type="text"
+                                                                name="link"
+                                                                placeholder="https://example.com">
+                                                        </div>
+                                                    </div>
 
-                 
 
-                  
-                  
 
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="d-flex justify-content-end mt-5">
-        <a href="{{ url("$segment/$folder") }}"
-            class="btn btn-light me-2">
-            Cancel
-        </a>
 
-        <button type="submit"
-            class="btn btn-primary"
-            style="background:#1C2842;">
-            Save
-        </button>
-    </div>
 
-</form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex justify-content-end mt-5">
+                                        <a href="{{ url("$segment/$folder") }}"
+                                            class="btn btn-light me-2">
+                                            Cancel
+                                        </a>
+
+                                        <button type="submit"
+                                            class="btn btn-primary"
+                                            style="background:#1C2842;">
+                                            Save
+                                        </button>
+                                    </div>
+
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -159,24 +159,24 @@
     <script>
         CKEDITOR.replace('message_th', {
             versionCheck: false,
-            height: 500, 
+            height: 500,
             filebrowserUploadMethod: 'form',
         });
 
         CKEDITOR.replace('title_th', {
             versionCheck: false,
-            height: 100, 
+            height: 100,
             filebrowserUploadMethod: 'form',
         });
-            CKEDITOR.replace('message_en', {
+        CKEDITOR.replace('message_en', {
             versionCheck: false,
-            height: 500, 
+            height: 500,
             filebrowserUploadMethod: 'form',
         });
 
         CKEDITOR.replace('title_en', {
             versionCheck: false,
-            height: 100, 
+            height: 100,
             filebrowserUploadMethod: 'form',
         });
     </script>

@@ -189,7 +189,7 @@
                                                             </td>
 
                                                             <td>
-<div class="fw-bold">
+                                                                <div class="fw-bold">
 
                                                                    {{ $item->job->title_th ?? '-' }}
                                                                 </div>
@@ -250,13 +250,13 @@
                                                             </td>
 
                                                             <td>
-
-                                                                <a href="{{ url("$segment/jobapplication/edit/$item->id") }}"
-                                                                    class="btn btn-icon btn-light-primary btn-sm">
+                                                                  <a href="{{ url("$segment/jobapplication/edit/$item->id") }}"
+                                                                    class="btn btn-icon btn-light-info btn-sm">
 
                                                                     <i class="ki-duotone ki-eye fs-2">
                                                                         <span class="path1"></span>
                                                                         <span class="path2"></span>
+                                                                        <span class="path3"></span>
                                                                     </i>
 
                                                                 </a>

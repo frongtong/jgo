@@ -63,7 +63,7 @@
                                                         </div>
                                                         <div class="col-md-9 mb-5">
                                                             <label class="required form-label">อัพโหลดไฟล์</label>
-                                                            <span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">ขนาดรูปแนะนำ 1600x500</span> <small class="help-block"> * รองรับไฟล์ <strong class="text-danger">(jpg, jpeg, png, webp)</strong> เท่านั้น</small>
+                                                            <span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">ขนาดรูปแนะนำ 363x79</span> <small class="help-block"> * รองรับไฟล์ <strong class="text-danger">(jpg, jpeg, png, webp)</strong> เท่านั้น</small>
                                                             <p>ชื่อไฟล์ : <b class="text-danger"> {{ basename($data->image) }}</b></p>
                                                             <input type="file" id="image" name="image" class="form-control mb-2" data-default-file="" accept="image/*" required>
                                                         </div>

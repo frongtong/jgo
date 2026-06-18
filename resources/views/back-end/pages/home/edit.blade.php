@@ -60,7 +60,7 @@
                                                         <div class="row mb-3" id="imgBgField">
                                                             <div class="intro-y col-span-12 sm:col-span-6">
                                                                 <label class="form-label">รูปภาพเเบนเนอร์</label>
-                                                                <span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">ขนาดรูปแนะนำ 1600x800</span> <small class="help-block"> * รองรับไฟล์ <strong class="text-danger">(jpg, jpeg, png, webp)</strong> เท่านั้น</small>
+                                                                <span class="badge badge-light-danger fw-bold fs-8 px-2 py-1 ms-2">ขนาดรูปแนะนำ 362x170</span> <small class="help-block"> * รองรับไฟล์ <strong class="text-danger">(jpg, jpeg, png, webp)</strong> เท่านั้น</small>
                                                                 <p>ชื่อไฟล์ : <b class="text-danger"> {{ basename($data->img_bg) }}</b></p>
                                                                 <img src="{{ asset($data->img_bg) }}" class="img-fluid">
                                                                 <div class="input-group mb-10">

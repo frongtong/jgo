@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\MemberController;
 use App\Http\Controllers\Api\BannerController;
 use App\Http\Controllers\Api\JobController;
+use App\Http\Controllers\Api\VocabularyController;
+use App\Http\Controllers\Api\VideoController;
+use App\Http\Controllers\Api\ArticleController;
 
 
 
@@ -26,6 +29,9 @@ use App\Http\Controllers\Api\JobController;
     
         Route::get('/banners', [BannerController::class, 'index']);
         Route::get('/jobs', [JobController::class, 'index']);
+        Route::get('/vocabulary', [VocabularyController::class, 'index']);
+        Route::get('/video', [VideoController::class, 'index']);
+        Route::get('/article', [ArticleController::class, 'index']);
         Route::prefix('member')->group(function () {
             Route::post(
                 'profile',

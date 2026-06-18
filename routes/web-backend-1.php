@@ -290,6 +290,7 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/update-sort-order', [Webpanel\ArticleController::class, 'updateSortOrder']);
 
         });
+        
         Route::prefix('arcategory1')->group(function () {
 
             Route::get('/', [Webpanel\ArticleCategory1Controller::class, 'index'])
@@ -326,7 +327,34 @@ Route::group(['middleware' => 'Admin'], function () {
                     Route::post('/{category1_id}/update-status', [Webpanel\ArticleCategory2Controller::class, 'updateStatus']);
                     Route::post('{category1_id}/update-sort-order', [Webpanel\ArticleCategory2Controller::class, 'updateSortOrder']); //หลิว
         });
-                
+               
+         Route::prefix('studyfurther')->group(function () {
+
+            Route::get('/', [Webpanel\StudyFurtherController::class, 'index'])
+                ->name('webpanel.studyfurther');
+
+            Route::get('/add', [Webpanel\StudyFurtherController::class, 'add'])
+                ->name('webpanel.studyfurther.add');
+
+            Route::post('/add', [Webpanel\StudyFurtherController::class, 'insert']);
+
+            Route::get('/edit/{id}', [Webpanel\StudyFurtherController::class, 'edit'])
+                ->where(['id' => '[0-9]+']);
+
+            Route::post('/edit/{id}', [Webpanel\StudyFurtherController::class, 'update'])
+                ->where(['id' => '[0-9]+'])
+                ->name('webpanel.studyfurther.update');
+
+            Route::get('/subcategory/{id}', [Webpanel\StudyFurtherController::class, 'getSubCategory'])
+                ->where(['id' => '[0-9]+']);
+
+            Route::post('/destroy', [Webpanel\StudyFurtherController::class, 'destroy']);
+
+            Route::post('/update-status', [Webpanel\StudyFurtherController::class, 'updateStatus']);
+
+            Route::post('/update-sort-order', [Webpanel\StudyFurtherController::class, 'updateSortOrder']);
+
+        });
 
                 Route::prefix('administrator')->group(function () {
                     Route::prefix('user')->group(function () {

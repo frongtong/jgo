@@ -318,7 +318,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        if (data.success) {
+                        if (data.status) {
                             Swal.fire("ลบแล้ว!", "ข้อมูลของคุณถูกลบแล้ว", "success").then(() => {
                                 location.reload();
                             });

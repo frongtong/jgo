@@ -48,14 +48,14 @@
 
                                     <div class="card-header align-items-center py-5">
 
-                                        <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
+                                        <!-- <div class="card-toolbar flex-row-fluid justify-content-end gap-5">
 
                                             <a href="{{ url("$segment/$folder/add") }}"
                                                 class="btn btn-primary">
                                                 Add
                                             </a>
 
-                                        </div>
+                                        </div> -->
 
                                     </div>
 
@@ -108,12 +108,10 @@
 
                                                         <th>ชื่อ</th>
 
-                                                        <th width="15%">หมวดหมู่หลัก</th>
+                                                  
 
-                                                        <th width="15%">หมวดหมู่รอง</th>
-
-                                                        <th width="15%">วันที่แสดง</th>
-                                                        <th style="width:10%;" class="text-center">Status</th>
+                                         
+                                                        <!-- <th style="width:10%;" class="text-center">Status</th> -->
                                                         <th width="10%" class="text-center">
                                                             #
                                                         </th>
@@ -146,34 +144,26 @@
                                                         </td>
 
                                                         <td>
-                                                            {{ $item->title }}
+                                                             <div class="fw-bold">
+
+                                                                   {{ $item->title ?? '-' }}
+                                                                </div>
+
+                                                                <div class="text-muted fs-7">
+
+                                                                 {{ $item->short_description ?? '-' }}
+                                                                </div>
+
+                                                         
                                                         </td>
 
-                                                        <td>
+                                                        
 
-                                                            {{ optional($item->mainCategory)->name_th }}
-
-                                                        </td>
-
-                                                        <td>
-
-                                                            {{ optional($item->subCategory)->name_th }}
-
-                                                        </td>
-
-                                                        <td>
-
-                                                            {{ $item->published_at
-                                                                ? \Carbon\Carbon::parse($item->published_at)->format('d/m/Y')
-                                                                : '-'
-                                                            }}
-
-                                                        </td>
-                                                        <td class="text-center">
+                                                        <!-- <td class="text-center">
                                                             <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
                                                                 <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
                                                             </label>
-                                                        </td>
+                                                        </td> -->
 
                                                         <td class="text-center">
 
@@ -189,7 +179,7 @@
 
                                                             </a>
                                                             <!-- Delete -->
-                                                            <button type="button"
+                                                            <!-- <button type="button"
                                                                 onclick="deleteItem({{ $item->id }})"
                                                                 class="btn btn-icon btn-light-danger btn-sm">
 
@@ -199,7 +189,7 @@
                                                                     <span class="path3"></span>
                                                                 </i>
 
-                                                            </button>
+                                                            </button> -->
 
                                                         </td>
 
@@ -348,7 +338,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        if (data.status) {
+                        if (data.success) {
                             Swal.fire("ลบแล้ว!", "ข้อมูลของคุณถูกลบแล้ว", "success").then(() => {
                                 location.reload();
                             });

@@ -439,19 +439,15 @@ public function edit(Request $request, $id)
 
             $profile->save();
 
-$educationData = [
+        $educationData = [
 
-    'secondary' => $request->secondary,
+            'secondary' => $request->secondary,
 
-    'high_vocational' => $request->high_vocational,
+            'high_vocational' => $request->high_vocational,
 
-    'bachelor' => $request->bachelor,
+            'bachelor' => $request->bachelor,
 
-    'master' => $request->master,
-
-    'doctor' => $request->doctor,
-
-];
+        ];
 
         foreach ($educationData as $level => $data) {
 

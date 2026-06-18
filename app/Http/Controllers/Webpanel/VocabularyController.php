@@ -318,4 +318,5 @@ class VocabularyController extends Controller
 
         return response()->json($items);
     }
+    
 }
