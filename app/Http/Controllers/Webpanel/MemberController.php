@@ -136,20 +136,26 @@ public function edit(Request $request, $id)
     ])->findOrFail($id);
 
     // แยกข้อมูลการศึกษาตามระดับ
-    $educations = $data->educations->keyBy('education_level');
+$studying = MemberEducation::where('member_id', $id)
+    ->where('study_status', 'studying')
+    ->first();
 
-   $educationData = [
+$educations = MemberEducation::where('member_id', $id)
+    ->where('study_status', '!=', 'studying')
+    ->get()
+    ->keyBy('education_level');
 
-    'secondary' => $educations->get('secondary'),
+$educationData = [
+      'studying' => $studying,
 
+    'lower_secondary' => $educations->get('lower_secondary'),
+    'upper_secondary' => $educations->get('upper_secondary'),
+    'vocational' => $educations->get('vocational'),
     'high_vocational' => $educations->get('high_vocational'),
-
     'bachelor' => $educations->get('bachelor'),
-
     'master' => $educations->get('master'),
-
-    'doctor' => $educations->get('doctor'),
-
+    'doctorate' => $educations->get('doctorate'),
+    'other' => $educations->get('other'),
 ];
     $navs = [
         '0' => [
@@ -439,46 +445,67 @@ public function edit(Request $request, $id)
 
             $profile->save();
 
-        $educationData = [
+       $educationData = [
 
-            'secondary' => $request->secondary,
+    'studying' => $request->studying,
 
-            'high_vocational' => $request->high_vocational,
+    'lower_secondary' => $request->lower_secondary,
 
-            'bachelor' => $request->bachelor,
+    'vocational' => $request->vocational,
 
-        ];
+    'high_vocational' => $request->high_vocational,
 
-        foreach ($educationData as $level => $data) {
+    'bachelor' => $request->bachelor,
 
-            if (empty($data['institution_name'])) {
-                continue;
-            }
+    'other' => $request->other,
 
-            MemberEducation::updateOrCreate(
+];
 
-                [
-                    'id' => $data['id'] ?? null
-                ],
+       foreach ($educationData as $level => $data) {
 
-                [
-                    'member_id'        => $member->id,
-                    'education_level'  => $level,
-                    'education_type'   => $data['education_type'] ?? 'ปกติ',
-                    'institution_name' => $data['institution_name'] ?? null,
-                    'faculty'          => $data['faculty'] ?? null,
-                    'major'            => $data['major'] ?? null,
-                    'gpa'              => $data['gpa'] ?? null,
-                    'start_month'      => $data['start_month'] ?? null,
-                    'start_year'       => $data['start_year'] ?? null,
-                    'end_month'        => $data['end_month'] ?? null,
-                    'end_year'         => $data['end_year'] ?? null,
-                    'is_current'       => $data['is_current'] ?? 0,
-                    'study_status'     => $data['study_status'] ?? 'graduated',
-                    'note'             => $data['note'] ?? null,
-                ]
-            );
-        }
+    if (empty($data)) {
+        continue;
+    }
+
+    // ข้ามถ้าไม่มีข้อมูลเลย
+    if (
+        empty($data['institution_name']) &&
+        empty($data['major']) &&
+        empty($data['note'])
+    ) {
+        continue;
+    }
+
+    MemberEducation::updateOrCreate(
+
+        [
+            'id' => $data['id'] ?? null
+        ],
+
+        [
+            'member_id'        => $member->id,
+
+            // กรณี studying ให้ใช้ค่าที่ผู้ใช้เลือก
+            'education_level'  => $level == 'studying'
+                ? ($data['education_level'] ?? null)
+                : $level,
+
+            'institution_name' => $data['institution_name'] ?? null,
+
+            'major'            => $data['major'] ?? null,
+
+            'start_month'      => $data['start_month'] ?? null,
+
+            'start_year'       => $data['start_year'] ?? null,
+
+            'note'             => $data['note'] ?? null,
+
+            'study_status'     => $level == 'studying'
+                ? 'studying'
+                : 'graduated',
+        ]
+    );
+}
 
             DB::commit();
 

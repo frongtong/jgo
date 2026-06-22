@@ -42,715 +42,955 @@
 
                         <div id="kt_app_content" class="app-content flex-column-fluid">
 
-    <div id="kt_app_content_container" class="app-container container-xxl">
+                            <div id="kt_app_content_container" class="app-container container-xxl">
 
-        <form action="{{ url("webpanel/member/edit/$row->id") }}"
-            method="POST"
-            enctype="multipart/form-data">
+                                <form action="{{ url("webpanel/member/edit/$row->id") }}"
+                                    method="POST"
+                                    enctype="multipart/form-data">
 
-            @csrf
+                                    @csrf
 
-            <div class="row">
+                                    <div class="row">
 
-                <!-- Left -->
-                <div class="col-md-8">
+                                        <!-- Left -->
+                                        <div class="col-md-8">
 
-                    <div class="card card-flush py-4 mb-5">
+                                            <div class="card card-flush py-4 mb-5">
 
-                        <div class="card-header">
-                            <div class="card-title">
-                                <h2>Edit Member</h2>
-                            </div>
-                        </div>
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>Edit Member</h2>
+                                                    </div>
+                                                </div>
 
-                        <div class="card-body pt-0">
+                                                <div class="card-body pt-0">
 
-                            <!-- Image -->
-                            <div class="mb-10">
+                                                    <!-- Image -->
+                                                    <div class="mb-10">
 
-                                <label class="form-label">
-                                    รูปโปรไฟล์
-                                </label>
+                                                        <label class="form-label">
+                                                            รูปโปรไฟล์
+                                                        </label>
 
-                                @if(@$row->profile->profile_image)
+                                                        @if(@$row->profile->profile_image)
 
-                                    <div class="mb-5">
+                                                        <div class="mb-5">
 
-                                        <img src="{{ asset($row->profile->profile_image) }}"
-                                            class="w-150px rounded">
+                                                            <img src="{{ asset($row->profile->profile_image) }}"
+                                                                class="w-150px rounded">
+
+                                                        </div>
+
+                                                        @endif
+
+                                                        <input type="file"
+                                                            class="form-control"
+                                                            name="profile_image">
+
+                                                    </div>
+
+                                                    <!-- Username / Password -->
+                                                    <div class="row mb-5">
+
+                                                        <div class="col-md-6">
+
+                                                            <label class="form-label">
+                                                                Username
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="username"
+                                                                value="{{ $row->username }}">
+
+                                                        </div>
+
+                                                        <div class="col-md-6">
+
+                                                            <label class="form-label">
+                                                                Password
+                                                            </label>
+
+                                                            <input type="password"
+                                                                class="form-control"
+                                                                name="password">
+
+                                                            <small class="text-muted">
+                                                                เว้นว่างหากไม่เปลี่ยนรหัสผ่าน
+                                                            </small>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Email / Phone -->
+                                                    <div class="row mb-5">
+
+                                                        <div class="col-md-6">
+
+                                                            <label class="form-label">
+                                                                Email
+                                                            </label>
+
+                                                            <input type="email"
+                                                                class="form-control"
+                                                                name="email"
+                                                                value="{{ $row->email }}">
+
+                                                        </div>
+
+                                                        <div class="col-md-6">
+
+                                                            <label class="form-label">
+                                                                เบอร์โทรศัพท์
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="phone"
+                                                                value="{{ @$row->profile->phone }}">
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <hr class="my-10">
+
+                                                    <!-- TH Name -->
+                                                    <div class="row mb-5">
+
+                                                        <div class="col-md-2">
+
+                                                            <label class="form-label">
+                                                                คำนำหน้า
+                                                            </label>
+
+                                                            <select class="form-select"
+                                                                name="title_th">
+
+                                                                <option value="">Select</option>
+
+                                                                <option value="นาย"
+                                                                    {{ @$row->profile->title_th == 'นาย' ? 'selected' : '' }}>
+                                                                    นาย
+                                                                </option>
+
+                                                                <option value="นาง"
+                                                                    {{ @$row->profile->title_th == 'นาง' ? 'selected' : '' }}>
+                                                                    นาง
+                                                                </option>
+
+                                                                <option value="นางสาว"
+                                                                    {{ @$row->profile->title_th == 'นางสาว' ? 'selected' : '' }}>
+                                                                    นางสาว
+                                                                </option>
+
+                                                            </select>
+
+                                                        </div>
+
+                                                        <div class="col-md-5">
+
+                                                            <label class="form-label">
+                                                                ชื่อ (TH)
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="first_name_th"
+                                                                value="{{ @$row->profile->first_name_th }}">
+
+                                                        </div>
+
+                                                        <div class="col-md-5">
+
+                                                            <label class="form-label">
+                                                                นามสกุล (TH)
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="last_name_th"
+                                                                value="{{ @$row->profile->last_name_th }}">
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- EN Name -->
+                                                    <div class="row mb-5">
+
+                                                        <div class="col-md-2">
+
+                                                            <label class="form-label">
+                                                                Title
+                                                            </label>
+
+                                                            <select class="form-select"
+                                                                name="title_en">
+
+                                                                <option value="">Select</option>
+
+                                                                <option value="Mr."
+                                                                    {{ @$row->profile->title_en == 'Mr.' ? 'selected' : '' }}>
+                                                                    Mr.
+                                                                </option>
+
+                                                                <option value="Mrs."
+                                                                    {{ @$row->profile->title_en == 'Mrs.' ? 'selected' : '' }}>
+                                                                    Mrs.
+                                                                </option>
+
+                                                                <option value="Miss"
+                                                                    {{ @$row->profile->title_en == 'Miss' ? 'selected' : '' }}>
+                                                                    Miss
+                                                                </option>
+
+                                                            </select>
+
+                                                        </div>
+
+                                                        <div class="col-md-5">
+
+                                                            <label class="form-label">
+                                                                First Name (EN)
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="first_name_en"
+                                                                value="{{ @$row->profile->first_name_en }}">
+
+                                                        </div>
+
+                                                        <div class="col-md-5">
+
+                                                            <label class="form-label">
+                                                                Last Name (EN)
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="last_name_en"
+                                                                value="{{ @$row->profile->last_name_en }}">
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Personal -->
+                                                    <div class="row mb-5">
+
+                                                        <div class="col-md-4">
+
+                                                            <label class="form-label">
+                                                                เลขบัตรประชาชน
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="citizen_id"
+                                                                value="{{ @$row->profile->citizen_id }}">
+
+                                                        </div>
+
+                                                        <div class="col-md-4">
+
+                                                            <label class="form-label">
+                                                                วันเกิด
+                                                            </label>
+
+                                                            <input type="date"
+                                                                class="form-control"
+                                                                name="birth_date"
+                                                                value="{{ @$row->profile->birth_date }}">
+
+                                                        </div>
+
+                                                        <div class="col-md-4">
+
+                                                            <label class="form-label">
+                                                                เพศ
+                                                            </label>
+
+                                                            <select class="form-select"
+                                                                name="gender">
+
+                                                                <option value="">Select</option>
+
+                                                                <option value="ชาย"
+                                                                    {{ @$row->profile->gender == 'ชาย' ? 'selected' : '' }}>
+                                                                    ชาย
+                                                                </option>
+
+                                                                <option value="หญิง"
+                                                                    {{ @$row->profile->gender == 'หญิง' ? 'selected' : '' }}>
+                                                                    หญิง
+                                                                </option>
+
+                                                            </select>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Address -->
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            ที่อยู่ปัจจุบัน
+                                                        </label>
+
+                                                        <textarea class="form-control"
+                                                            rows="4"
+                                                            name="current_address">{{ @$row->profile->current_address }}</textarea>
+
+                                                    </div>
+
+                                                </div>
+
+
+                                            </div>
+
+                                            @php
+
+                                            $educationConfig = [
+
+                                            'studying' => [
+                                            'title' => 'ข้อมูลการศึกษา'
+                                            ],
+                                            'lower_secondary' => [
+                                            'title' => 'มัธยมศึกษาตอนต้น'
+                                            ],
+                                            'vocational' => [
+                                            'title' => 'มัธยมศึกษาตอนปลาย / ปวช.'
+                                            ],
+
+                                            'high_vocational' => [
+                                            'title' => 'ปวส.'
+                                            ],
+
+                                            'bachelor' => [
+                                            'title' => 'ปริญญาตรี'
+                                            ],
+
+                                            'other' => [
+                                            'title' => 'กรณีไม่เรียนตามเกณฑ์/หยุดพักการเรียน/
+                                            หยุดเรียนกลางคัน'
+                                            ],
+
+
+
+
+                                            ];
+
+                                            $months = [
+                                            1 => 'มกราคม',
+                                            2 => 'กุมภาพันธ์',
+                                            3 => 'มีนาคม',
+                                            4 => 'เมษายน',
+                                            5 => 'พฤษภาคม',
+                                            6 => 'มิถุนายน',
+                                            7 => 'กรกฎาคม',
+                                            8 => 'สิงหาคม',
+                                            9 => 'กันยายน',
+                                            10 => 'ตุลาคม',
+                                            11 => 'พฤศจิกายน',
+                                            12 => 'ธันวาคม'
+                                            ];
+                                            $educationLevels = [
+                                            'primary' => 'ประถมศึกษา',
+                                            'lower_secondary' => 'มัธยมศึกษาตอนต้น (ม.3)',
+                                           
+                                            'vocational' => 'ปวช.',
+                                            'high_vocational' => 'ปวส.',
+                                            'bachelor' => 'ปริญญาตรี',
+                                            'master' => 'ปริญญาโท',
+                                            'doctorate' => 'ปริญญาเอก',
+                                            'other' => 'อื่น ๆ',
+                                            ];
+                                            @endphp
+
+                                            @foreach($educationConfig as $key => $config)
+
+                                            @php
+                                            $item = $educationData[$key] ?? null;
+                                            @endphp
+
+
+                                            @if($key == 'studying')
+                                            <div class="card card-flush py-4 mb-5">
+
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>ข้อมูลการศึกษา</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[id]"
+                                                        value="{{ @$item->id }}">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[education_level]"
+                                                        value="{{ $key }}">
+
+                                                    <div class="row">
+
+                                                        <!-- ชื่อสถาบัน -->
+                                                        <div class="col-md-12 mb-5">
+
+                                                            <label class="form-label">
+                                                                ชื่อสถาบัน
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="{{ $key }}[institution_name]"
+                                                                value="{{ @$item->institution_name }}">
+
+                                                        </div>
+
+                                                        <!-- สาขาวิชา -->
+                                                        <div class="col-md-12 mb-5">
+
+                                                            <label class="form-label">
+                                                                สาขาวิชา
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="{{ $key }}[major]"
+                                                                value="{{ @$item->major }}">
+
+                                                        </div>
+
+                                                        <div class="col-md-6 mb-5">
+
+                                                            <label class="form-label required">
+                                                                ระดับการศึกษา
+                                                            </label>
+
+                                                            <select
+                                                                class="form-select"
+                                                                name="{{ $key }}[education_level]">
+
+                                                                <option value="">
+                                                                    เลือกระดับการศึกษา
+                                                                </option>
+
+                                                                @foreach($educationLevels as $value => $label)
+
+                                                                <option
+                                                                    value="{{ $value }}"
+                                                                    {{ @$item->education_level == $value ? 'selected' : '' }}>
+
+                                                                    {{ $label }}
+
+                                                                </option>
+
+                                                                @endforeach
+
+                                                            </select>
+
+                                                        </div>
+                                                        <div class="col-md-6 mb-5">
+
+                                                            <label class="form-label">
+                                                                อื่นๆ(โปรดระบุ)
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="{{ $key }}[note]"
+                                                                value="{{ @$item->note }}">
+
+                                                        </div>
+
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                            @elseif($key == 'other')
+                                            <div class="card card-flush py-4 mb-5">
+
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>{{ $config['title'] }}</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[id]"
+                                                        value="{{ @$item->id }}">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[education_level]"
+                                                        value="{{ $key }}">
+
+                                                    <div class="row">
+
+                                                        <!-- ชื่อสถาบัน -->
+                                                        <div class="col-md-12 mb-5">
+
+                                                            <textarea
+                                                                class="form-control"
+                                                                name="{{ $key }}[note]"
+                                                                rows="4">{{ @$item->note }}</textarea>
+
+                                                        </div>
+
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                            @else
+                                            <div class="card card-flush py-4 mb-5">
+
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>{{ $config['title'] }}</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[id]"
+                                                        value="{{ @$item->id }}">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[education_level]"
+                                                        value="{{ $key }}">
+
+                                                    <div class="row">
+
+                                                        <!-- ชื่อสถาบัน -->
+                                                        <div class="col-md-12 mb-5">
+
+                                                            <label class="form-label">
+                                                                ชื่อสถาบัน
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="{{ $key }}[institution_name]"
+                                                                value="{{ @$item->institution_name }}">
+
+                                                        </div>
+
+                                                        <!-- สาขาวิชา -->
+                                                        <div class="col-md-12 mb-5">
+
+                                                            <label class="form-label">
+                                                                สาขาวิชา
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="{{ $key }}[major]"
+                                                                value="{{ @$item->major }}">
+
+                                                        </div>
+
+                                                        <!-- เดือน -->
+                                                        <div class="col-md-6 mb-5">
+
+                                                            <label class="form-label">
+                                                                เริ่มเรียน (เดือน)
+                                                            </label>
+
+                                                            <select
+                                                                class="form-select"
+                                                                name="{{ $key }}[start_month]">
+
+                                                                <option value="">
+                                                                    เลือกเดือน
+                                                                </option>
+
+                                                                @foreach($months as $monthNo => $monthName)
+
+                                                                <option value="{{ $monthNo }}"
+                                                                    {{ @$item->start_month == $monthNo ? 'selected' : '' }}>
+
+                                                                    {{ $monthName }}
+
+                                                                </option>
+
+                                                                @endforeach
+
+                                                            </select>
+
+                                                        </div>
+
+                                                        <!-- ปี -->
+                                                        <div class="col-md-6 mb-5">
+
+                                                            <label class="form-label">
+                                                                เริ่มเรียน (พ.ศ.)
+                                                            </label>
+
+                                                            <select
+                                                                class="form-select"
+                                                                name="{{ $key }}[start_year]">
+
+                                                                <option value="">
+                                                                    เลือกปี
+                                                                </option>
+
+                                                                @for($year = date('Y') + 543; $year >= 2500; $year--)
+
+                                                                <option value="{{ $year }}"
+                                                                    {{ @$item->start_year == $year ? 'selected' : '' }}>
+
+                                                                    {{ $year }}
+
+                                                                </option>
+
+                                                                @endfor
+
+                                                            </select>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                            @endif
+                                            @endforeach
+                                              <div class="card card-flush py-4 mb-5">
+
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>ข้อมูลด้านการอบรม</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[id]"
+                                                        value="{{ @$item->id }}">
+
+                                                    <input type="hidden"
+                                                        name="{{ $key }}[education_level]"
+                                                        value="{{ $key }}">
+
+                                                    <div class="row"><!-- ชื่อสถาบัน -->
+                                                        <div class="col-md-6 mb-5">
+
+                                                            <label class="form-label">
+                                                                ระดับภาษา(N)
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="{{ $key }}[institution_name]"
+                                                                value="{{ @$item->institution_name }}">
+
+                                                        </div>
+                                                         <div class="col-md-6 mb-5">
+
+                                                            <label class="form-label">
+                                                                คะแนน
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="{{ $key }}[institution_name]"
+                                                                value="{{ @$item->institution_name }}">
+
+                                                        </div>
+
+
+                                                        <!-- ชื่อสถาบัน -->
+                                                        <div class="col-md-12 mb-5">
+
+                                                            <label class="form-label">
+                                                                ชื่อสถาบัน
+                                                            </label>
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                name="institution_name"
+                                                                value="">
+
+                                                        </div>
+
+                                                       
+
+                                                            <div class="col-md-12 mb-5">
+
+                                                            <label class="form-label">
+                                                                วันที่ออกใบสมัค
+                                                            </label>
+
+                                                            <input type="date"
+                                                                class="form-control"
+                                                                name="date"
+                                                                value="{{ @$item->institution_name }}">
+
+                                                        </div>
+
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Right -->
+                                        <div class="col-md-4">
+
+                                            <!-- Status -->
+                                            <div class="card card-flush py-4 mb-5">
+
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>Status</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body pt-0">
+
+                                                    <select class="form-select"
+                                                        name="status">
+                                                        <option value="pending"
+                                                            {{ $row->status == 'pending' ? 'selected' : '' }}>
+                                                            Pending
+                                                        </option>
+
+                                                        <option value="active"
+                                                            {{ $row->status == 'active' ? 'selected' : '' }}>
+                                                            Approved
+                                                        </option>
+
+                                                        <option value="inactive"
+                                                            {{ $row->status == 'inactive' ? 'selected' : '' }}>
+                                                            Inactive
+                                                        </option>
+
+                                                    </select>
+
+                                                </div>
+
+                                            </div>
+                                            <!-- ===================== -->
+                                            <!-- Parent Information -->
+                                            <!-- ===================== -->
+
+                                            <div class="card card-flush py-4 mb-5">
+
+                                                <div class="card-header">
+
+                                                    <div class="card-title">
+
+                                                        <h2>ข้อมูลผู้ปกครอง</h2>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="card-body pt-0">
+
+                                                    @if(@$row->parent)
+
+                                                    <!-- Username -->
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            Username
+                                                        </label>
+
+                                                        <input type="text"
+                                                            class="form-control"
+                                                            value="{{ @$row->parent->username }}"
+                                                            disabled>
+
+                                                    </div>
+
+                                                    <!-- Email -->
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            Email
+                                                        </label>
+
+                                                        <input type="text"
+                                                            class="form-control"
+                                                            value="{{ @$row->parent->email }}"
+                                                            disabled>
+
+                                                    </div>
+
+                                                    <!-- Password -->
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            Password
+                                                        </label>
+
+                                                        <div class="input-group">
+
+                                                            <input type="text"
+                                                                class="form-control"
+                                                                id="parent_password"
+                                                                value="{{ @$row->parent->parent_plain_password }}"
+                                                                readonly>
+
+                                                            <button type="button"
+                                                                class="btn btn-light-primary"
+                                                                onclick="copyParentPassword()">
+
+                                                                Copy
+
+                                                            </button>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Status -->
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            Status
+                                                        </label>
+
+                                                        <div>
+
+                                                            @if(@$row->parent->status == 'approved')
+
+                                                            <span class="badge badge-light-success">
+                                                                Approved
+                                                            </span>
+
+                                                            @elseif(@$row->parent->status == 'pending')
+
+                                                            <span class="badge badge-light-warning">
+                                                                Pending
+                                                            </span>
+
+                                                            @else
+
+                                                            <span class="badge badge-light-danger">
+                                                                Inactive
+                                                            </span>
+
+                                                            @endif
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    <!-- Created -->
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            Created Date
+                                                        </label>
+
+                                                        <input type="text"
+                                                            class="form-control"
+                                                            value="{{ date('d/m/Y H:i', strtotime($row->parent->created_at)) }}"
+                                                            disabled>
+
+                                                    </div>
+
+                                                    @else
+
+                                                    <div class="alert alert-warning">
+
+                                                        ไม่พบข้อมูลผู้ปกครอง
+
+                                                    </div>
+
+                                                    @endif
+
+                                                </div>
+
+                                            </div>
+                                            <!-- Information -->
+
+                                            <div class="card card-flush py-4">
+
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>ข้อมูลระบบ</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body pt-0">
+
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            Member Code
+                                                        </label>
+
+                                                        <input type="text"
+                                                            class="form-control"
+                                                            value="{{ $row->member_code }}"
+                                                            disabled>
+
+                                                    </div>
+
+                                                    <div class="mb-5">
+
+                                                        <label class="form-label">
+                                                            วันที่สมัคร
+                                                        </label>
+
+                                                        <input type="text"
+                                                            class="form-control"
+                                                            value="{{ date('d/m/Y H:i', strtotime($row->apply_date)) }}"
+                                                            disabled>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
 
                                     </div>
 
-                                @endif
+                                    <!-- Action -->
+                                    <div class="d-flex justify-content-end mt-10">
 
-                                <input type="file"
-                                    class="form-control"
-                                    name="profile_image">
+                                        <a href="{{ url("$segment/$folder") }}"
+                                            class="btn btn-light me-3">
 
-                            </div>
+                                            Cancel
 
-                            <!-- Username / Password -->
-                            <div class="row mb-5">
+                                        </a>
 
-                                <div class="col-md-6">
+                                        <button type="submit"
+                                            class="btn btn-primary">
 
-                                    <label class="form-label">
-                                        Username
-                                    </label>
+                                            Update Changes
 
-                                    <input type="text"
-                                        class="form-control"
-                                        name="username"
-                                        value="{{ $row->username }}">
+                                        </button>
 
-                                </div>
+                                    </div>
 
-                                <div class="col-md-6">
-
-                                    <label class="form-label">
-                                        Password
-                                    </label>
-
-                                    <input type="password"
-                                        class="form-control"
-                                        name="password">
-
-                                    <small class="text-muted">
-                                        เว้นว่างหากไม่เปลี่ยนรหัสผ่าน
-                                    </small>
-
-                                </div>
-
-                            </div>
-
-                            <!-- Email / Phone -->
-                            <div class="row mb-5">
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label">
-                                        Email
-                                    </label>
-
-                                    <input type="email"
-                                        class="form-control"
-                                        name="email"
-                                        value="{{ $row->email }}">
-
-                                </div>
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label">
-                                        เบอร์โทรศัพท์
-                                    </label>
-
-                                    <input type="text"
-                                        class="form-control"
-                                        name="phone"
-                                        value="{{ @$row->profile->phone }}">
-
-                                </div>
-
-                            </div>
-
-                            <hr class="my-10">
-
-                            <!-- TH Name -->
-                            <div class="row mb-5">
-
-                                <div class="col-md-2">
-
-                                    <label class="form-label">
-                                        คำนำหน้า
-                                    </label>
-
-                                    <select class="form-select"
-                                        name="title_th">
-
-                                        <option value="">Select</option>
-
-                                        <option value="นาย"
-                                            {{ @$row->profile->title_th == 'นาย' ? 'selected' : '' }}>
-                                            นาย
-                                        </option>
-
-                                        <option value="นาง"
-                                            {{ @$row->profile->title_th == 'นาง' ? 'selected' : '' }}>
-                                            นาง
-                                        </option>
-
-                                        <option value="นางสาว"
-                                            {{ @$row->profile->title_th == 'นางสาว' ? 'selected' : '' }}>
-                                            นางสาว
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                                <div class="col-md-5">
-
-                                    <label class="form-label">
-                                        ชื่อ (TH)
-                                    </label>
-
-                                    <input type="text"
-                                        class="form-control"
-                                        name="first_name_th"
-                                        value="{{ @$row->profile->first_name_th }}">
-
-                                </div>
-
-                                <div class="col-md-5">
-
-                                    <label class="form-label">
-                                        นามสกุล (TH)
-                                    </label>
-
-                                    <input type="text"
-                                        class="form-control"
-                                        name="last_name_th"
-                                        value="{{ @$row->profile->last_name_th }}">
-
-                                </div>
-
-                            </div>
-
-                            <!-- EN Name -->
-                            <div class="row mb-5">
-
-                                <div class="col-md-2">
-
-                                    <label class="form-label">
-                                        Title
-                                    </label>
-
-                                    <select class="form-select"
-                                        name="title_en">
-
-                                        <option value="">Select</option>
-
-                                        <option value="Mr."
-                                            {{ @$row->profile->title_en == 'Mr.' ? 'selected' : '' }}>
-                                            Mr.
-                                        </option>
-
-                                        <option value="Mrs."
-                                            {{ @$row->profile->title_en == 'Mrs.' ? 'selected' : '' }}>
-                                            Mrs.
-                                        </option>
-
-                                        <option value="Miss"
-                                            {{ @$row->profile->title_en == 'Miss' ? 'selected' : '' }}>
-                                            Miss
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                                <div class="col-md-5">
-
-                                    <label class="form-label">
-                                        First Name (EN)
-                                    </label>
-
-                                    <input type="text"
-                                        class="form-control"
-                                        name="first_name_en"
-                                        value="{{ @$row->profile->first_name_en }}">
-
-                                </div>
-
-                                <div class="col-md-5">
-
-                                    <label class="form-label">
-                                        Last Name (EN)
-                                    </label>
-
-                                    <input type="text"
-                                        class="form-control"
-                                        name="last_name_en"
-                                        value="{{ @$row->profile->last_name_en }}">
-
-                                </div>
-
-                            </div>
-
-                            <!-- Personal -->
-                            <div class="row mb-5">
-
-                                <div class="col-md-4">
-
-                                    <label class="form-label">
-                                        เลขบัตรประชาชน
-                                    </label>
-
-                                    <input type="text"
-                                        class="form-control"
-                                        name="citizen_id"
-                                        value="{{ @$row->profile->citizen_id }}">
-
-                                </div>
-
-                                <div class="col-md-4">
-
-                                    <label class="form-label">
-                                        วันเกิด
-                                    </label>
-
-                                    <input type="date"
-                                        class="form-control"
-                                        name="birth_date"
-                                        value="{{ @$row->profile->birth_date }}">
-
-                                </div>
-
-                                <div class="col-md-4">
-
-                                    <label class="form-label">
-                                        เพศ
-                                    </label>
-
-                                    <select class="form-select"
-                                        name="gender">
-
-                                        <option value="">Select</option>
-
-                                        <option value="ชาย"
-                                            {{ @$row->profile->gender == 'ชาย' ? 'selected' : '' }}>
-                                            ชาย
-                                        </option>
-
-                                        <option value="หญิง"
-                                            {{ @$row->profile->gender == 'หญิง' ? 'selected' : '' }}>
-                                            หญิง
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-                            </div>
-
-                            <!-- Address -->
-                            <div class="mb-5">
-
-                                <label class="form-label">
-                                    ที่อยู่ปัจจุบัน
-                                </label>
-
-                                <textarea class="form-control"
-                                    rows="4"
-                                    name="current_address">{{ @$row->profile->current_address }}</textarea>
+                                </form>
 
                             </div>
 
                         </div>
-                        
-
-                    </div>
-@php
-
-$educationConfig = [
-
-    'secondary' => [
-        'title' => 'มัธยมศึกษาตอนต้น'
-    ],
-
-    'high_vocational' => [
-        'title' => 'มัธยมศึกษาตอนปลาย / ปวช. / ปวส.'
-    ],
-
-    'bachelor' => [
-        'title' => 'ปริญญาตรี'
-    ],
-
-
-];
-
-$months = [
-    1 => 'มกราคม',
-    2 => 'กุมภาพันธ์',
-    3 => 'มีนาคม',
-    4 => 'เมษายน',
-    5 => 'พฤษภาคม',
-    6 => 'มิถุนายน',
-    7 => 'กรกฎาคม',
-    8 => 'สิงหาคม',
-    9 => 'กันยายน',
-    10 => 'ตุลาคม',
-    11 => 'พฤศจิกายน',
-    12 => 'ธันวาคม'
-];
-
-@endphp
-
-@foreach($educationConfig as $key => $config)
-
-@php
-$item = $educationData[$key] ?? null;
-@endphp
-
-<div class="card card-flush py-4 mb-5">
-
-    <div class="card-header">
-        <div class="card-title">
-            <h2>{{ $config['title'] }}</h2>
-        </div>
-    </div>
-
-    <div class="card-body">
-
-        <input type="hidden"
-            name="{{ $key }}[id]"
-            value="{{ @$item->id }}">
-
-        <input type="hidden"
-            name="{{ $key }}[education_level]"
-            value="{{ $key }}">
-
-        <div class="row">
-
-            <!-- ชื่อสถาบัน -->
-            <div class="col-md-12 mb-5">
-
-                <label class="form-label">
-                    ชื่อสถาบัน
-                </label>
-
-                <input type="text"
-                    class="form-control"
-                    name="{{ $key }}[institution_name]"
-                    value="{{ @$item->institution_name }}">
-
-            </div>
-
-            <!-- สาขาวิชา -->
-            <div class="col-md-12 mb-5">
-
-                <label class="form-label">
-                    สาขาวิชา
-                </label>
-
-                <input type="text"
-                    class="form-control"
-                    name="{{ $key }}[major]"
-                    value="{{ @$item->major }}">
-
-            </div>
-
-            <!-- เดือน -->
-            <div class="col-md-6 mb-5">
-
-                <label class="form-label">
-                    เริ่มเรียน (เดือน)
-                </label>
-
-                <select
-                    class="form-select"
-                    name="{{ $key }}[start_month]">
-
-                    <option value="">
-                        เลือกเดือน
-                    </option>
-
-                    @foreach($months as $monthNo => $monthName)
-
-                        <option value="{{ $monthNo }}"
-                            {{ @$item->start_month == $monthNo ? 'selected' : '' }}>
-
-                            {{ $monthName }}
-
-                        </option>
-
-                    @endforeach
-
-                </select>
-
-            </div>
-
-            <!-- ปี -->
-            <div class="col-md-6 mb-5">
-
-                <label class="form-label">
-                    เริ่มเรียน (พ.ศ.)
-                </label>
-
-                <select
-                    class="form-select"
-                    name="{{ $key }}[start_year]">
-
-                    <option value="">
-                        เลือกปี
-                    </option>
-
-                    @for($year = date('Y') + 543; $year >= 2500; $year--)
-
-                        <option value="{{ $year }}"
-                            {{ @$item->start_year == $year ? 'selected' : '' }}>
-
-                            {{ $year }}
-
-                        </option>
-
-                    @endfor
-
-                </select>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-@endforeach
-                </div>
-
-                <!-- Right -->
-                <div class="col-md-4">
-
-                    <!-- Status -->
-                    <div class="card card-flush py-4 mb-5">
-
-                        <div class="card-header">
-                            <div class="card-title">
-                                <h2>Status</h2>
-                            </div>
-                        </div>
-
-                        <div class="card-body pt-0">
-
-                            <select class="form-select"
-                                name="status">
-                                <option value="pending"
-                                    {{ $row->status == 'pending' ? 'selected' : '' }}>
-                                    Pending
-                                </option>
-
-                                <option value="active"
-                                    {{ $row->status == 'active' ? 'selected' : '' }}>
-                                    Approved
-                                </option>
-
-                                <option value="inactive"
-                                    {{ $row->status == 'inactive' ? 'selected' : '' }}>
-                                    Inactive
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-<!-- ===================== -->
-<!-- Parent Information -->
-<!-- ===================== -->
-
-<div class="card card-flush py-4 mb-5">
-
-    <div class="card-header">
-
-        <div class="card-title">
-
-            <h2>ข้อมูลผู้ปกครอง</h2>
-
-        </div>
-
-    </div>
-
-    <div class="card-body pt-0">
-
-        @if(@$row->parent)
-
-            <!-- Username -->
-            <div class="mb-5">
-
-                <label class="form-label">
-                    Username
-                </label>
-
-                <input type="text"
-                    class="form-control"
-                    value="{{ @$row->parent->username }}"
-                    disabled>
-
-            </div>
-
-            <!-- Email -->
-            <div class="mb-5">
-
-                <label class="form-label">
-                    Email
-                </label>
-
-                <input type="text"
-                    class="form-control"
-                    value="{{ @$row->parent->email }}"
-                    disabled>
-
-            </div>
-
-            <!-- Password -->
-            <div class="mb-5">
-
-                <label class="form-label">
-                    Password
-                </label>
-
-                <div class="input-group">
-
-                    <input type="text"
-                        class="form-control"
-                        id="parent_password"
-                        value="{{ @$row->parent->parent_plain_password }}"
-                        readonly>
-
-                    <button type="button"
-                        class="btn btn-light-primary"
-                        onclick="copyParentPassword()">
-
-                        Copy
-
-                    </button>
-
-                </div>
-
-            </div>
-
-            <!-- Status -->
-            <div class="mb-5">
-
-                <label class="form-label">
-                    Status
-                </label>
-
-                <div>
-
-                    @if(@$row->parent->status == 'approved')
-
-                        <span class="badge badge-light-success">
-                            Approved
-                        </span>
-
-                    @elseif(@$row->parent->status == 'pending')
-
-                        <span class="badge badge-light-warning">
-                            Pending
-                        </span>
-
-                    @else
-
-                        <span class="badge badge-light-danger">
-                            Inactive
-                        </span>
-
-                    @endif
-
-                </div>
-
-            </div>
-
-            <!-- Created -->
-            <div class="mb-5">
-
-                <label class="form-label">
-                    Created Date
-                </label>
-
-                <input type="text"
-                    class="form-control"
-                    value="{{ date('d/m/Y H:i', strtotime($row->parent->created_at)) }}"
-                    disabled>
-
-            </div>
-
-        @else
-
-            <div class="alert alert-warning">
-
-                ไม่พบข้อมูลผู้ปกครอง
-
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
-                    <!-- Information -->
-                     
-                    <div class="card card-flush py-4">
-
-                        <div class="card-header">
-                            <div class="card-title">
-                                <h2>ข้อมูลระบบ</h2>
-                            </div>
-                        </div>
-
-                        <div class="card-body pt-0">
-
-                            <div class="mb-5">
-
-                                <label class="form-label">
-                                    Member Code
-                                </label>
-
-                                <input type="text"
-                                    class="form-control"
-                                    value="{{ $row->member_code }}"
-                                    disabled>
-
-                            </div>
-
-                            <div class="mb-5">
-
-                                <label class="form-label">
-                                    วันที่สมัคร
-                                </label>
-
-                                <input type="text"
-                                    class="form-control"
-                                    value="{{ date('d/m/Y H:i', strtotime($row->apply_date)) }}"
-                                    disabled>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Action -->
-            <div class="d-flex justify-content-end mt-10">
-
-                <a href="{{ url("$segment/$folder") }}"
-                    class="btn btn-light me-3">
-
-                    Cancel
-
-                </a>
-
-                <button type="submit"
-                    class="btn btn-primary">
-
-                    Update Changes
-
-                </button>
-
-            </div>
-
-        </form>
-
-    </div>
-
-</div>
 
                     </div>
                     <!--end::Content wrapper-->
@@ -775,31 +1015,28 @@ $item = $educationData[$key] ?? null;
 
     <!--begin::Javascript-->
     @include("$prefix.layout.script")
-   <script>
+    <script>
+        function copyParentPassword() {
+            let copyText =
+                document.getElementById("parent_password");
 
-function copyParentPassword()
-{
-    let copyText =
-        document.getElementById("parent_password");
+            copyText.select();
 
-    copyText.select();
+            copyText.setSelectionRange(0, 99999);
 
-    copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(
+                copyText.value
+            );
 
-    navigator.clipboard.writeText(
-        copyText.value
-    );
-
-    Swal.fire({
-        icon: 'success',
-        title: 'Copied',
-        text: 'Copy password success',
-        timer: 1200,
-        showConfirmButton: false
-    });
-}
-
-</script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Copied',
+                text: 'Copy password success',
+                timer: 1200,
+                showConfirmButton: false
+            });
+        }
+    </script>
     <!--end::Javascript-->
 
 </body>
