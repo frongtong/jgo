@@ -50,6 +50,14 @@ use App\Http\Controllers\Api\AlumniController;
                 'profile',
                 [MemberController::class, 'profile']
             );
+            Route::put(
+                'profile',
+                [MemberController::class, 'updateProfile']
+            );
+            Route::post(
+                'profile/update',
+                [MemberController::class, 'updateProfile']
+            );
             Route::post(
                 'logout',
                 [MemberController::class, 'logout']

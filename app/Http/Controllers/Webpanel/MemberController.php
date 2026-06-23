@@ -273,6 +273,7 @@ $educationData = [
             $parent->username = $username;
             $parent->email = $username . '@jgo.com';
             $parent->password = bcrypt($plainPassword);
+            $parent->parent_plain_password = $plainPassword;
             $parent->type = 'parent';
             $parent->status = 'active';
             $parent->apply_date = now();
@@ -384,6 +385,9 @@ $educationData = [
 
                 $parent->password =
                     bcrypt($parentPassword);
+
+                $parent->parent_plain_password =
+                    $parentPassword;
 
                 $parent->type =
                     'parent';
