@@ -17,6 +17,8 @@ class Member extends Authenticatable
 
     protected $hidden = [
         'password',
+        'parent_plain_password',
+        'remember_token',
     ];
 
     /*
@@ -61,6 +63,16 @@ class Member extends Authenticatable
         );
     }
 
+    public function parents()
+    {
+        return $this->belongsToMany(
+            Member::class,
+            'member_parent',
+            'member_id',
+            'parent_id'
+        )->withTimestamps();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Children
@@ -73,6 +85,16 @@ class Member extends Authenticatable
             Member::class,
             'parent_id'
         );
+    }
+
+    public function linkedChildren()
+    {
+        return $this->belongsToMany(
+            Member::class,
+            'member_parent',
+            'parent_id',
+            'member_id'
+        )->withTimestamps();
     }
     public function workExperiences()
     {

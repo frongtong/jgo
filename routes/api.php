@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\JobController;
 use App\Http\Controllers\Api\VocabularyController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\ArticleController;
+use App\Http\Controllers\Api\AlumniController;
 
 
 
@@ -32,7 +33,19 @@ use App\Http\Controllers\Api\ArticleController;
         Route::get('/vocabulary', [VocabularyController::class, 'index']);
         Route::get('/video', [VideoController::class, 'index']);
         Route::get('/article', [ArticleController::class, 'index']);
+        Route::get('/alumni', [AlumniController::class, 'index']);
+        Route::get('/alumni/{id}', [AlumniController::class, 'show'])->whereNumber('id');
         Route::prefix('member')->group(function () {
+            Route::post(
+                '{memberId}/parents',
+                [MemberController::class, 'createParent']
+            )->whereNumber('memberId');
+
+            Route::get(
+                '{memberId}/parents',
+                [MemberController::class, 'parents']
+            )->whereNumber('memberId');
+
             Route::post(
                 'profile',
                 [MemberController::class, 'profile']

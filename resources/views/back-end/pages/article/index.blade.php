@@ -74,7 +74,7 @@
                                                         class="form-control"
                                                         name="search"
                                                         value="{{ request('search') }}"
-                                                        placeholder="Search article">
+                                                        placeholder="ค้นหา{{ $moduleTitle ?? 'บทความ' }}">
 
                                                 </div>
 
@@ -108,11 +108,16 @@
 
                                                         <th>ชื่อ</th>
 
+                                                        @if($showCategories ?? true)
                                                         <th width="15%">หมวดหมู่หลัก</th>
 
                                                         <th width="15%">หมวดหมู่รอง</th>
+                                                        @endif
 
                                                         <th width="15%">วันที่แสดง</th>
+                                                        @if($multipleBanners ?? false)
+                                                        <th width="10%" class="text-center">Banners</th>
+                                                        @endif
                                                         <th style="width:10%;" class="text-center">Status</th>
                                                         <th width="10%" class="text-center">
                                                             #
@@ -149,6 +154,7 @@
                                                             {{ $item->title }}
                                                         </td>
 
+                                                        @if($showCategories ?? true)
                                                         <td>
 
                                                             {{ optional($item->mainCategory)->name_th }}
@@ -160,6 +166,7 @@
                                                             {{ optional($item->subCategory)->name_th }}
 
                                                         </td>
+                                                        @endif
 
                                                         <td>
 
@@ -169,6 +176,13 @@
                                                             }}
 
                                                         </td>
+                                                        @if($multipleBanners ?? false)
+                                                        <td class="text-center">
+                                                            <span class="badge badge-light-primary">
+                                                                {{ $item->banners_count }}
+                                                            </span>
+                                                        </td>
+                                                        @endif
                                                         <td class="text-center">
                                                             <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
                                                                 <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
@@ -209,7 +223,7 @@
 
                                                     <tr>
 
-                                                        <td colspan="7" class="text-center">
+                                                        <td colspan="{{ 8 + (($multipleBanners ?? false) ? 1 : 0) - (($showCategories ?? true) ? 0 : 2) }}" class="text-center">
 
                                                             No data found
 

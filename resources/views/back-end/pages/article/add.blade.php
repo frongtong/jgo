@@ -70,28 +70,40 @@
                                         <div class="card-header border-0 pt-6">
                                             <div class="card-title">
                                                 <h3 class="fw-bold">
-                                                    Add Article
+                                                    เพิ่ม{{ $moduleTitle ?? 'บทความ' }}
                                                 </h3>
                                             </div>
                                         </div>
 
                                         <div class="card-body">
 
+                                            @if($errors->any())
+                                            <div class="alert alert-danger">
+                                                <ul class="mb-0">
+                                                    @foreach($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                            @endif
+
                                             <div class="row">
 
                                                 <!-- ชื่อบทความ -->
                                                 <div class="col-md-12 mb-5">
                                                     <label class="form-label">
-                                                        ชื่อบทความ
+                                                        ชื่อ{{ $moduleTitle ?? 'บทความ' }}
                                                         <span class="text-danger">*</span>
                                                     </label>
 
                                                     <input type="text"
                                                         class="form-control"
                                                         name="title"
+                                                        value="{{ old('title') }}"
                                                         required>
                                                 </div>
 
+                                                @if($showCategories ?? true)
                                                 <!-- หมวดหลัก -->
                                                 <div class="col-md-6 mb-5">
 
@@ -110,7 +122,8 @@
 
                                                         @foreach($mainCategories as $category)
 
-                                                        <option value="{{ $category->id }}">
+                                                        <option value="{{ $category->id }}"
+                                                            {{ old('article_category1_id') == $category->id ? 'selected' : '' }}>
                                                             {{ $category->name_th }}
                                                         </option>
 
@@ -140,6 +153,8 @@
 
                                                 </div>
 
+                                                @endif
+
                                                 <!-- วันที่เผยแพร่ -->
                                                 <div class="col-md-6 mb-5">
 
@@ -149,7 +164,8 @@
 
                                                     <input type="datetime-local"
                                                         class="form-control"
-                                                        name="published_at">
+                                                        name="published_at"
+                                                        value="{{ old('published_at') }}">
 
                                                 </div>
 
@@ -171,13 +187,24 @@
                                                 <div class="col-md-12 mb-5">
 
                                                     <label class="form-label">
-                                                        รูป Banner
+                                                        รูป Banner {{ ($multipleBanners ?? false) ? '(เลือกได้หลายรูป)' : '' }}
                                                     </label>
 
+                                                    @if($multipleBanners ?? false)
+                                                    <input type="file"
+                                                        class="form-control"
+                                                        name="banner_images[]"
+                                                        accept=".jpg,.jpeg,.png,.webp"
+                                                        multiple>
+                                                    <small class="text-muted">
+                                                        สามารถเลือกหลายไฟล์พร้อมกันได้
+                                                    </small>
+                                                    @else
                                                     <input type="file"
                                                         class="form-control"
                                                         name="banner_image"
                                                         accept=".jpg,.jpeg,.png,.webp">
+                                                    @endif
 
                                                 </div>
 
@@ -191,7 +218,7 @@
                                                     <textarea
                                                         class="form-control"
                                                         rows="4"
-                                                        name="short_description"></textarea>
+                                                        name="short_description">{{ old('short_description') }}</textarea>
 
                                                 </div>
 
@@ -199,14 +226,14 @@
                                                 <div class="col-md-12 mb-5">
 
                                                     <label class="form-label">
-                                                        รายละเอียดบทความ
+                                                        รายละเอียด{{ $moduleTitle ?? 'บทความ' }}
                                                     </label>
 
                                                     <textarea
                                                         id="description"
                                                         class="form-control"
                                                         rows="10"
-                                                        name="description"></textarea>
+                                                        name="description">{{ old('description') }}</textarea>
 
                                                 </div>
                                                 <div class="row">

@@ -57,8 +57,10 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/add', [Webpanel\MemberController::class, 'insert']);
             Route::post('/update-sort-order', [Webpanel\MemberController::class, 'updateSortOrder']);
             Route::post('/update-status', [Webpanel\MemberController::class, 'updateStatus']);
+            Route::get('/view/{id}', [Webpanel\MemberController::class, 'view'])->where(['id' => '[0-9]+']);
             Route::get('/edit/{id}', [Webpanel\MemberController::class, 'edit'])->where(['id' => '[0-9]+']);
             Route::post('/edit/{id}', [Webpanel\MemberController::class, 'update'])->where(['id' => '[0-9]+']);
+            Route::post('/edit/{id}/parents', [Webpanel\MemberController::class, 'createParent'])->where(['id' => '[0-9]+']);
             Route::get('/destroy/{id}', [Webpanel\MemberController::class, 'destroy'])->where(['id' => '[0-9]+']);
             Route::post('/destroy/logo', [Webpanel\MemberController::class, 'destroy_logo'])->where(['id' => '[0-9]+']);
         });
@@ -289,6 +291,17 @@ Route::group(['middleware' => 'Admin'], function () {
 
             Route::post('/update-sort-order', [Webpanel\ArticleController::class, 'updateSortOrder']);
 
+        });
+
+        Route::prefix('alumni')->group(function () {
+            Route::get('/', [Webpanel\AlumniController::class, 'index'])->name('webpanel.alumni');
+            Route::get('/add', [Webpanel\AlumniController::class, 'add'])->name('webpanel.alumni.add');
+            Route::post('/add', [Webpanel\AlumniController::class, 'insert']);
+            Route::get('/edit/{id}', [Webpanel\AlumniController::class, 'edit'])->whereNumber('id');
+            Route::post('/edit/{id}', [Webpanel\AlumniController::class, 'update'])->whereNumber('id');
+            Route::post('/destroy', [Webpanel\AlumniController::class, 'destroy']);
+            Route::post('/update-status', [Webpanel\AlumniController::class, 'updateStatus']);
+            Route::post('/update-sort-order', [Webpanel\AlumniController::class, 'updateSortOrder']);
         });
         
         Route::prefix('arcategory1')->group(function () {

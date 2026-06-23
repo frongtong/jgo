@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use App\Models\Backend\Member;
 use App\Models\Backend\MemberProfile;
 use App\Models\Backend\MemberEducation;
+use App\Models\Backend\MemberTrainingCourse;
 
 class MemberController extends Controller
 {
@@ -30,7 +32,7 @@ class MemberController extends Controller
 
         $query = Member::query();
 
-        $query = $query->with('profile');
+        $query = $query->with('profile')->withCount('parents');
         $query = $query->where('type', '=', 'applicant');
         if ($search) {
 
@@ -131,8 +133,9 @@ public function edit(Request $request, $id)
 {
     $data = Member::with([
         'profile',
-        'parent',
-        'educations'
+        'parents',
+        'educations',
+        'trainingCourses'
     ])->findOrFail($id);
 
     // แยกข้อมูลการศึกษาตามระดับ
@@ -240,6 +243,67 @@ $educationData = [
         return $this->store($request, $id);
     }
 
+    public function view($id)
+    {
+        return redirect(url("$this->segment/$this->folder/edit/$id"));
+    }
+
+    public function createParent($id)
+    {
+        $member = Member::where('id', $id)
+            ->where('type', 'applicant')
+            ->firstOrFail();
+
+        try {
+            DB::beginTransaction();
+
+            do {
+                $suffix = Str::lower(Str::random(10));
+                $username = 'parent_' . $member->id . '_' . $suffix;
+            } while (Member::where('username', $username)->exists());
+
+            do {
+                $memberCode = 'PAR' . now()->format('ymd') . random_int(100000, 999999);
+            } while (Member::where('member_code', $memberCode)->exists());
+
+            $plainPassword = Str::random(12);
+
+            $parent = new Member();
+            $parent->member_code = $memberCode;
+            $parent->username = $username;
+            $parent->email = $username . '@jgo.com';
+            $parent->password = bcrypt($plainPassword);
+            $parent->type = 'parent';
+            $parent->status = 'active';
+            $parent->apply_date = now();
+            $parent->created_by = Auth::guard('admin')->id();
+            $parent->save();
+
+            $member->parents()->attach($parent->id);
+
+            if (empty($member->parent_id)) {
+                $member->parent_id = $parent->id;
+                $member->save();
+            }
+
+            DB::commit();
+
+            return redirect(url("$this->segment/$this->folder/edit/$id"))
+                ->with('success', 'สร้างบัญชีผู้ปกครองสำเร็จ')
+                ->with('parent_credentials', [
+                    'username' => $parent->username,
+                    'email' => $parent->email,
+                    'password' => $plainPassword,
+                ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            report($e);
+
+            return redirect(url("$this->segment/$this->folder/edit/$id"))
+                ->with('error', 'ไม่สามารถสร้างบัญชีผู้ปกครองได้');
+        }
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Store
@@ -248,6 +312,17 @@ $educationData = [
 
     public function store($request, $id = null)
     {
+        $request->validate([
+            'email' => ['nullable', 'email', 'max:255'],
+            'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'training' => ['nullable', 'array'],
+            'training.training_id' => ['nullable', 'integer'],
+            'training.program_type' => ['nullable', 'string', 'max:255'],
+            'training.institution_name' => ['nullable', 'string', 'max:255'],
+            'training.start_month_year' => ['nullable', 'date_format:Y-m'],
+            'training.end_month_year' => ['nullable', 'date_format:Y-m', 'after_or_equal:training.start_month_year'],
+        ]);
+
         try {
 
             DB::beginTransaction();
@@ -310,8 +385,6 @@ $educationData = [
                 $parent->password =
                     bcrypt($parentPassword);
 
-                $parent->parent_plain_password =
-                    $parentPassword;
                 $parent->type =
                     'parent';
 
@@ -357,10 +430,16 @@ $educationData = [
             }
             $member->created_by = Auth::guard('admin')->id();
             $member->status      = $request->status ?? 'pending';
-            $member->apply_date  = now();
+            if (empty($member->apply_date)) {
+                $member->apply_date = now();
+            }
             $member->updated_at  = now();
 
             $member->save();
+
+            if ($id === null && isset($parent)) {
+                $member->parents()->attach($parent->id);
+            }
             /*
             |--------------------------------------------------------------------------
             | Member Profile
@@ -371,47 +450,35 @@ $educationData = [
                 'member_id' => $member->id
             ]);
 
-            $profile->title_th         = $request->title_th;
-            $profile->first_name_th    = $request->first_name_th;
-            $profile->last_name_th     = $request->last_name_th;
-
-            $profile->title_en         = $request->title_en;
-            $profile->first_name_en    = $request->first_name_en;
-            $profile->last_name_en     = $request->last_name_en;
-
-            $profile->nickname         = $request->nickname;
-
-            $profile->citizen_id       = $request->citizen_id;
-
-            $profile->gender           = $request->gender;
-            $profile->birth_date       = $request->birth_date;
-            $profile->age              = $request->age;
-
-            $profile->marital_status   = $request->marital_status;
-
-            $profile->phone            = $request->phone;
-            $profile->line_id          = $request->line_id;
-            $profile->facebook         = $request->facebook;
-
-            $profile->email_contact    = $request->email_contact;
-            $profile->emergency_phone  = $request->emergency_phone;
-
-            $profile->house_no         = $request->house_no;
-            $profile->village_no       = $request->village_no;
-            $profile->village_name     = $request->village_name;
-
-            $profile->province_id      = $request->province_id;
-            $profile->district_id      = $request->district_id;
-            $profile->subdistrict_id   = $request->subdistrict_id;
-            $profile->postcode         = $request->postcode;
-
-            $profile->current_address  = $request->current_address;
-
-            $profile->same_as_house_registration =
-                $request->same_as_house_registration ?? 0;
-
-            $profile->house_registration_address =
-                $request->house_registration_address;
+            $profile->fill($request->only([
+                'title_th',
+                'first_name_th',
+                'last_name_th',
+                'title_en',
+                'first_name_en',
+                'last_name_en',
+                'nickname',
+                'citizen_id',
+                'gender',
+                'birth_date',
+                'age',
+                'marital_status',
+                'phone',
+                'line_id',
+                'facebook',
+                'email_contact',
+                'emergency_phone',
+                'house_no',
+                'village_no',
+                'village_name',
+                'province_id',
+                'district_id',
+                'subdistrict_id',
+                'postcode',
+                'current_address',
+                'same_as_house_registration',
+                'house_registration_address',
+            ]));
 
             /*
             |--------------------------------------------------------------------------
@@ -451,11 +518,17 @@ $educationData = [
 
     'lower_secondary' => $request->lower_secondary,
 
+    'upper_secondary' => $request->upper_secondary,
+
     'vocational' => $request->vocational,
 
     'high_vocational' => $request->high_vocational,
 
     'bachelor' => $request->bachelor,
+
+    'master' => $request->master,
+
+    'doctorate' => $request->doctorate,
 
     'other' => $request->other,
 
@@ -479,7 +552,8 @@ $educationData = [
     MemberEducation::updateOrCreate(
 
         [
-            'id' => $data['id'] ?? null
+            'id' => $data['id'] ?? null,
+            'member_id' => $member->id,
         ],
 
         [
@@ -507,10 +581,41 @@ $educationData = [
     );
 }
 
+            $training = $request->input('training', []);
+            $trainingId = $training['training_id'] ?? null;
+            $hasTrainingData = !empty($training['program_type'])
+                || !empty($training['institution_name'])
+                || !empty($training['start_month_year'])
+                || !empty($training['end_month_year']);
+
+            if ($hasTrainingData) {
+                MemberTrainingCourse::updateOrCreate(
+                    [
+                        'training_id' => $trainingId,
+                        'member_id' => $member->id,
+                    ],
+                    [
+                        'program_type' => $training['program_type'] ?? null,
+                        'institution_name' => $training['institution_name'] ?? null,
+                        'start_month_year' => $training['start_month_year'] ?? null,
+                        'end_month_year' => $training['end_month_year'] ?? null,
+                    ]
+                );
+            } elseif ($trainingId) {
+                MemberTrainingCourse::where('member_id', $member->id)
+                    ->where('training_id', $trainingId)
+                    ->delete();
+            }
+
             DB::commit();
 
             return view("$this->prefix.alert.success", [
-                'url' => url("$this->segment/$this->folder")
+                'url' => url("$this->segment/$this->folder"),
+                'parent_credentials' => isset($parent) ? [
+                    'username' => $parent->username,
+                    'email' => $parent->email,
+                    'password' => $parentPassword,
+                ] : null,
             ]);
         } catch (\Exception $e) {
 

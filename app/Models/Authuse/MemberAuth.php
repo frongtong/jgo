@@ -16,6 +16,7 @@ class MemberAuth extends Authenticatable
 
     protected $hidden = [
         'password',
+        'parent_plain_password',
         'remember_token',
     ];
 }

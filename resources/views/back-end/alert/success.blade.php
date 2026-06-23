@@ -12,13 +12,30 @@
       @include("back-end.layout.script")
       <script>
             const url = '{{@$url}}';
+            const parentCredentials = @json($parent_credentials ?? null);
+
             $(function() {
-                  Swal.fire({
+                  const options = {
                         title: "สำเร็จ",
                         text: "ระบบได้ทำการบันทึกข้อมูลเรียบร้อย",
                         icon: "success",
                         allowOutsideClick: false,
-                  }).then((result) => {
+                  };
+
+                  if (parentCredentials) {
+                        options.text = undefined;
+                        options.html = `
+                              <div class="text-start">
+                                    <p>ระบบสร้างบัญชีผู้ปกครองแล้ว กรุณาบันทึกข้อมูลนี้ทันที</p>
+                                    <div><strong>Username:</strong> <code>${parentCredentials.username}</code></div>
+                                    <div><strong>Email:</strong> <code>${parentCredentials.email}</code></div>
+                                    <div><strong>Password:</strong> <code>${parentCredentials.password}</code></div>
+                                    <small class="text-muted">รหัสผ่านจะแสดงเฉพาะครั้งนี้เท่านั้น</small>
+                              </div>
+                        `;
+                  }
+
+                  Swal.fire(options).then((result) => {
                         if (url == '') {
                               window.location = window.location.href;
                         } else {

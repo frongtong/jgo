@@ -91,6 +91,10 @@
                                                             Phone
                                                         </th>
 
+                                                        <th class="text-center w-100px">
+                                                            Parents
+                                                        </th>
+
                                                         <th class="text-center w-150px">
                                                             Status
                                                         </th>
@@ -179,6 +183,12 @@
 
                                                             {{ @$item->profile->phone ?? '-' }}
 
+                                                        </td>
+
+                                                        <td class="text-center">
+                                                            <span class="badge badge-light-primary">
+                                                                {{ $item->parents_count }}
+                                                            </span>
                                                         </td>
 
                                                         <!-- Status -->
@@ -274,7 +284,7 @@
 
                                                     <tr>
 
-                                                        <td colspan="6">
+                                                        <td colspan="7">
 
                                                             <div class="d-flex flex-column flex-center py-20">
 

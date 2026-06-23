@@ -44,24 +44,35 @@
 
                                         <div class="card-body">
 
+                                            @if($errors->any())
+                                            <div class="alert alert-danger">
+                                                <ul class="mb-0">
+                                                    @foreach($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                            @endif
+
                                             <div class="row mb-3">
 
                                                 <!-- ชื่อบทความ -->
                                                 <div class="col-md-12 mb-3">
 
                                                     <label class="form-label">
-                                                        ชื่อบทความ
+                                                        ชื่อ{{ $moduleTitle ?? 'บทความ' }}
                                                         <span class="text-danger">*</span>
                                                     </label>
 
                                                     <input type="text"
                                                         class="form-control"
                                                         name="title"
-                                                        value="{{ $data->title }}"
+                                                        value="{{ old('title', $data->title) }}"
                                                         required>
 
                                                 </div>
 
+                                                @if($showCategories ?? true)
                                                 <!-- หมวดหลัก -->
                                                 <div class="col-md-6 mb-3">
 
@@ -81,7 +92,7 @@
                                                         @foreach($mainCategories as $category)
 
                                                         <option value="{{ $category->id }}"
-                                                            {{ $data->article_category1_id == $category->id ? 'selected' : '' }}>
+                                                            {{ old('article_category1_id', $data->article_category1_id) == $category->id ? 'selected' : '' }}>
 
                                                             {{ $category->name_th }}
 
@@ -112,7 +123,7 @@
                                                         @foreach($subCategories as $sub)
 
                                                         <option value="{{ $sub->id }}"
-                                                            {{ $data->article_category2_id == $sub->id ? 'selected' : '' }}>
+                                                            {{ old('article_category2_id', $data->article_category2_id) == $sub->id ? 'selected' : '' }}>
 
                                                             {{ $sub->name_th }}
 
@@ -124,6 +135,8 @@
 
                                                 </div>
 
+                                                @endif
+
                                                 <!-- วันที่เผยแพร่ -->
                                                 <div class="col-md-6 mb-3">
 
@@ -134,7 +147,7 @@
                                                     <input type="datetime-local"
                                                         class="form-control"
                                                         name="published_at"
-                                                        value="{{ $data->published_at ? \Carbon\Carbon::parse($data->published_at)->format('Y-m-d\TH:i') : '' }}">
+                                                        value="{{ old('published_at', $data->published_at ? \Carbon\Carbon::parse($data->published_at)->format('Y-m-d\TH:i') : '') }}">
 
                                                 </div>
 
@@ -184,9 +197,42 @@
                                                 <div class="col-md-12">
 
                                                     <label class="form-label">
-                                                        รูป Banner
+                                                        รูป Banner {{ ($multipleBanners ?? false) ? '(เพิ่มได้หลายรูป)' : '' }}
                                                     </label>
 
+                                                    @if($multipleBanners ?? false)
+                                                    @if($data->banners->isNotEmpty())
+                                                    <div class="row g-4 mb-4">
+                                                        @foreach($data->banners as $banner)
+                                                        <div class="col-md-4">
+                                                            <div class="border rounded p-3 h-100">
+                                                                <img src="{{ asset($banner->image_url) }}"
+                                                                    class="img-fluid rounded mb-3"
+                                                                    alt="Banner {{ $loop->iteration }}">
+                                                                <label class="form-check form-check-sm form-check-custom form-check-solid">
+                                                                    <input class="form-check-input"
+                                                                        type="checkbox"
+                                                                        name="remove_banner_ids[]"
+                                                                        value="{{ $banner->id }}">
+                                                                    <span class="form-check-label text-danger">
+                                                                        ลบรูปนี้
+                                                                    </span>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        @endforeach
+                                                    </div>
+                                                    @endif
+
+                                                    <input type="file"
+                                                        class="form-control"
+                                                        name="banner_images[]"
+                                                        accept=".jpg,.jpeg,.png,.webp"
+                                                        multiple>
+                                                    <small class="text-muted">
+                                                        รูปเดิมจะยังอยู่จนกว่าจะเลือก “ลบรูปนี้”
+                                                    </small>
+                                                    @else
                                                     @if($data->banner_image_url)
 
                                                     <div class="mb-3">
@@ -211,6 +257,7 @@
                                                         type="file"
                                                         class="form-control"
                                                         name="banner_image">
+                                                    @endif
 
                                                 </div>
 
@@ -228,7 +275,7 @@
                                                     <textarea
                                                         class="form-control"
                                                         rows="4"
-                                                        name="short_description">{{ $data->short_description }}</textarea>
+                                                        name="short_description">{{ old('short_description', $data->short_description) }}</textarea>
 
                                                 </div>
 
@@ -240,12 +287,12 @@
                                                 <div class="col-md-12">
 
                                                     <label class="form-label">
-                                                        รายละเอียดบทความ
+                                                        รายละเอียด{{ $moduleTitle ?? 'บทความ' }}
                                                     </label>
 
                                                     <textarea
                                                         id="description"
-                                                        name="description">{{ $data->description }}</textarea>
+                                                        name="description">{{ old('description', $data->description) }}</textarea>
 
                                                 </div>
 

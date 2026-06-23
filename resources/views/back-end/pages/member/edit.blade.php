@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <!--begin::Head-->
 
 <head>
@@ -85,7 +85,8 @@
 
                                                         <input type="file"
                                                             class="form-control"
-                                                            name="profile_image">
+                                                            name="profile_image"
+                                                            accept="image/jpeg,image/png,image/webp">
 
                                                     </div>
 
@@ -433,10 +434,6 @@
                                                         name="{{ $key }}[id]"
                                                         value="{{ @$item->id }}">
 
-                                                    <input type="hidden"
-                                                        name="{{ $key }}[education_level]"
-                                                        value="{{ $key }}">
-
                                                     <div class="row">
 
                                                         <!-- ชื่อสถาบัน -->
@@ -668,7 +665,12 @@
                                             </div>
                                             @endif
                                             @endforeach
-                                              <div class="card card-flush py-4 mb-5">
+
+                                            @php
+                                            $training = $row->trainingCourses->first();
+                                            @endphp
+
+                                            <div class="card card-flush py-4 mb-5">
 
                                                 <div class="card-header">
                                                     <div class="card-title">
@@ -679,42 +681,24 @@
                                                 <div class="card-body">
 
                                                     <input type="hidden"
-                                                        name="{{ $key }}[id]"
-                                                        value="{{ @$item->id }}">
+                                                        name="training[training_id]"
+                                                        value="{{ old('training.training_id', $training?->training_id) }}">
 
-                                                    <input type="hidden"
-                                                        name="{{ $key }}[education_level]"
-                                                        value="{{ $key }}">
-
-                                                    <div class="row"><!-- ชื่อสถาบัน -->
+                                                    <div class="row">
                                                         <div class="col-md-6 mb-5">
 
                                                             <label class="form-label">
-                                                                ระดับภาษา(N)
+                                                                ประเภทหลักสูตร
                                                             </label>
 
                                                             <input type="text"
                                                                 class="form-control"
-                                                                name="{{ $key }}[institution_name]"
-                                                                value="{{ @$item->institution_name }}">
-
-                                                        </div>
-                                                         <div class="col-md-6 mb-5">
-
-                                                            <label class="form-label">
-                                                                คะแนน
-                                                            </label>
-
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                name="{{ $key }}[institution_name]"
-                                                                value="{{ @$item->institution_name }}">
+                                                                name="training[program_type]"
+                                                                value="{{ old('training.program_type', $training?->program_type) }}">
 
                                                         </div>
 
-
-                                                        <!-- ชื่อสถาบัน -->
-                                                        <div class="col-md-12 mb-5">
+                                                        <div class="col-md-6 mb-5">
 
                                                             <label class="form-label">
                                                                 ชื่อสถาบัน
@@ -722,23 +706,36 @@
 
                                                             <input type="text"
                                                                 class="form-control"
-                                                                name="institution_name"
-                                                                value="">
+                                                                name="training[institution_name]"
+                                                                value="{{ old('training.institution_name', $training?->institution_name) }}">
 
                                                         </div>
 
-                                                       
 
-                                                            <div class="col-md-12 mb-5">
+                                                        <div class="col-md-6 mb-5">
 
                                                             <label class="form-label">
-                                                                วันที่ออกใบสมัค
+                                                                เริ่มอบรม
                                                             </label>
 
-                                                            <input type="date"
+                                                            <input type="month"
                                                                 class="form-control"
-                                                                name="date"
-                                                                value="{{ @$item->institution_name }}">
+                                                                name="training[start_month_year]"
+                                                                value="{{ old('training.start_month_year', $training?->start_month_year) }}">
+
+                                                        </div>
+
+
+                                                        <div class="col-md-6 mb-5">
+
+                                                            <label class="form-label">
+                                                                สิ้นสุดการอบรม
+                                                            </label>
+
+                                                            <input type="month"
+                                                                class="form-control"
+                                                                name="training[end_month_year]"
+                                                                value="{{ old('training.end_month_year', $training?->end_month_year) }}">
 
                                                         </div>
 
@@ -792,131 +789,81 @@
 
                                             <div class="card card-flush py-4 mb-5">
 
-                                                <div class="card-header">
+                                                <div class="card-header align-items-center">
 
                                                     <div class="card-title">
 
-                                                        <h2>ข้อมูลผู้ปกครอง</h2>
+                                                        <h2>ข้อมูลผู้ปกครอง ({{ $row->parents->count() }})</h2>
 
+                                                    </div>
+
+                                                    <div class="card-toolbar">
+                                                        <button type="submit"
+                                                            class="btn btn-sm btn-light-primary"
+                                                            form="create-parent-form">
+                                                            สร้างผู้ปกครองเพิ่ม
+                                                        </button>
                                                     </div>
 
                                                 </div>
 
                                                 <div class="card-body pt-0">
 
-                                                    @if(@$row->parent)
-
-                                                    <!-- Username -->
-                                                    <div class="mb-5">
-
-                                                        <label class="form-label">
-                                                            Username
-                                                        </label>
-
-                                                        <input type="text"
-                                                            class="form-control"
-                                                            value="{{ @$row->parent->username }}"
-                                                            disabled>
-
-                                                    </div>
-
-                                                    <!-- Email -->
-                                                    <div class="mb-5">
-
-                                                        <label class="form-label">
-                                                            Email
-                                                        </label>
-
-                                                        <input type="text"
-                                                            class="form-control"
-                                                            value="{{ @$row->parent->email }}"
-                                                            disabled>
-
-                                                    </div>
-
-                                                    <!-- Password -->
-                                                    <div class="mb-5">
-
-                                                        <label class="form-label">
-                                                            Password
-                                                        </label>
-
-                                                        <div class="input-group">
-
-                                                            <input type="text"
-                                                                class="form-control"
-                                                                id="parent_password"
-                                                                value="{{ @$row->parent->parent_plain_password }}"
-                                                                readonly>
-
-                                                            <button type="button"
-                                                                class="btn btn-light-primary"
-                                                                onclick="copyParentPassword()">
-
-                                                                Copy
-
-                                                            </button>
-
+                                                    @if(session('parent_credentials'))
+                                                    <div class="alert alert-success">
+                                                        <div class="fw-bold mb-2">
+                                                            สร้างบัญชีสำเร็จ กรุณาบันทึกรหัสผ่านนี้ทันที
                                                         </div>
-
-                                                    </div>
-
-                                                    <!-- Status -->
-                                                    <div class="mb-5">
-
-                                                        <label class="form-label">
-                                                            Status
-                                                        </label>
-
-                                                        <div>
-
-                                                            @if(@$row->parent->status == 'approved')
-
-                                                            <span class="badge badge-light-success">
-                                                                Approved
-                                                            </span>
-
-                                                            @elseif(@$row->parent->status == 'pending')
-
-                                                            <span class="badge badge-light-warning">
-                                                                Pending
-                                                            </span>
-
-                                                            @else
-
-                                                            <span class="badge badge-light-danger">
-                                                                Inactive
-                                                            </span>
-
-                                                            @endif
-
+                                                        <div>Username: <code>{{ session('parent_credentials.username') }}</code></div>
+                                                        <div>Email: <code>{{ session('parent_credentials.email') }}</code></div>
+                                                        <div>Password: <code>{{ session('parent_credentials.password') }}</code></div>
+                                                        <div class="small mt-2">
+                                                            รหัสผ่านจะแสดงเฉพาะครั้งนี้เท่านั้น
                                                         </div>
-
                                                     </div>
-
-                                                    <!-- Created -->
-                                                    <div class="mb-5">
-
-                                                        <label class="form-label">
-                                                            Created Date
-                                                        </label>
-
-                                                        <input type="text"
-                                                            class="form-control"
-                                                            value="{{ date('d/m/Y H:i', strtotime($row->parent->created_at)) }}"
-                                                            disabled>
-
-                                                    </div>
-
-                                                    @else
-
-                                                    <div class="alert alert-warning">
-
-                                                        ไม่พบข้อมูลผู้ปกครอง
-
-                                                    </div>
-
                                                     @endif
+
+                                                    @if(session('error'))
+                                                    <div class="alert alert-danger">
+                                                        {{ session('error') }}
+                                                    </div>
+                                                    @endif
+
+                                                    @forelse($row->parents as $parent)
+                                                    <div class="border rounded p-4 mb-4">
+                                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                                            <div>
+                                                                <div class="fw-bold text-gray-800">
+                                                                    {{ $parent->username }}
+                                                                </div>
+                                                                <div class="text-muted small">
+                                                                    {{ $parent->member_code }}
+                                                                </div>
+                                                            </div>
+
+                                                            @if(in_array($parent->status, ['approved', 'active']))
+                                                            <span class="badge badge-light-success">Approved</span>
+                                                            @elseif($parent->status === 'pending')
+                                                            <span class="badge badge-light-warning">Pending</span>
+                                                            @else
+                                                            <span class="badge badge-light-danger">Inactive</span>
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="small mb-2">
+                                                            <span class="text-muted">Email:</span>
+                                                            {{ $parent->email }}
+                                                        </div>
+                                                        <div class="small text-muted">
+                                                            สร้างเมื่อ
+                                                            {{ $parent->created_at ? $parent->created_at->format('d/m/Y H:i') : '-' }}
+                                                        </div>
+                                                    </div>
+                                                    @empty
+                                                    <div class="alert alert-warning mb-0">
+                                                        ไม่พบข้อมูลผู้ปกครอง
+                                                    </div>
+                                                    @endforelse
 
                                                 </div>
 
@@ -988,6 +935,13 @@
 
                                 </form>
 
+                                <form id="create-parent-form"
+                                    action="{{ url("webpanel/member/edit/$row->id/parents") }}"
+                                    method="POST"
+                                    class="d-none">
+                                    @csrf
+                                </form>
+
                             </div>
 
                         </div>
@@ -1015,28 +969,6 @@
 
     <!--begin::Javascript-->
     @include("$prefix.layout.script")
-    <script>
-        function copyParentPassword() {
-            let copyText =
-                document.getElementById("parent_password");
-
-            copyText.select();
-
-            copyText.setSelectionRange(0, 99999);
-
-            navigator.clipboard.writeText(
-                copyText.value
-            );
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Copied',
-                text: 'Copy password success',
-                timer: 1200,
-                showConfirmButton: false
-            });
-        }
-    </script>
     <!--end::Javascript-->
 
 </body>
