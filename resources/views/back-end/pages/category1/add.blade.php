@@ -30,12 +30,16 @@
                 <div class="app-main flex-column flex-row-fluid" id="kt_app_main">
                     <div class="d-flex flex-column flex-column-fluid">
                         <div id="kt_app_content" class="app-content  flex-column-fluid ">
-                            <form id="form_submit" action="" method="POST" enctype="multipart/form-data">
-                            {{-- <form id="form_submit" action="{{ route('webpanel.category1.add') }}" method="POST" enctype="multipart/form-data"> --}}
+                            <form id="form_submit" action="{{ url("$segment/$folder/add") }}" method="POST">
                                 @csrf
                                 <div id="kt_app_content_container" class="app-container  container-xxl ">
                                     <div class="card">
                                         <div class="card-body">
+                                            @if($errors->any())
+                                            <div class="alert alert-danger">
+                                                {{ $errors->first() }}
+                                            </div>
+                                            @endif
                                             <div class="card-title text-center py-3">
                                                 <!-- <h5>หมวดหมู่</h5> -->
                                             </div>
@@ -43,7 +47,7 @@
                                                 <div class="row mb-3">
                                                     <div class="col-md-12 mb-3">
                                                         <label class="form-label">ชื่อหมวดหมู่<span class="text-danger">*</span></label>
-                                                        <input type="text" class="form-control" placeholder="ชื่อหมวดหมู่" name="name_th" id="name_th" required>
+                                                        <input type="text" class="form-control" placeholder="ชื่อหมวดหมู่" name="name_th" id="name_th" value="{{ old('name_th') }}" required>
                                                     </div>
                                                    
                                                 </div>

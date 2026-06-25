@@ -73,7 +73,7 @@ class Category1Controller extends Controller
 
     public function edit(Request $request, $id)
     {
-        $data = Category1::find($id);
+        $data = Category1::findOrFail($id);
         $navs = [
             '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/$this->folder", 'name' => "หมวดหมู่", "last" => 1],
@@ -128,44 +128,23 @@ class Category1Controller extends Controller
     }
     public function store($request, $id = null)
     {
+        $validated = $request->validate([
+            'name_th' => ['required', 'string', 'max:255'],
+        ]);
+
         try {
             DB::beginTransaction();
             if ($id == null) {
                 $data = new Category1();
-                $data->created_at = date('Y-m-d H:i:s');
-                $data->updated_at = date('Y-m-d H:i:s');
             } else {
-                $data = Category1::find($id);
-                $data->updated_at = date('Y-m-d H:i:s');
+                $data = Category1::findOrFail($id);
             }
-            $data->name_en = $request->name_en;
-            $data->name_th = $request->name_th;
-            $data->description_en = $request->description_en;
-            $data->description_th = $request->description_th;
 
-            $allow = ['png', 'jpeg', 'jpg', 'webp'];
-            $path = 'upload/category1';
-            if ($fileimage = $request->file('image')) {
-                if ($data->image) {
-                    $oldImagePath = public_path($data->image);
-                    if (file_exists($oldImagePath)) {
-                        unlink($oldImagePath);
-                    }
-                }
-                $image = $path . '/image-' . time() . '.' . $fileimage->getClientOriginalExtension();
-                // if (in_array($fileimage->getClientOriginalExtension(), $allow)) {
-                //     $fileimage->move(public_path($path), $image);
-                //     $data->image = $image;
-                // }
-                $fileimage->move(public_path($path), $image);
-                $data->image = $image;
-            }
+            $data->name_th = $validated['name_th'];
 
             if ($data->save()) {
                 DB::commit();
                 return view("$this->prefix.alert.success", ['url' => url("$this->segment/$this->folder")]);
-            } else {
-                return view("$this->prefix.alert.error", ['url' => url("$this->segment/$this->folder")]);
             }
         } catch (\Exception $e) {
             DB::rollback();

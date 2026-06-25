@@ -22,8 +22,7 @@ class JobController extends Controller
 
             return response()->json([
                 'status' => true,
-                'message' => 'ดึงข้อมูลสำเร็จ',
-                'url' => $request->getSchemeAndHttpHost(),
+                'message' => 'ดึงข้อมูลสำเร็จ',                
                 'results' => $jobs
             ]);
 

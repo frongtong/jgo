@@ -124,7 +124,6 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::get('{category1_id}/edit/{id}', [Webpanel\Category2Controller::class, 'edit'])->where(['id' => '[0-9]+']);
             Route::post('{category1_id}/edit/{id}', [Webpanel\Category2Controller::class, 'update'])->where(['id' => '[0-9]+'])->name('webpanel.category2.update');
             Route::post('{category1_id}/destroy', [Webpanel\Category2Controller::class, 'destroy']);
-            Route::post('/destroy/url', [Webpanel\Category2Controller::class, 'destroy_url'])->where(['id' => '[0-9]+']);
             Route::post('/{category1_id}/update-status', [Webpanel\Category2Controller::class, 'updateStatus']);
             Route::post('{category1_id}/update-sort-order', [Webpanel\Category2Controller::class, 'updateSortOrder']); //หลิว
         });

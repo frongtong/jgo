@@ -4,6 +4,17 @@
     $image = 'backend/assets/media/avatars/300-1.jpg';
     $roleId = $member->role; // Assuming that the `Admin` model has a `role_id` field
     $menus = \Helper::mainMenu($roleId);
+    $currentRouteName = request()->route() ? request()->route()->getName() : null;
+    $currentFolder = $folder ?? null;
+    $isCurrentMenu = function ($menuUrl) use ($currentRouteName, $currentFolder) {
+        if (!$menuUrl) {
+            return false;
+        }
+
+        $menuFolder = \Illuminate\Support\Str::afterLast($menuUrl, '.');
+
+        return $currentRouteName === $menuUrl || $currentFolder === $menuFolder;
+    };
 @endphp
 <div id="kt_app_sidebar" class="app-sidebar flex-column" data-kt-drawer="true" data-kt-drawer-name="app-sidebar"
     data-kt-drawer-activate="{default: true, lg: false}" data-kt-drawer-overlay="true" data-kt-drawer-width="225px"
@@ -44,7 +55,6 @@
                     </div>
                     @if (@$menus)
                         @foreach (@$menus as $key => $menu)
-                            @php $arraymenu = array(); @endphp
                             @if ($menu->position == 'topic')
                                 <div class="menu-item pt-5">
                                     <div class="menu-content">
@@ -55,16 +65,15 @@
                             @else
                                 @php
                                     $subs = \Helper::subMenu($menu->id);
-                                    if ($subs->count() > 0) {
-                                        foreach ($subs as $submenu) {
-                                            array_push($arraymenu, $submenu->url);
-                                        }
-                                    }
+                                    $isMenuActive = $isCurrentMenu($menu->url);
+                                    $hasActiveSub = $subs->contains(function ($submenu) use ($isCurrentMenu) {
+                                        return $isCurrentMenu($submenu->url);
+                                    });
                                 @endphp
                                 <!-- Begin:Menu -->
                                 @if ($subs->count() <= 0)
                                     <div class="menu-item">
-                                        <a class="menu-link @if (@$folder == $menu->url) active @endif"
+                                        <a class="menu-link {{ $isMenuActive ? 'active' : '' }}"
                                             href="{{ route($menu->url) }}">
                                             <span class="menu-icon">
                                                 <i class="{{ @$menu->icon }}"> </i>
@@ -74,7 +83,7 @@
                                     </div>
                                 @else
                                     <div data-kt-menu-trigger="click" id="main_menu_{{ @$menu->id }}"
-                                        class="menu-item menu-accordion">
+                                        class="menu-item menu-accordion {{ $hasActiveSub ? 'here show' : '' }}">
                                         <!--begin:Menu link-->
                                         <span class="menu-link">
                                             <span class="menu-icon">
@@ -88,21 +97,8 @@
                                         <div class="menu-sub menu-sub-accordion">
                                             @if ($subs)
                                                 @foreach ($subs as $sub)
-                                                @php
-                                                try{
-                                                    if(in_array(@$folder, $arraymenu)){
-                                                        echo "<script>
-                                                            var element = document.getElementById('main_menu_'+ $menu->id);
-                                                                element.classList.add('here');
-                                                                element.classList.add('show');
-                                                            </script>";
-                                                    }
-                                                }catch (\Exception $e) {
-
-                                                }
-                                                @endphp
                                                     <div class="menu-item">
-                                                        <a class="menu-link @if (@$folder == $sub->url) active @endif"
+                                                        <a class="menu-link {{ $isCurrentMenu($sub->url) ? 'active' : '' }}"
                                                             href="{{ route($sub->url) }}">
                                                             <span class="menu-bullet">
                                                                 <span class="bullet bullet-dot"></span>
@@ -127,7 +123,7 @@
                         </div>
                     </div>
                     <div class="menu-item">
-                        <a class="menu-link" href="{{ url('webpanel/administrator/user/') }}">
+                        <a class="menu-link {{ request()->is('webpanel/administrator/user*') ? 'active' : '' }}" href="{{ url('webpanel/administrator/user/') }}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-rocket fs-2">
                                     <span class="path1"></span>
@@ -139,7 +135,7 @@
                     </div>
 
                     <div class="menu-item">
-                        <a class="menu-link" href="{{ url('webpanel/administrator/permission/') }}">
+                        <a class="menu-link {{ request()->is('webpanel/administrator/permission*') ? 'active' : '' }}" href="{{ url('webpanel/administrator/permission/') }}">
                             <span class="menu-icon">
                                 <i class="ki-duotone ki-abstract-26 fs-2">
                                     <span class="path1"></span>

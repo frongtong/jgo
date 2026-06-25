@@ -13,7 +13,7 @@ use App\Http\Controllers\Webpanel\LogsController;
 use App\Helpers\Helper;
 use Illuminate\Support\Arr;
 use App\Models\Backend\Category2;
-use App\Models\Backend\Category2_link;
+use App\Models\Backend\Category1;
 
 use Intervention\Image\ImageManagerStatic as Image;
 
@@ -45,6 +45,7 @@ class Category2Controller extends Controller
 
     public function index(Request $request, $category1_id)
     {
+        Category1::findOrFail($category1_id);
 
         $items = Category2::query()->where('category1_id', $category1_id)->paginate(15);
         $items->pages = new Category2();
@@ -67,6 +68,7 @@ class Category2Controller extends Controller
 
     public function add(Request $request, $category1_id, $id=null)
     {
+        Category1::findOrFail($category1_id);
         $navs = [
             '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/category1", 'name' => "หมวดหมู่", "last" => 1],
@@ -84,7 +86,8 @@ class Category2Controller extends Controller
 
     public function edit(Request $request, $category1_id, $id)
     {
-        $data = Category2::find($id);
+        Category1::findOrFail($category1_id);
+        $data = Category2::where('category1_id', $category1_id)->findOrFail($id);
         $navs = [
             '0' => ['url' => "javascript:void(0)", 'name' => "จัดการงาน", "last" => 0],
             '1' => ['url' => "$this->segment/category1", 'name' => "หมวดหมู่", "last" => 1],
@@ -153,65 +156,26 @@ class Category2Controller extends Controller
     }
     public function store($request, $category1_id, $id = null)
     {
+        Category1::findOrFail($category1_id);
+
+        $validated = $request->validate([
+            'name_th' => ['required', 'string', 'max:255'],
+        ]);
+
         try {
 
             DB::beginTransaction();
             if ($id == null) {
                 $data = new Category2();
-                $data->created_at = date('Y-m-d H:i:s');
-                $data->updated_at = date('Y-m-d H:i:s');
                 $data->category1_id = $category1_id;
 
             } else {
-                $data = Category2::find($id);
-                $data->updated_at = date('Y-m-d H:i:s');
+                $data = Category2::where('category1_id', $category1_id)->findOrFail($id);
             }
-            $data->name_en = $request->name_en;
-            $data->name_th = $request->name_th;
+            $data->name_th = $validated['name_th'];
             if ($data->save()) {
-
-                $allow = ['svg'];
-                $path = "upload/category2";
-                if ($request->urls && $request->hasFile('images')) {
-                    $files = $request->file("images");
-                    $ids = $request->id_link;
-                
-                    foreach ($files as $index => $file) {
-                        $fileId = $ids[$index] ?? null;
-                
-                        $imgName = $path . '/link-img-' . time() . '-' . $index . '.' . $file->getClientOriginalExtension();
-                        
-                        if ($fileId) {
-                            $link = Category2_link::find($fileId);
-                            if ($link) {
-                                Storage::disk('public')->delete($link->image);
-                                
-                                if (in_array($file->getClientOriginalExtension(), $allow)) {
-                                    $file->move(public_path($path), $imgName);
-                                    $link->url = $request->urls[$index];
-                                    $link->image = $imgName;
-                                    $link->save();
-                                }
-                            }
-                        } else {
-                            if (in_array($file->getClientOriginalExtension(), $allow)) {
-                                $file->move(public_path($path), $imgName);
-                                $link = new Category2_link();
-                                $link->created_at = date('Y-m-d H:i:s');
-                                $link->updated_at = date('Y-m-d H:i:s');
-                                $link->category2_id = $data->id;
-                                $link->url = $request->urls[$index];
-                                $link->image = $imgName;
-                                $link->save();
-                            }
-                        }
-                    }
-                }
-
                 DB::commit();
                 return view("$this->prefix.alert.success", ['url' => url("$this->segment/$this->folder/$category1_id")]);
-            } else {
-                return view("$this->prefix.alert.error", ['url' => url("$this->segment/$this->folder/$category1_id")]);
             }
         } catch (\Exception $e) {
             DB::rollback();
@@ -227,28 +191,6 @@ class Category2Controller extends Controller
                 'icon' => 'error'
             ]);
         }
-    }
-    public function destroy_url(Request $request)
-    {
-        if ($request->id == null) {
-            return response()->json(false);
-        } else {
-            $data = Category2_link::find($request->id);
-
-            if (@$data) {
-                Storage::disk('public')->delete(@$data->image);
-                $query = Category2_link::destroy($data->id);
-            }
-
-            if (@$query) {
-                return response()->json(true);
-            } else {
-                return response()->json(false);
-            }
-        }
-
-        // $deleted = Category2_link::destroy($request->id);
-        // return response()->json('true');
     }
 
     public function updateStatus(Request $request)

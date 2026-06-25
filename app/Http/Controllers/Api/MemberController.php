@@ -251,6 +251,7 @@ class MemberController extends Controller
             'results' => [
                 'type' => $member->type,
                 'member' => $accountData,
+                'url' => $request->getSchemeAndHttpHost(),
                 // 'related_members' => $relatedMembers,
                 // 'related_parents' => $relatedParents,
             ],
