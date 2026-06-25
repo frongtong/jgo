@@ -13,6 +13,9 @@ use App\Models\Authuse\MemberAuth;
 
 use App\Models\Backend\Member;
 use App\Models\Backend\MemberProfile;
+use App\Models\Backend\MemberEducation;
+use App\Models\Backend\MemberTrainingCourse;
+use App\Models\Backend\MemberApplicationDetail;
 
 class MemberController extends Controller
 {
@@ -251,7 +254,7 @@ class MemberController extends Controller
             'results' => [
                 'type' => $member->type,
                 'member' => $accountData,
-                'url' => $request->getSchemeAndHttpHost(),
+                'url' => $r->getSchemeAndHttpHost(),
                 // 'related_members' => $relatedMembers,
                 // 'related_parents' => $relatedParents,
             ],
@@ -266,7 +269,12 @@ class MemberController extends Controller
     public function profile(Request $r)
     {
         $memberId = $r->input('member_id', $r->user()->id);
-        $member = Member::with('profile')->find($memberId);
+        $member = Member::with([
+            'profile',
+            'educations',
+            'trainingCourses',
+            'applicationDetail',
+        ])->find($memberId);
 
         if (!$member) {
 
@@ -301,6 +309,9 @@ class MemberController extends Controller
 
                 'member' => $member,
                 'profile' => $member->profile,
+                'educations' => $member->educations,
+                'training_courses' => $member->trainingCourses,
+                'application_detail' => $member->applicationDetail,
 
             ]
 
@@ -592,6 +603,309 @@ class MemberController extends Controller
             return response()->json([
                 'status' => false,
                 'message' => 'ไม่สามารถบันทึกข้อมูลโปรไฟล์ได้',
+            ], 500);
+        }
+    }
+
+    public function updateApplication(Request $request)
+    {
+        $memberId = $request->input('member_id', $request->user()->id);
+        $member = Member::with(['profile', 'educations', 'trainingCourses', 'applicationDetail'])
+            ->find($memberId);
+
+        if (!$member) {
+            return response()->json([
+                'status' => false,
+                'message' => 'ไม่พบข้อมูลสมาชิก',
+            ], 404);
+        }
+
+        $isOwner = (int) $request->user()->id === (int) $member->id;
+        $isLinkedParent = $request->user()->type === 'parent'
+            && DB::table('member_parent')
+                ->where('member_id', $member->id)
+                ->where('parent_id', $request->user()->id)
+                ->exists();
+
+        if (!$isOwner && !$isLinkedParent) {
+            return response()->json([
+                'status' => false,
+                'message' => 'ไม่มีสิทธิ์แก้ไขข้อมูลสมาชิกนี้',
+            ], 403);
+        }
+
+        $request->validate([
+            'member_id' => ['nullable', 'integer'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'password' => ['nullable', 'string', 'max:255'],
+            'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'health_attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'tattoo_attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'application_detail' => ['nullable', 'array'],
+            'training' => ['nullable', 'array'],
+            'training.training_id' => ['nullable', 'integer'],
+            'training.program_type' => ['nullable', 'string', 'max:255'],
+            'training.institution_name' => ['nullable', 'string', 'max:255'],
+            'training.start_month_year' => ['nullable', 'date_format:Y-m'],
+            'training.end_month_year' => ['nullable', 'date_format:Y-m'],
+            'studying' => ['nullable', 'array'],
+            'lower_secondary' => ['nullable', 'array'],
+            'upper_secondary' => ['nullable', 'array'],
+            'vocational' => ['nullable', 'array'],
+            'high_vocational' => ['nullable', 'array'],
+            'bachelor' => ['nullable', 'array'],
+            'master' => ['nullable', 'array'],
+            'doctorate' => ['nullable', 'array'],
+            'other' => ['nullable', 'array'],
+        ]);
+
+        $profileFields = [
+            'citizen_id',
+            'title_th',
+            'first_name_th',
+            'last_name_th',
+            'title_en',
+            'first_name_en',
+            'last_name_en',
+            'nickname',
+            'gender',
+            'birth_date',
+            'age',
+            'marital_status',
+            'phone',
+            'line_id',
+            'facebook',
+            'email_contact',
+            'emergency_phone',
+            'house_no',
+            'village_no',
+            'village_name',
+            'province_id',
+            'district_id',
+            'subdistrict_id',
+            'postcode',
+            'current_address',
+            'same_as_house_registration',
+            'house_registration_address',
+        ];
+
+        $oldImage = null;
+        $newImage = null;
+
+        try {
+            DB::beginTransaction();
+
+            if ($request->filled('email')) {
+                $member->email = $request->email;
+            }
+
+            if ($request->filled('password')) {
+                $member->password = Hash::make($request->password);
+            }
+
+            if ($request->has('status') && $request->user()->type === 'applicant') {
+                $member->status = $request->status;
+            }
+
+            $member->save();
+
+            $profile = MemberProfile::firstOrNew(['member_id' => $member->id]);
+            $profile->fill($request->only($profileFields));
+
+            if ($request->hasFile('profile_image')) {
+                $path = 'upload/member';
+                if (!is_dir(public_path($path))) {
+                    mkdir(public_path($path), 0777, true);
+                }
+
+                $oldImage = $profile->profile_image;
+                $file = $request->file('profile_image');
+                $filename = 'member-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path($path), $filename);
+                $profile->profile_image = $path . '/' . $filename;
+                $newImage = $profile->profile_image;
+            }
+
+            $profile->member_id = $member->id;
+            $profile->save();
+
+            $applicationDetailInput = $request->input('application_detail', []);
+
+            if ($request->hasFile('health_attachment') || $request->hasFile('tattoo_attachment')) {
+                $healthPath = 'upload/member/health';
+                if (!is_dir(public_path($healthPath))) {
+                    mkdir(public_path($healthPath), 0777, true);
+                }
+
+                $file = $request->file('tattoo_attachment') ?: $request->file('health_attachment');
+                $filename = 'tattoo-' . $member->id . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path($healthPath), $filename);
+                $applicationDetailInput['health']['other']['tattoo_attachment_path'] = $healthPath . '/' . $filename;
+            }
+
+            $applicationDetail = MemberApplicationDetail::firstOrNew(['member_id' => $member->id]);
+
+            foreach ([
+                'personal',
+                'education_extra',
+                'language_training',
+                'work_family',
+                'health',
+                'additional',
+                'responsibility',
+                'guarantor',
+                'goals',
+            ] as $section) {
+                if (array_key_exists($section, $applicationDetailInput)) {
+                    $existingSection = $applicationDetail->{$section} ?: [];
+                    $incomingSection = $applicationDetailInput[$section] ?? [];
+                    $applicationDetail->{$section} = is_array($existingSection) && is_array($incomingSection)
+                        ? array_replace_recursive($existingSection, $incomingSection)
+                        : $incomingSection;
+                }
+            }
+
+            $applicationDetail->member_id = $member->id;
+            $applicationDetail->save();
+
+            $educationData = [
+                'studying' => $request->input('studying'),
+                'lower_secondary' => $request->input('lower_secondary'),
+                'upper_secondary' => $request->input('upper_secondary'),
+                'vocational' => $request->input('vocational'),
+                'high_vocational' => $request->input('high_vocational'),
+                'bachelor' => $request->input('bachelor'),
+                'master' => $request->input('master'),
+                'doctorate' => $request->input('doctorate'),
+                'other' => $request->input('other'),
+            ];
+
+            foreach ($educationData as $level => $data) {
+                if (empty($data) || !is_array($data)) {
+                    continue;
+                }
+
+                $hasEducationData = collect([
+                    'education_level',
+                    'education_type',
+                    'institution_name',
+                    'faculty',
+                    'major',
+                    'gpa',
+                    'start_month',
+                    'start_year',
+                    'end_month',
+                    'end_year',
+                    'note',
+                ])->contains(fn ($field) => !empty($data[$field]));
+
+                if (!$hasEducationData) {
+                    continue;
+                }
+
+                $educationPayload = [
+                    'member_id' => $member->id,
+                    'education_level' => $level === 'studying'
+                        ? ($data['education_level'] ?? null)
+                        : $level,
+                    'education_type' => $data['education_type'] ?? null,
+                    'institution_name' => $data['institution_name'] ?? null,
+                    'faculty' => $data['faculty'] ?? null,
+                    'major' => $data['major'] ?? null,
+                    'gpa' => $data['gpa'] ?? null,
+                    'start_month' => $data['start_month'] ?? null,
+                    'start_year' => $data['start_year'] ?? null,
+                    'end_month' => $data['end_month'] ?? null,
+                    'end_year' => $data['end_year'] ?? null,
+                    'is_current' => !empty($data['is_current']),
+                    'note' => $data['note'] ?? null,
+                    'study_status' => $level === 'studying' ? 'studying' : 'graduated',
+                ];
+
+                if (empty($educationPayload['education_level'])) {
+                    continue;
+                }
+
+                if (!empty($data['id'])) {
+                    MemberEducation::where('member_id', $member->id)
+                        ->where('id', $data['id'])
+                        ->update($educationPayload);
+                } else {
+                    MemberEducation::updateOrCreate(
+                        [
+                            'member_id' => $member->id,
+                            'education_level' => $educationPayload['education_level'],
+                            'study_status' => $educationPayload['study_status'],
+                        ],
+                        $educationPayload
+                    );
+                }
+            }
+
+            $training = $request->input('training', []);
+            $trainingId = $training['training_id'] ?? null;
+            $hasTrainingData = !empty($training['program_type'])
+                || !empty($training['institution_name'])
+                || !empty($training['start_month_year'])
+                || !empty($training['end_month_year']);
+
+            if ($hasTrainingData) {
+                MemberTrainingCourse::updateOrCreate(
+                    [
+                        'training_id' => $trainingId,
+                        'member_id' => $member->id,
+                    ],
+                    [
+                        'program_type' => $training['program_type'] ?? null,
+                        'institution_name' => $training['institution_name'] ?? null,
+                        'start_month_year' => $training['start_month_year'] ?? null,
+                        'end_month_year' => $training['end_month_year'] ?? null,
+                    ]
+                );
+            } elseif ($trainingId) {
+                MemberTrainingCourse::where('member_id', $member->id)
+                    ->where('training_id', $trainingId)
+                    ->delete();
+            }
+
+            DB::commit();
+
+            if ($oldImage && is_file(public_path($oldImage))) {
+                unlink(public_path($oldImage));
+            }
+
+            $member = $member->fresh([
+                'profile',
+                'educations',
+                'trainingCourses',
+                'applicationDetail',
+            ]);
+
+            return response()->json([
+                'status' => true,
+                'message' => 'บันทึกข้อมูลสมาชิกสำเร็จ',
+                'results' => [
+                    'member' => $member,
+                    'profile' => $member->profile,
+                    'educations' => $member->educations,
+                    'training_courses' => $member->trainingCourses,
+                    'application_detail' => $member->applicationDetail,
+                   
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            if ($newImage && is_file(public_path($newImage))) {
+                unlink(public_path($newImage));
+            }
+
+            report($e);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'ไม่สามารถบันทึกข้อมูลสมาชิกได้',
+                'error' => $e->getMessage(),
             ], 500);
         }
     }

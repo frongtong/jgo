@@ -9,6 +9,7 @@ class MemberTrainingCourse extends Model
 {
     protected $table = 'member_training_courses';
     protected $primaryKey = 'training_id';
+    public $timestamps = false;
     protected $fillable = ['member_id', 'program_type', 'institution_name', 'start_month_year', 'end_month_year'];
 
     public function member()

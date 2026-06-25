@@ -12,6 +12,7 @@ use App\Models\Backend\Member;
 use App\Models\Backend\MemberProfile;
 use App\Models\Backend\MemberEducation;
 use App\Models\Backend\MemberTrainingCourse;
+use App\Models\Backend\MemberApplicationDetail;
 
 class MemberController extends Controller
 {
@@ -120,7 +121,10 @@ class MemberController extends Controller
             'segment' => $this->segment,
             'prefix' => $this->prefix,
             'folder' => $this->folder,
-            'navs' => $navs
+            'navs' => $navs,
+            'row' => null,
+            'educationData' => [],
+            'applicationDetail' => null,
         ]);
     }
 
@@ -135,7 +139,8 @@ public function edit(Request $request, $id)
         'profile',
         'parents',
         'educations',
-        'trainingCourses'
+        'trainingCourses',
+        'applicationDetail'
     ])->findOrFail($id);
 
     // แยกข้อมูลการศึกษาตามระดับ
@@ -187,6 +192,7 @@ $educationData = [
 
         // Education
         'educationData' => $educationData,
+        'applicationDetail' => $data->applicationDetail,
 
     ]);
 }
@@ -314,14 +320,19 @@ $educationData = [
     public function store($request, $id = null)
     {
         $request->validate([
+            'username' => ['nullable', 'string', 'max:255'],
+            'password' => ['nullable', 'string', 'max:255'],
             'email' => ['nullable', 'email', 'max:255'],
             'profile_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'health_attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'tattoo_attachment' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:10240'],
+            'application_detail' => ['nullable', 'array'],
             'training' => ['nullable', 'array'],
             'training.training_id' => ['nullable', 'integer'],
             'training.program_type' => ['nullable', 'string', 'max:255'],
             'training.institution_name' => ['nullable', 'string', 'max:255'],
             'training.start_month_year' => ['nullable', 'date_format:Y-m'],
-            'training.end_month_year' => ['nullable', 'date_format:Y-m', 'after_or_equal:training.start_month_year'],
+            'training.end_month_year' => ['nullable', 'date_format:Y-m'],
         ]);
 
         try {
@@ -424,13 +435,25 @@ $educationData = [
                     'applicant';
             } else {
 
-                $member = Member::find($id);
+                $member = Member::findOrFail($id);
             }
-            $member->email       = $request->email;
-            $member->username    = $request->username;
+            if (empty($request->username) && empty($member->username)) {
+                do {
+                    $generatedUsername = 'member_' . now()->format('ymdHis') . '_' . Str::lower(Str::random(4));
+                } while (Member::where('username', $generatedUsername)->exists());
+
+                $member->username = $generatedUsername;
+            } elseif ($request->filled('username')) {
+                $member->username = $request->username;
+            }
+
+            $member->email = $request->email;
+
             if ($request->password) {
                 $member->password =
                     bcrypt($request->password);
+            } elseif ($id === null && empty($member->password)) {
+                $member->password = bcrypt(Str::random(12));
             }
             $member->created_by = Auth::guard('admin')->id();
             $member->status      = $request->status ?? 'pending';
@@ -516,6 +539,45 @@ $educationData = [
 
             $profile->save();
 
+            $applicationDetailInput = $request->input('application_detail', []);
+
+            if ($request->file('health_attachment') || $request->file('tattoo_attachment')) {
+                $healthPath = 'upload/member/health';
+                if (!is_dir(public_path($healthPath))) {
+                    mkdir(public_path($healthPath), 0777, true);
+                }
+
+                $file = $request->file('tattoo_attachment') ?: $request->file('health_attachment');
+                $fileName = $healthPath . '/tattoo-' . $member->id . '-' . time() . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path($healthPath), $fileName);
+                $applicationDetailInput['health']['other']['tattoo_attachment_path'] = $fileName;
+            }
+
+            $applicationDetail = MemberApplicationDetail::firstOrNew(['member_id' => $member->id]);
+
+            foreach ([
+                'personal',
+                'education_extra',
+                'language_training',
+                'work_family',
+                'health',
+                'additional',
+                'responsibility',
+                'guarantor',
+                'goals',
+            ] as $section) {
+                if (array_key_exists($section, $applicationDetailInput)) {
+                    $existingSection = $applicationDetail->{$section} ?: [];
+                    $incomingSection = $applicationDetailInput[$section] ?? [];
+                    $applicationDetail->{$section} = is_array($existingSection) && is_array($incomingSection)
+                        ? array_replace_recursive($existingSection, $incomingSection)
+                        : $incomingSection;
+                }
+            }
+
+            $applicationDetail->member_id = $member->id;
+            $applicationDetail->save();
+
        $educationData = [
 
     'studying' => $request->studying,
@@ -547,9 +609,23 @@ $educationData = [
     // ข้ามถ้าไม่มีข้อมูลเลย
     if (
         empty($data['institution_name']) &&
+        empty($data['faculty']) &&
         empty($data['major']) &&
+        empty($data['gpa']) &&
+        empty($data['start_month']) &&
+        empty($data['start_year']) &&
+        empty($data['end_month']) &&
+        empty($data['end_year']) &&
         empty($data['note'])
     ) {
+        continue;
+    }
+
+    $educationLevel = $level == 'studying'
+        ? ($data['education_level'] ?? null)
+        : $level;
+
+    if (empty($educationLevel)) {
         continue;
     }
 
@@ -564,17 +640,27 @@ $educationData = [
             'member_id'        => $member->id,
 
             // กรณี studying ให้ใช้ค่าที่ผู้ใช้เลือก
-            'education_level'  => $level == 'studying'
-                ? ($data['education_level'] ?? null)
-                : $level,
+            'education_level'  => $educationLevel,
 
             'institution_name' => $data['institution_name'] ?? null,
 
+            'education_type'   => $data['education_type'] ?? null,
+
+            'faculty'          => $data['faculty'] ?? null,
+
             'major'            => $data['major'] ?? null,
+
+            'gpa'              => $data['gpa'] ?? null,
 
             'start_month'      => $data['start_month'] ?? null,
 
             'start_year'       => $data['start_year'] ?? null,
+
+            'end_month'        => $data['end_month'] ?? null,
+
+            'end_year'         => $data['end_year'] ?? null,
+
+            'is_current'       => !empty($data['is_current']),
 
             'note'             => $data['note'] ?? null,
 
@@ -612,6 +698,11 @@ $educationData = [
             }
 
             DB::commit();
+
+            if ($id) {
+                return redirect(url("$this->segment/$this->folder/edit/$id"))
+                    ->with('success', 'บันทึกข้อมูลสมาชิกสำเร็จ');
+            }
 
             return view("$this->prefix.alert.success", [
                 'url' => url("$this->segment/$this->folder"),

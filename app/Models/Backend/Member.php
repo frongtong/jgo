@@ -105,5 +105,10 @@ class Member extends Authenticatable
     {
         return $this->hasMany(MemberTrainingCourse::class, 'member_id', 'id');
     }
+
+    public function applicationDetail()
+    {
+        return $this->hasOne(MemberApplicationDetail::class, 'member_id', 'id');
+    }
  
 }
