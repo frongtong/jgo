@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Webpanel;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Backend\JobApplication;
 
 
 class DashboardController extends Controller
@@ -16,6 +16,36 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+        $statuses = JobApplication::statusLabels();
+        $statusCounts = JobApplication::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        $applicationSummary = [
+            'all' => [
+                'label' => 'ใบสมัครทั้งหมด',
+                'count' => JobApplication::count(),
+                'url' => url("$this->segment/jobapplication"),
+                'class' => 'bg-light-primary',
+            ],
+        ];
+
+        foreach ($statuses as $status => $label) {
+            $applicationSummary[$status] = [
+                'label' => $label,
+                'count' => (int) ($statusCounts[$status] ?? 0),
+                'url' => url("$this->segment/jobapplication?status=$status"),
+                'class' => match ($status) {
+                    JobApplication::STATUS_NEW => 'bg-light-warning',
+                    JobApplication::STATUS_REVIEWING => 'bg-light-primary',
+                    JobApplication::STATUS_INTERVIEW => 'bg-light-info',
+                    JobApplication::STATUS_PASSED => 'bg-light-success',
+                    JobApplication::STATUS_FAILED => 'bg-light-danger',
+                    default => 'bg-light',
+                },
+            ];
+        }
+
         $navs = [
             '0' => ['url' => "javascript:void(0)", 'name' => "", "last" => 0],
             // '0' => ['url' => "javascript:void(0)", 'name' => "Dashboard", "last" => 0],
@@ -25,6 +55,7 @@ class DashboardController extends Controller
             'folder' => $this->folder,
             'segment' => $this->segment,
             'navs' => $navs,
+            'applicationSummary' => $applicationSummary,
         ]);
     }
 

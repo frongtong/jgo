@@ -12,19 +12,33 @@ class JobApplication extends Model
 
     public $timestamps = true;
 
-    public const STATUS_PENDING = 'pending';
+    public const STATUS_NEW = 'new';
+    public const STATUS_REVIEWING = 'reviewing';
     public const STATUS_INTERVIEW = 'interview';
-    public const STATUS_APPROVED = 'approved';
-    public const STATUS_REJECTED = 'rejected';
-    public const STATUS_CANCELLED = 'cancelled';
-    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_PASSED = 'passed';
+    public const STATUS_FAILED = 'failed';
+
+    protected $casts = [
+        'interview_date' => 'date',
+    ];
 
     public static function activeStatuses(): array
     {
         return [
-            self::STATUS_PENDING,
+            self::STATUS_NEW,
+            self::STATUS_REVIEWING,
             self::STATUS_INTERVIEW,
-            self::STATUS_APPROVED,
+        ];
+    }
+
+    public static function statusLabels(): array
+    {
+        return [
+            self::STATUS_NEW => 'สมัครใหม่',
+            self::STATUS_REVIEWING => 'รอตรวจสอบ',
+            self::STATUS_INTERVIEW => 'นัดสัมภาษณ์',
+            self::STATUS_PASSED => 'ผ่าน',
+            self::STATUS_FAILED => 'ไม่ผ่าน',
         ];
     }
 

@@ -55,6 +55,7 @@ $familyMembers = old('application_detail.work_family.family_members', data_get($
 $workExperiences = count($workExperiences ?: []) ? $workExperiences : [[]];
 $spouseChildren = count($spouseChildren ?: []) ? $spouseChildren : [[]];
 $familyMembers = count($familyMembers ?: []) ? $familyMembers : [[]];
+$jobApplicationStatuses = $jobApplicationStatuses ?? [];
 @endphp
 
 @if (isset($errors) && $errors->any())
@@ -1104,6 +1105,61 @@ $familyMembers = count($familyMembers ?: []) ? $familyMembers : [[]];
                 </div>
             </div>
         </div>
+
+        @if($row)
+        <div class="card card-flush py-4 mb-5">
+            <div class="card-header">
+                <div class="card-title">
+                    <h2>ประวัติสมัครงาน</h2>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-row-dashed align-middle">
+                        <thead>
+                            <tr class="fw-bold text-gray-600">
+                                <th>ตำแหน่งที่สมัคร</th>
+                                <th>วันที่สมัคร</th>
+                                <th>สถานะใบสมัคร</th>
+                                <th>วันที่สัมภาษณ์</th>
+                                <th>สถานที่สัมภาษณ์</th>
+                                <th class="text-center">รายละเอียด</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($row->jobApplications as $application)
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold">{{ $application->job->title_th ?? '-' }}</div>
+                                        <div class="text-muted fs-7">{{ $application->job->company->name_th ?? '-' }}</div>
+                                    </td>
+                                    <td>{{ $application->created_at ? $application->created_at->format('d/m/Y H:i') : '-' }}</td>
+                                    <td>{{ $jobApplicationStatuses[$application->status] ?? $application->status }}</td>
+                                    <td>
+                                        {{ $application->interview_date ? $application->interview_date->format('d/m/Y') : '-' }}
+                                        @if($application->interview_time)
+                                            <div class="text-muted fs-7">{{ $application->interview_time }}</div>
+                                        @endif
+                                    </td>
+                                    <td>{{ $application->interview_location ?: '-' }}</td>
+                                    <td class="text-center">
+                                        <a href="{{ url("webpanel/jobapplication/edit/$application->id") }}"
+                                            class="btn btn-sm btn-light-info">
+                                            ดูใบสมัคร
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="text-center">ยังไม่มีประวัติสมัครงาน</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        @endif
 
 
     </div>

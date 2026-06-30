@@ -19,6 +19,8 @@
 
     @php
         $workExperiences = json_decode($data->work_experience, true);
+        $profile = $data->member?->profile;
+        $educations = $data->member?->educations ?? collect();
     @endphp
 
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
@@ -152,6 +154,85 @@
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <div class="card card-flush py-4 mb-5">
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>ประวัติส่วนตัวจากสมาชิก</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+                                                    <div class="row mb-5">
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">เลขบัตรประชาชน</label>
+                                                            <input type="text" class="form-control" value="{{ $profile->citizen_id ?? '-' }}" readonly>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">วันเกิด</label>
+                                                            <input type="text" class="form-control" value="{{ $profile?->birth_date ? date('d/m/Y', strtotime($profile->birth_date)) : '-' }}" readonly>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">สถานภาพ</label>
+                                                            <input type="text" class="form-control" value="{{ $profile->marital_status ?? '-' }}" readonly>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-md-4">
+                                                            <label class="form-label">เบอร์ติดต่อฉุกเฉิน</label>
+                                                            <input type="text" class="form-control" value="{{ $profile->emergency_phone ?? '-' }}" readonly>
+                                                        </div>
+                                                        <div class="col-md-8">
+                                                            <label class="form-label">ที่อยู่ตามทะเบียนบ้าน</label>
+                                                            <input type="text" class="form-control" value="{{ $profile->house_registration_address ?? '-' }}" readonly>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="card card-flush py-4 mb-5">
+                                                <div class="card-header">
+                                                    <div class="card-title">
+                                                        <h2>ประวัติการศึกษา</h2>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-row-dashed align-middle">
+                                                            <thead>
+                                                                <tr class="fw-bold text-gray-600">
+                                                                    <th>ระดับ</th>
+                                                                    <th>สถานศึกษา</th>
+                                                                    <th>คณะ/สาขา</th>
+                                                                    <th>ปีที่ศึกษา</th>
+                                                                    <th>GPA</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @forelse($educations as $education)
+                                                                    <tr>
+                                                                        <td>{{ $education->education_level ?: '-' }}</td>
+                                                                        <td>{{ $education->institution_name ?: '-' }}</td>
+                                                                        <td>{{ trim(($education->faculty ?: '') . ' ' . ($education->major ?: '')) ?: '-' }}</td>
+                                                                        <td>
+                                                                            {{ $education->start_year ?: '-' }}
+                                                                            -
+                                                                            {{ $education->is_current ? 'ปัจจุบัน' : ($education->end_year ?: '-') }}
+                                                                        </td>
+                                                                        <td>{{ $education->gpa ?: '-' }}</td>
+                                                                    </tr>
+                                                                @empty
+                                                                    <tr>
+                                                                        <td colspan="5" class="text-center">ไม่พบข้อมูลการศึกษา</td>
+                                                                    </tr>
+                                                                @endforelse
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="col-md-4">
@@ -214,7 +295,37 @@
                                                     </div>
 
                                                     <div class="mb-5">
-                                                        <label class="form-label">หมายเหตุ</label>
+                                                        <label class="form-label">วันที่สัมภาษณ์</label>
+                                                        <input type="date"
+                                                            name="interview_date"
+                                                            class="form-control"
+                                                            value="{{ $data->interview_date ? $data->interview_date->format('Y-m-d') : '' }}">
+                                                    </div>
+
+                                                    <div class="mb-5">
+                                                        <label class="form-label">เวลา/ช่วงเวลาสัมภาษณ์</label>
+                                                        <input type="text"
+                                                            name="interview_time"
+                                                            class="form-control"
+                                                            value="{{ $data->interview_time }}"
+                                                            placeholder="เช่น 10:00 - 11:00">
+                                                    </div>
+
+                                                    <div class="mb-5">
+                                                        <label class="form-label">สถานที่นัดสัมภาษณ์</label>
+                                                        <input type="text"
+                                                            name="interview_location"
+                                                            class="form-control"
+                                                            value="{{ $data->interview_location }}">
+                                                    </div>
+
+                                                    <div class="mb-5">
+                                                        <label class="form-label">หมายเหตุจากแอดมิน/HR</label>
+                                                        <textarea name="hr_note" rows="4" class="form-control">{{ $data->hr_note }}</textarea>
+                                                    </div>
+
+                                                    <div class="mb-5">
+                                                        <label class="form-label">หมายเหตุการเปลี่ยนสถานะ</label>
                                                         <textarea name="remark" rows="4" class="form-control"></textarea>
                                                     </div>
                                                 </div>

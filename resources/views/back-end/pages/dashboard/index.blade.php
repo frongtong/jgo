@@ -38,7 +38,45 @@
 							<div id="kt_app_content" class="app-content flex-column-fluid">
 								<!--begin::Content container-->
 								<div id="kt_app_content_container" class="app-container container-xxl">
-									
+									<div class="d-flex flex-wrap justify-content-between align-items-center mb-6 gap-3">
+										<div>
+											<h1 class="fs-2hx fw-bold mb-1">Dashboard</h1>
+											<div class="text-muted">สรุปภาพรวมการสมัครงาน</div>
+										</div>
+										<a href="{{ url("$segment/jobapplication/export") }}" class="btn btn-success">
+											Export Excel
+										</a>
+									</div>
+
+									<div class="row g-5 g-xl-8">
+										@foreach($applicationSummary as $summary)
+											<div class="col-sm-6 col-xl-4">
+												<a href="{{ $summary['url'] }}" class="card card-flush h-100 {{ $summary['class'] }}">
+													<div class="card-body">
+														<div class="text-gray-700 fw-semibold mb-3">{{ $summary['label'] }}</div>
+														<div class="fs-2hx fw-bold text-gray-900">{{ number_format($summary['count']) }}</div>
+														<div class="text-muted mt-2">คลิกเพื่อดูรายการที่เกี่ยวข้อง</div>
+													</div>
+												</a>
+											</div>
+										@endforeach
+									</div>
+
+									<div class="card card-flush mt-8">
+										<div class="card-header">
+											<div class="card-title">
+												<h2>ทางลัด</h2>
+											</div>
+										</div>
+										<div class="card-body">
+											<a href="{{ url("$segment/jobapplication") }}" class="btn btn-light-primary me-3">
+												ไปหน้ารายการใบสมัคร
+											</a>
+											<a href="{{ url("$segment/jobapplication?status=interview") }}" class="btn btn-light-info">
+												ดูรายการนัดสัมภาษณ์
+											</a>
+										</div>
+									</div>
 								</div>
 								<!--end::Content container-->
 							</div>

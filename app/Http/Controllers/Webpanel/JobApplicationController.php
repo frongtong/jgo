@@ -76,14 +76,7 @@ class JobApplicationController extends Controller
 
     protected function statuses(): array
     {
-        return [
-            JobApplication::STATUS_PENDING => 'รอดำเนินการ',
-            JobApplication::STATUS_INTERVIEW => 'นัดสัมภาษณ์',
-            JobApplication::STATUS_APPROVED => 'อนุมัติ',
-            JobApplication::STATUS_REJECTED => 'ไม่ผ่าน',
-            JobApplication::STATUS_CANCELLED => 'ยกเลิก',
-            JobApplication::STATUS_COMPLETED => 'เสร็จสิ้น',
-        ];
+        return JobApplication::statusLabels();
     }
 
     /*
@@ -136,7 +129,8 @@ class JobApplicationController extends Controller
     public function edit(Request $request, $id)
     {
         $data = JobApplication::with([
-            'member',
+            'member.profile',
+            'member.educations',
             'job.company',
         ])->findOrFail($id);
 
@@ -192,6 +186,10 @@ class JobApplicationController extends Controller
                     'required',
                     'in:' . implode(',', array_keys($this->statuses())),
                 ],
+                'interview_date' => ['nullable', 'date'],
+                'interview_time' => ['nullable', 'string', 'max:255'],
+                'interview_location' => ['nullable', 'string', 'max:255'],
+                'hr_note' => ['nullable', 'string'],
                 'remark' => ['nullable', 'string'],
             ]);
 
@@ -201,6 +199,10 @@ class JobApplicationController extends Controller
             $oldStatus = $application->status;
 
             $application->status = $request->status;
+            $application->interview_date = $request->interview_date;
+            $application->interview_time = $request->interview_time;
+            $application->interview_location = $request->interview_location;
+            $application->hr_note = $request->hr_note;
             $application->save();
 
             JobApplicationLog::create([
@@ -242,45 +244,50 @@ class JobApplicationController extends Controller
 
     public function export(Request $request): StreamedResponse
     {
-        $fileName = 'job-applications-' . now()->format('Ymd-His') . '.csv';
+        $fileName = 'job-applications-' . now()->format('Ymd-His') . '.xls';
         $statuses = $this->statuses();
         $applications = $this->query($request->all())
             ->orderBy('id', 'desc')
             ->get();
 
         return response()->streamDownload(function () use ($applications, $statuses) {
-            $handle = fopen('php://output', 'w');
-
-            fwrite($handle, "\xEF\xBB\xBF");
-            fputcsv($handle, [
-                'ID',
-                'ชื่อ',
-                'นามสกุล',
+            echo "\xEF\xBB\xBF";
+            echo '<table border="1">';
+            echo '<tr>';
+            foreach ([
+                'ชื่อผู้สมัคร',
                 'เบอร์โทร',
                 'อีเมล',
-                'ตำแหน่งงาน',
-                'บริษัท',
-                'สถานะ',
+                'ตำแหน่งที่สมัคร',
                 'วันที่สมัคร',
-            ]);
+                'สถานะ',
+                'วันที่สัมภาษณ์',
+                'สถานที่สัมภาษณ์',
+            ] as $heading) {
+                echo '<th>' . e($heading) . '</th>';
+            }
+            echo '</tr>';
 
             foreach ($applications as $application) {
-                fputcsv($handle, [
-                    $application->id,
-                    $application->first_name,
-                    $application->last_name,
+                echo '<tr>';
+                foreach ([
+                    trim($application->first_name . ' ' . $application->last_name),
                     $application->phone,
                     $application->email,
                     $application->job->title_th ?? '',
-                    $application->job->company->name_th ?? '',
-                    $statuses[$application->status] ?? $application->status,
                     optional($application->created_at)->format('d/m/Y H:i'),
-                ]);
+                    $statuses[$application->status] ?? $application->status,
+                    optional($application->interview_date)->format('d/m/Y'),
+                    $application->interview_location,
+                ] as $value) {
+                    echo '<td>' . e($value) . '</td>';
+                }
+                echo '</tr>';
             }
 
-            fclose($handle);
+            echo '</table>';
         }, $fileName, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
         ]);
     }
 

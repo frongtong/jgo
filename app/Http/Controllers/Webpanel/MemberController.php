@@ -13,6 +13,7 @@ use App\Models\Backend\MemberProfile;
 use App\Models\Backend\MemberEducation;
 use App\Models\Backend\MemberTrainingCourse;
 use App\Models\Backend\MemberApplicationDetail;
+use App\Models\Backend\JobApplication;
 
 class MemberController extends Controller
 {
@@ -140,7 +141,8 @@ public function edit(Request $request, $id)
         'parents',
         'educations',
         'trainingCourses',
-        'applicationDetail'
+        'applicationDetail',
+        'jobApplications.job.company',
     ])->findOrFail($id);
 
     // แยกข้อมูลการศึกษาตามระดับ
@@ -193,6 +195,7 @@ $educationData = [
         // Education
         'educationData' => $educationData,
         'applicationDetail' => $data->applicationDetail,
+        'jobApplicationStatuses' => JobApplication::statusLabels(),
 
     ]);
 }

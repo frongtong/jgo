@@ -138,8 +138,8 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/update-status', [Webpanel\JobController::class, 'updateStatus']);
         });
         Route::prefix('jobapplication')->group(function () {
-            Route::get('/', [Webpanel\JobApplicationController::class, 'index'])->name('webpanel.job_application');
-            Route::get('/export', [Webpanel\JobApplicationController::class, 'export'])->name('webpanel.job_application.export');
+            Route::get('/', [Webpanel\JobApplicationController::class, 'index'])->name('webpanel.jobapplication');
+            Route::get('/export', [Webpanel\JobApplicationController::class, 'export'])->name('webpanel.jobapplication.export');
             Route::post('/edit/{id}', [Webpanel\JobApplicationController::class, 'update'])->where(['id' => '[0-9]+'])->name('webpanel.job_application.update');
             Route::get('/edit/{id}', [Webpanel\JobApplicationController::class, 'edit'])->where(['id' => '[0-9]+']);
 

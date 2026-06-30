@@ -201,7 +201,7 @@ class JobController extends Controller
         }
 
         $profile = $member->profile;
-        $gender = $request->gender;
+        $gender = $profile->gender ?? $request->gender;
 
         $genderMap = [
             'ชาย' => 'male',
@@ -213,7 +213,15 @@ class JobController extends Controller
             'other' => 'other',
         ];
 
-        $gender = $genderMap[$gender] ?? 'male';
+        if ($gender === 'ชาย') {
+            $gender = 'male';
+        } elseif ($gender === 'หญิง') {
+            $gender = 'female';
+        } elseif (in_array($gender, ['อื่นๆ', 'อื่น ๆ'], true)) {
+            $gender = 'other';
+        } else {
+            $gender = $genderMap[$gender] ?? 'other';
+        }
         DB::beginTransaction();
 
         try {
@@ -222,7 +230,7 @@ class JobController extends Controller
                 'job_id' => $job->id,
                 'first_name' => $profile->first_name_th ?? $member->name ?? '',
                 'last_name' => $profile->last_name_th ?? '',
-                'gender' => $profile->gender ?? "other",
+                'gender' => $gender,
                 'age' => $profile->age ?? null,
                 'phone' => $profile->phone ?? '',
                 'email' => $member->email ?? ($profile->email_contact ?? ''),
@@ -235,13 +243,13 @@ class JobController extends Controller
                 'japanese_level' => data_get($member->applicationDetail, 'language_training.japanese.level', ''),
                 'resume_file' => null,
                 'note' => $validated['note'] ?? null,
-                'status' => JobApplication::STATUS_PENDING,
+                'status' => JobApplication::STATUS_NEW,
             ]);
 
             JobApplicationLog::create([
                 'application_id' => $application->id,
                 'old_status' => null,
-                'new_status' => JobApplication::STATUS_PENDING,
+                'new_status' => JobApplication::STATUS_NEW,
                 'remark' => 'สมัครงานผ่าน API',
                 'created_by' => null,
             ]);

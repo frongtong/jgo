@@ -45,7 +45,7 @@
                                         <div class="card-toolbar">
                                             <a href="{{ url("$segment/$folder/export") . '?' . http_build_query(request()->query()) }}"
                                                 class="btn btn-light-success">
-                                                Export CSV
+                                                Export Excel
                                             </a>
                                         </div>
                                     </div>
@@ -124,6 +124,7 @@
                                                         <th>อีเมล</th>
                                                         <th>สถานะ</th>
                                                         <th>วันที่สมัคร</th>
+                                                        <th>นัดสัมภาษณ์</th>
                                                         <th width="12%" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>
@@ -153,12 +154,11 @@
                                                             <td>
                                                                 @php
                                                                     $badge = match ($item->status) {
-                                                                        'pending' => 'badge-warning',
+                                                                        'new' => 'badge-warning',
+                                                                        'reviewing' => 'badge-light-primary',
                                                                         'interview' => 'badge-info',
-                                                                        'approved' => 'badge-success',
-                                                                        'rejected' => 'badge-danger',
-                                                                        'cancelled' => 'badge-secondary',
-                                                                        'completed' => 'badge-primary',
+                                                                        'passed' => 'badge-success',
+                                                                        'failed' => 'badge-danger',
                                                                         default => 'badge-light',
                                                                     };
                                                                 @endphp
@@ -167,6 +167,10 @@
                                                                 </span>
                                                             </td>
                                                             <td>{{ $item->created_at ? $item->created_at->format('d/m/Y H:i') : '-' }}</td>
+                                                            <td>
+                                                                <div>{{ $item->interview_date ? $item->interview_date->format('d/m/Y') : '-' }}</div>
+                                                                <div class="text-muted fs-7">{{ $item->interview_location ?: '' }}</div>
+                                                            </td>
                                                             <td class="text-center">
                                                                 <a href="{{ url("$segment/$folder/edit/$item->id") }}"
                                                                     class="btn btn-icon btn-light-info btn-sm">
@@ -190,7 +194,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="8" class="text-center">ไม่พบข้อมูล</td>
+                                                            <td colspan="9" class="text-center">ไม่พบข้อมูล</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
