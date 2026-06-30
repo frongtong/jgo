@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\VocabularyController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AlumniController;
+use App\Http\Controllers\Api\StudyFurtherController;
 
 
 
@@ -43,6 +44,8 @@ use App\Http\Controllers\Api\AlumniController;
         Route::get('/article', [ArticleController::class, 'index']);
         Route::get('/alumni', [AlumniController::class, 'index']);
         Route::get('/alumni/{id}', [AlumniController::class, 'show'])->whereNumber('id');
+        Route::get('/studyfurther', [StudyFurtherController::class, 'index']);
+        Route::get('/studyfurther/{id}', [StudyFurtherController::class, 'show'])->whereNumber('id');
         Route::prefix('member')->group(function () {
             Route::post(
                 '{memberId}/parents',
@@ -73,6 +76,14 @@ use App\Http\Controllers\Api\AlumniController;
             Route::post(
                 'application/update',
                 [MemberController::class, 'updateApplication']
+            );
+            Route::put(
+                'password',
+                [MemberController::class, 'updatePassword']
+            );
+            Route::post(
+                'password/update',
+                [MemberController::class, 'updatePassword']
             );
             Route::post(
                 'logout',

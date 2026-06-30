@@ -84,7 +84,13 @@
                                                                     {{ date('d/m/Y, H:i', strtotime($item->updated_at)) }}
                                                                 </td>
                                                                 <td class="text-center">
-                                                                    <a href="{{ url("$segment/$folder/edit/$item->id") }}" class="btn btn-icon btn-light-warning btn-sm"><i class="fa fa-edit fa-2x" style="margin-right:5px;"></i></a>
+                                                                    <a href="{{ url("$segment/$folder/edit/$item->id") }}"
+                                                                        class="btn btn-icon btn-light-warning btn-sm">
+                                                                        <i class="ki-duotone ki-pencil fs-2">
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
+                                                                        </i>
+                                                                    </a>
                                                                 </td>
                                                             </tr>
                                                         @endforeach

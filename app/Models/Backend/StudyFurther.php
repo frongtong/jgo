@@ -16,5 +16,6 @@ class StudyFurther extends Model
         'short_description',
         'banner_image_url',
         'description',
+        'status',
     ];
 }

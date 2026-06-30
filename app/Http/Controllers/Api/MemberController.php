@@ -942,4 +942,41 @@ class MemberController extends Controller
 
         ]);
     }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => ['required', 'string'],
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ]);
+
+        $member = Member::find($request->user()->id);
+
+        if (!$member) {
+            return response()->json([
+                'status' => false,
+                'message' => 'ไม่พบข้อมูลสมาชิก',
+            ], 404);
+        }
+
+        if (!Hash::check($validated['current_password'], $member->password)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'รหัสผ่านเดิมไม่ถูกต้อง',
+            ], 422);
+        }
+
+        $member->password = Hash::make($validated['password']);
+
+        if ($member->type === 'parent') {
+            $member->parent_plain_password = $validated['password'];
+        }
+
+        $member->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'อัปเดตรหัสผ่านสำเร็จ',
+        ]);
+    }
 }

@@ -169,8 +169,8 @@ class StudyFurtherController extends Controller
             $data->short_description =
                 $request->short_description;
 
-
-       
+            $data->status =
+                $request->status ?? 'on';
 
             /*
             |--------------------------------------------------------------------------

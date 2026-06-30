@@ -110,8 +110,8 @@
 
                                                   
 
-                                         
-                                                        <!-- <th style="width:10%;" class="text-center">Status</th> -->
+<!--                                          
+                                                        <th style="width:10%;" class="text-center">Status</th> -->
                                                         <th width="10%" class="text-center">
                                                             #
                                                         </th>
@@ -158,9 +158,9 @@
                                                         </td>
 
                                                         
-
-                                                        <!-- <td class="text-center">
-                                                            <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
+<!-- 
+                                                        <td class="text-center">
+                                                            <label class="form-check form-switch form-check-custom form-check-solid justify-content-center mb-0">
                                                                 <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
                                                             </label>
                                                         </td> -->
@@ -179,7 +179,7 @@
 
                                                             </a>
                                                             <!-- Delete -->
-                                                            <!-- <button type="button"
+                                                            <button type="button"
                                                                 onclick="deleteItem({{ $item->id }})"
                                                                 class="btn btn-icon btn-light-danger btn-sm">
 
@@ -189,7 +189,7 @@
                                                                     <span class="path3"></span>
                                                                 </i>
 
-                                                            </button> -->
+                                                            </button>
 
                                                         </td>
 
@@ -199,7 +199,7 @@
 
                                                     <tr>
 
-                                                        <td colspan="7" class="text-center">
+                                                        <td colspan="5" class="text-center">
 
                                                             No data found
 
@@ -272,8 +272,10 @@
  $(document).ready(function() {
     $('.update-status').on('change', function() {
 
+        var $checkbox = $(this);
         var id = $(this).data('id');
         var status = $(this).is(':checked') ? "on" : "off";
+        var originalChecked = !$checkbox.is(':checked');
 
         $.ajax({
             url: fullUrl + "/update-status",
@@ -287,10 +289,22 @@
             
             success: function(response) {
 
+                if (!response.status) {
+                    $checkbox.prop('checked', originalChecked);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สำเร็จ',
+                        text: 'ไม่สามารถอัปเดตสถานะได้',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     icon: 'success',
-                    title: 'Success',
-                    text: 'Update status successfully',
+                    title: 'สำเร็จ',
+                    text: 'อัปเดตสถานะเรียบร้อย',
                     timer: 1200,
                     showConfirmButton: false
                 });
@@ -298,10 +312,11 @@
             },
             error: function() {
 
+                $checkbox.prop('checked', originalChecked);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Update status failed',
+                    title: 'ไม่สำเร็จ',
+                    text: 'ไม่สามารถอัปเดตสถานะได้',
                     timer: 1500,
                     showConfirmButton: false
                 });
@@ -338,7 +353,7 @@
                         return response.json();
                     })
                     .then(data => {
-                        if (data.success) {
+                        if (data.status) {
                             Swal.fire("ลบแล้ว!", "ข้อมูลของคุณถูกลบแล้ว", "success").then(() => {
                                 location.reload();
                             });
