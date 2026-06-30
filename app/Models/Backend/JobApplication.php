@@ -31,6 +31,17 @@ class JobApplication extends Model
         ];
     }
 
+    public static function allStatuses(): array
+    {
+        return [
+            self::STATUS_NEW,
+            self::STATUS_REVIEWING,
+            self::STATUS_INTERVIEW,
+            self::STATUS_PASSED,
+            self::STATUS_FAILED,
+        ];
+    }
+
     public static function statusLabels(): array
     {
         return [

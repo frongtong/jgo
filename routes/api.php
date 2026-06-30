@@ -31,7 +31,9 @@ use App\Http\Controllers\Api\StudyFurtherController;
     
         Route::get('/banners', [BannerController::class, 'index']);
         Route::prefix('jobs')->group(function () {
+            Route::get('/filters', [JobController::class, 'filters']);
             Route::get('/', [JobController::class, 'index']);
+            Route::post('/search', [JobController::class, 'index']);
             Route::post('/favorite', [JobController::class, 'favorite']);
             Route::get('/favorites', [JobController::class, 'favoriteList']);
             Route::delete('/favorite/{jobId}', [JobController::class, 'unfavorite'])->whereNumber('jobId');

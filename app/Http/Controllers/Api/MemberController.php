@@ -22,15 +22,16 @@ class MemberController extends Controller
 {
     protected function jobApplicationPermissionFor(Member $member): array
     {
-        $activeApplication = JobApplication::with('job.company')
-            ->where('member_id', $member->id)
-            ->whereIn('status', JobApplication::activeStatuses())
+        $latestStatus = JobApplication::where('member_id', $member->id)
             ->latest('id')
-            ->first();
+            ->value('status');
+        $isActiveStatus = in_array($latestStatus, JobApplication::activeStatuses(), true);
 
         return [
-            'can_apply' => $activeApplication ? false : true,
-            'active_application' => $activeApplication,
+            'can_apply' => !$isActiveStatus,
+            'status' => $latestStatus,
+            'active_status' => $isActiveStatus ? $latestStatus : null,
+            'statuses' => JobApplication::allStatuses(),
             'active_statuses' => JobApplication::activeStatuses(),
         ];
     }

@@ -5,14 +5,43 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Backend\Category1;
 use App\Models\Backend\Job;
 use App\Models\Backend\JobApplication;
 use App\Models\Backend\JobApplicationLog;
+use App\Models\Backend\Location;
 use App\Models\Backend\Member;
 use App\Models\Backend\MemberFavoriteJob;
 
 class JobController extends Controller
 {
+    protected function filterArray(Request $request, array $keys): array
+    {
+        foreach ($keys as $key) {
+            if (!$request->filled($key)) {
+                continue;
+            }
+
+            $value = $request->input($key);
+
+            if (is_array($value)) {
+                return array_values(array_filter($value, fn ($item) => $item !== null && $item !== ''));
+            }
+
+            return array_values(array_filter(array_map('trim', explode(',', $value))));
+        }
+
+        return [];
+    }
+
+    protected function monthRange(?string $from, ?string $to): array
+    {
+        $start = $from ? date('Y-m-01', strtotime($from . '-01')) : null;
+        $end = $to ? date('Y-m-t', strtotime($to . '-01')) : null;
+
+        return [$start, $end];
+    }
+
     protected function activeApplicationForMember(int $memberId): ?JobApplication
     {
         return JobApplication::with(['job.company'])
@@ -22,16 +51,21 @@ class JobController extends Controller
             ->first();
     }
 
-    // protected function canApplyPayload(Member $member): array
-    // {
-    //     $activeApplication = $this->activeApplicationForMember($member->id);
+    protected function canApplyPayload(Member $member): array
+    {
+        $latestStatus = JobApplication::where('member_id', $member->id)
+            ->latest('id')
+            ->value('status');
+        $isActiveStatus = in_array($latestStatus, JobApplication::activeStatuses(), true);
 
-    //     return [
-    //         'can_apply' => $activeApplication ? false : true,
-    //         'active_application' => $activeApplication,
-    //         'active_statuses' => JobApplication::activeStatuses(),
-    //     ];
-    // }
+        return [
+            'can_apply' => !$isActiveStatus,
+            'status' => $latestStatus,
+            'active_status' => $isActiveStatus ? $latestStatus : null,
+            'statuses' => JobApplication::allStatuses(),
+            'active_statuses' => JobApplication::activeStatuses(),
+        ];
+    }
 
     public function index(Request $request)
     {
@@ -44,11 +78,134 @@ class JobController extends Controller
                 ? MemberFavoriteJob::where('member_id', $member->id)->pluck('job_id')->all()
                 : [];
 
-            $jobs = Job::with([
+            $query = Job::with([
                     'company',
                     'province',
+                    'city',
+                    'categories.category1',
+                    'categories.category2',
                 ])
-                ->where('status', 'on')
+                ->where('status', 'on');
+
+            if ($request->filled('search')) {
+                $search = trim($request->input('search'));
+                $query->where(function ($q) use ($search) {
+                    $q->where('title_th', 'like', '%' . $search . '%')
+                        ->orWhere('title_en', 'like', '%' . $search . '%')
+                        ->orWhere('detail', 'like', '%' . $search . '%')
+                        ->orWhereHas('company', function ($companyQuery) use ($search) {
+                            $companyQuery->where('name_th', 'like', '%' . $search . '%')
+                                ->orWhere('name_en', 'like', '%' . $search . '%');
+                        });
+                });
+            }
+
+            $categoryIds = $this->filterArray($request, [
+                'category2_ids',
+                'category_ids',
+                'categories',
+                'job_categories',
+            ]);
+
+            if ($categoryIds) {
+                $query->whereHas('categories', function ($categoryQuery) use ($categoryIds) {
+                    $categoryQuery->whereIn('category2_id', $categoryIds);
+                });
+            }
+
+            $category1Ids = $this->filterArray($request, [
+                'category1_ids',
+                'main_category_ids',
+            ]);
+
+            if ($category1Ids) {
+                $query->whereHas('categories', function ($categoryQuery) use ($category1Ids) {
+                    $categoryQuery->whereIn('category1_id', $category1Ids);
+                });
+            }
+
+            $provinceIds = $this->filterArray($request, [
+                'province_ids',
+                'provinces',
+                'province_id',
+            ]);
+
+            if ($provinceIds) {
+                $query->whereIn('province_id', $provinceIds);
+            }
+
+            $jobTypes = $this->filterArray($request, ['job_types', 'job_type']);
+            if ($jobTypes) {
+                $query->whereIn('job_type', $jobTypes);
+            }
+
+            $overtimes = $this->filterArray($request, ['overtimes', 'overtime']);
+            if ($overtimes) {
+                $query->whereIn('overtime', $overtimes);
+            }
+
+            [$monthFrom, $monthTo] = $this->monthRange(
+                $request->input('month_from', $request->input('start_month')),
+                $request->input('month_to', $request->input('end_month'))
+            );
+
+            if ($request->filled('date_from')) {
+                $monthFrom = $request->input('date_from');
+            }
+
+            if ($request->filled('date_to')) {
+                $monthTo = $request->input('date_to');
+            }
+
+            if ($monthFrom && $monthTo) {
+                $query->whereBetween('date', [$monthFrom, $monthTo]);
+            } elseif ($monthFrom) {
+                $query->whereDate('date', '>=', $monthFrom);
+            } elseif ($monthTo) {
+                $query->whereDate('date', '<=', $monthTo);
+            }
+
+            $months = $this->filterArray($request, ['months']);
+            if ($months) {
+                $query->where(function ($monthQuery) use ($months) {
+                    foreach ($months as $month) {
+                        $monthQuery->orWhere(function ($q) use ($month) {
+                            $start = date('Y-m-01', strtotime($month . '-01'));
+                            $end = date('Y-m-t', strtotime($month . '-01'));
+                            $q->whereBetween('date', [$start, $end]);
+                        });
+                    }
+                });
+            }
+
+            $salaryMin = $request->filled('salary_min') ? (int) $request->input('salary_min') : null;
+            $salaryMax = $request->filled('salary_max') ? (int) $request->input('salary_max') : null;
+
+            if ($salaryMin !== null || $salaryMax !== null) {
+                $query->where(function ($salaryQuery) use ($salaryMin, $salaryMax) {
+                    if ($salaryMin !== null && $salaryMax !== null) {
+                        $salaryQuery->where(function ($q) use ($salaryMin, $salaryMax) {
+                            $q->whereNull('salary_max')
+                                ->orWhere('salary_max', '>=', $salaryMin);
+                        })->where(function ($q) use ($salaryMax) {
+                            $q->whereNull('salary_min')
+                                ->orWhere('salary_min', '<=', $salaryMax);
+                        });
+                    } elseif ($salaryMin !== null) {
+                        $salaryQuery->where(function ($q) use ($salaryMin) {
+                            $q->where('salary_max', '>=', $salaryMin)
+                                ->orWhere('salary_min', '>=', $salaryMin);
+                        });
+                    } elseif ($salaryMax !== null) {
+                        $salaryQuery->where(function ($q) use ($salaryMax) {
+                            $q->where('salary_min', '<=', $salaryMax)
+                                ->orWhere('salary_max', '<=', $salaryMax);
+                        });
+                    }
+                });
+            }
+
+            $jobs = $query
                 ->latest()
                 ->get()
                 ->map(function ($job) use ($favoriteIds, $canApply) {
@@ -62,6 +219,85 @@ class JobController extends Controller
                 'status' => true,
                 'message' => 'ดึงข้อมูลสำเร็จ',
                 'results' => $jobs,
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'เกิดข้อผิดพลาด',
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+    }
+
+    public function filters(Request $request)
+    {
+        try {
+            $categories = Category1::with(['category2' => function ($query) {
+                    $query->where('status', 'on')->orderBy('name_th');
+                }])
+                ->where('status', 'on')
+                ->orderBy('name_th')
+                ->get();
+
+            $provinces = Location::whereNull('parent_id')
+                ->orderBy('name')
+                ->get();
+
+            $months = Job::where('status', 'on')
+                ->whereNotNull('date')
+                ->selectRaw("DATE_FORMAT(date, '%Y-%m') as value, MIN(date) as start_date, MAX(date) as end_date, COUNT(*) as total")
+                ->groupBy('value')
+                ->orderBy('value')
+                ->get()
+                ->map(function ($month) {
+                    return [
+                        'value' => $month->value,
+                        'label' => date('F Y', strtotime($month->value . '-01')),
+                        'start_date' => $month->start_date,
+                        'end_date' => $month->end_date,
+                        'total' => (int) $month->total,
+                    ];
+                });
+
+            $salaryMin = Job::where('status', 'on')
+                ->whereNotNull('salary_min')
+                ->min('salary_min');
+
+            $salaryMax = Job::where('status', 'on')
+                ->whereNotNull('salary_max')
+                ->max('salary_max');
+
+            $jobTypes = Job::where('status', 'on')
+                ->whereNotNull('job_type')
+                ->where('job_type', '!=', '')
+                ->distinct()
+                ->orderBy('job_type')
+                ->pluck('job_type')
+                ->values();
+
+            $overtimes = Job::where('status', 'on')
+                ->whereNotNull('overtime')
+                ->where('overtime', '!=', '')
+                ->distinct()
+                ->orderBy('overtime')
+                ->pluck('overtime')
+                ->values();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'ดึงข้อมูลตัวกรองงานสำเร็จ',
+                'results' => [
+                    'categories' => $categories,
+                    'months' => $months,
+                    'provinces' => $provinces,
+                    'salary_range' => [
+                        'min' => $salaryMin ? (int) $salaryMin : 0,
+                        'max' => $salaryMax ? (int) $salaryMax : 0,
+                    ],
+                    'job_types' => $jobTypes,
+                    'overtimes' => $overtimes,
+                ],
             ]);
         } catch (\Throwable $e) {
             return response()->json([
