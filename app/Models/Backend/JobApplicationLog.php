@@ -10,7 +10,7 @@ class JobApplicationLog extends Model
 
     protected $guarded = [];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     const UPDATED_AT = null;
 

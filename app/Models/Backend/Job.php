@@ -115,4 +115,14 @@ class Job extends Model
             'job_id'
         );
     }
+
+    public function favoriteMembers()
+    {
+        return $this->belongsToMany(
+            Member::class,
+            'member_favorite_jobs',
+            'job_id',
+            'member_id'
+        )->withTimestamps();
+    }
 }

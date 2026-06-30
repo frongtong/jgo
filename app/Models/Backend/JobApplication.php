@@ -12,6 +12,22 @@ class JobApplication extends Model
 
     public $timestamps = true;
 
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_INTERVIEW = 'interview';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_COMPLETED = 'completed';
+
+    public static function activeStatuses(): array
+    {
+        return [
+            self::STATUS_PENDING,
+            self::STATUS_INTERVIEW,
+            self::STATUS_APPROVED,
+        ];
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Member

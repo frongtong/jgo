@@ -29,7 +29,15 @@ use App\Http\Controllers\Api\AlumniController;
 
     
         Route::get('/banners', [BannerController::class, 'index']);
-        Route::get('/jobs', [JobController::class, 'index']);
+        Route::prefix('jobs')->group(function () {
+            Route::get('/', [JobController::class, 'index']);
+            Route::post('/favorite', [JobController::class, 'favorite']);
+            Route::get('/favorites', [JobController::class, 'favoriteList']);
+            Route::delete('/favorite/{jobId}', [JobController::class, 'unfavorite'])->whereNumber('jobId');
+            Route::post('/favorite/{jobId}/remove', [JobController::class, 'unfavorite'])->whereNumber('jobId');
+            Route::post('/apply', [JobController::class, 'apply']);
+            Route::get('/applications', [JobController::class, 'applications']);
+        });
         Route::get('/vocabulary', [VocabularyController::class, 'index']);
         Route::get('/video', [VideoController::class, 'index']);
         Route::get('/article', [ArticleController::class, 'index']);

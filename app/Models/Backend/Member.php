@@ -110,5 +110,20 @@ class Member extends Authenticatable
     {
         return $this->hasOne(MemberApplicationDetail::class, 'member_id', 'id');
     }
+
+    public function jobApplications()
+    {
+        return $this->hasMany(JobApplication::class, 'member_id', 'id');
+    }
+
+    public function favoriteJobs()
+    {
+        return $this->belongsToMany(
+            Job::class,
+            'member_favorite_jobs',
+            'member_id',
+            'job_id'
+        )->withTimestamps();
+    }
  
 }

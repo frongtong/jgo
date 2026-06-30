@@ -16,9 +16,24 @@ use App\Models\Backend\MemberProfile;
 use App\Models\Backend\MemberEducation;
 use App\Models\Backend\MemberTrainingCourse;
 use App\Models\Backend\MemberApplicationDetail;
+use App\Models\Backend\JobApplication;
 
 class MemberController extends Controller
 {
+    protected function jobApplicationPermissionFor(Member $member): array
+    {
+        $activeApplication = JobApplication::with('job.company')
+            ->where('member_id', $member->id)
+            ->whereIn('status', JobApplication::activeStatuses())
+            ->latest('id')
+            ->first();
+
+        return [
+            'can_apply' => $activeApplication ? false : true,
+            'active_application' => $activeApplication,
+            'active_statuses' => JobApplication::activeStatuses(),
+        ];
+    }
     
 
     public function register(Request $r)
@@ -255,6 +270,9 @@ class MemberController extends Controller
                 'type' => $member->type,
                 'member' => $accountData,
                 'url' => $r->getSchemeAndHttpHost(),
+                'job_application_permission' => $member->type === 'applicant'
+                    ? $this->jobApplicationPermissionFor($account)
+                    : null,
                 // 'related_members' => $relatedMembers,
                 // 'related_parents' => $relatedParents,
             ],
