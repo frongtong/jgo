@@ -194,6 +194,9 @@ class VideoController extends Controller
             $data->published_at =
                 $request->published_at;
 
+            $data->status =
+                $request->status ?? 'on';
+
             /*
             |--------------------------------------------------------------------------
             | COVER IMAGE

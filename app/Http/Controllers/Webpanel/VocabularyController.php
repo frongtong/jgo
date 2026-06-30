@@ -190,6 +190,9 @@ class VocabularyController extends Controller
             $data->published_at =
                 $request->published_at;
 
+            $data->status =
+                $request->status ?? 'on';
+
             /*
             |--------------------------------------------------------------------------
             | COVER IMAGE
@@ -317,6 +320,24 @@ class VocabularyController extends Controller
         )->get();
 
         return response()->json($items);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $item = Vocabulary::find($request->id);
+
+        if ($item) {
+            $item->status = $request->status;
+            $item->save();
+
+            return response()->json([
+                'status' => true
+            ]);
+        }
+
+        return response()->json([
+            'status' => false
+        ]);
     }
     
 }

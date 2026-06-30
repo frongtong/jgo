@@ -114,6 +114,8 @@
 
                         <th width="15%">วันที่แสดง</th>
 
+                        <th width="12%" class="text-center">สถานะ</th>
+
                         <th width="10%" class="text-center">
                           #
                         </th>
@@ -171,6 +173,12 @@
                         </td>
 
                         <td class="text-center">
+                            <label class="form-check form-switch form-check-custom form-check-solid justify-content-center mb-0">
+                                <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
+                            </label>
+                        </td>
+
+                        <td class="text-center">
 
                             <a href="{{ url("$segment/$folder/edit/$item->id") }}"
                                 class="btn btn-icon btn-light-warning btn-sm">
@@ -203,7 +211,7 @@
 
                     <tr>
 
-                        <td colspan="7" class="text-center">
+                        <td colspan="8" class="text-center">
 
                             No data found
 
@@ -276,8 +284,10 @@
 
     $(document).ready(function() {
         $('.update-status').on('change', function() {
+            var $checkbox = $(this);
             var id = $(this).data('id');
             var status = $(this).is(':checked') ? "on" : "off";
+            var originalChecked = !$checkbox.is(':checked');
 
             $.ajax({
                 url: fullUrl + "/update-status",
@@ -287,6 +297,37 @@
                     id: id,
                     status: status
                 },
+                success: function(response) {
+                    if (!response.status) {
+                        $checkbox.prop('checked', originalChecked);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'ไม่สำเร็จ',
+                            text: 'ไม่สามารถอัปเดตสถานะได้',
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: 'อัปเดตสถานะเรียบร้อย',
+                        timer: 1200,
+                        showConfirmButton: false
+                    });
+                },
+                error: function() {
+                    $checkbox.prop('checked', originalChecked);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สำเร็จ',
+                        text: 'ไม่สามารถอัปเดตสถานะได้',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                }
             });
         });
     });

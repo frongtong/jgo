@@ -184,7 +184,7 @@
                                                         </td>
                                                         @endif
                                                         <td class="text-center">
-                                                            <label class="form-check form-switch form-check-custom form-check-solid" style="display: contents !important;">
+                                                            <label class="form-check form-switch form-check-custom form-check-solid justify-content-center mb-0">
                                                                 <input class="form-check-input update-status" type="checkbox" value="{{ $item->status }}" data-id="{{ $item->id }}" @if ($item->status == 'on') checked @endif>
                                                             </label>
                                                         </td>
@@ -296,8 +296,10 @@
  $(document).ready(function() {
     $('.update-status').on('change', function() {
 
+        var $checkbox = $(this);
         var id = $(this).data('id');
         var status = $(this).is(':checked') ? "on" : "off";
+        var originalChecked = !$checkbox.is(':checked');
 
         $.ajax({
             url: fullUrl + "/update-status",
@@ -311,10 +313,22 @@
             
             success: function(response) {
 
+                if (!response.status) {
+                    $checkbox.prop('checked', originalChecked);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'ไม่สำเร็จ',
+                        text: 'ไม่สามารถอัปเดตสถานะได้',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    return;
+                }
+
                 Swal.fire({
                     icon: 'success',
-                    title: 'Success',
-                    text: 'Update status successfully',
+                    title: 'สำเร็จ',
+                    text: 'อัปเดตสถานะเรียบร้อย',
                     timer: 1200,
                     showConfirmButton: false
                 });
@@ -322,10 +336,11 @@
             },
             error: function() {
 
+                $checkbox.prop('checked', originalChecked);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'Update status failed',
+                    title: 'ไม่สำเร็จ',
+                    text: 'ไม่สามารถอัปเดตสถานะได้',
                     timer: 1500,
                     showConfirmButton: false
                 });

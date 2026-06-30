@@ -144,6 +144,28 @@
 
                         </div>
 
+                        <div class="col-md-6 mb-3">
+
+                            <label class="form-label">
+                                สถานะ
+                            </label>
+
+                            <select
+                                class="form-select"
+                                name="status">
+
+                                <option value="on" {{ old('status', $data->status) == 'on' ? 'selected' : '' }}>
+                                    เปิดใช้งาน
+                                </option>
+
+                                <option value="off" {{ old('status', $data->status) == 'off' ? 'selected' : '' }}>
+                                    ปิดใช้งาน
+                                </option>
+
+                            </select>
+
+                        </div>
+
                     </div>
 
                     <!-- รูปปก -->

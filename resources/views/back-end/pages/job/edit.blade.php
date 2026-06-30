@@ -297,6 +297,79 @@
                                                
 
                                             </div>
+                                            <div class="row mb-5">
+
+                                                <div class="col-md-4">
+
+                                                    <label class="form-label">
+                                                    เพศ                                                    
+                                                </label>
+
+                                                    <select name="gender"
+                                                        class="form-select form-select-solid">
+
+                                                        <option value="all"
+                                                            {{ $data->gender=='all'?'selected':'' }}>
+                                                            ทุกเพศ
+                                                        </option>
+
+                                                        <option value="male"
+                                                            {{ $data->gender=='male'?'selected':'' }}>
+                                                            ชาย
+                                                        </option>
+
+                                                        <option value="female"
+                                                            {{ $data->gender=='female'?'selected':'' }}>
+                                                            หญิง
+                                                        </option>
+
+                                                    </select>
+
+                                                </div>
+
+                                                <div class="col-md-4">
+
+                                                    <label class="form-label">
+อายุขั้นต่ำ                                                    </label>
+
+                                                    <input type="number"
+                                                        class="form-control"
+                                                        name="age_min"
+                                                        value="{{ $data->age_min }}">
+
+                                                </div>
+
+                                                <div class="col-md-4">
+
+                                                    <label class="form-label">
+อายุสูงสุด                                                    </label>
+
+                                                    <input type="number"
+                                                        class="form-control"
+                                                        name="age_max"
+                                                        value="{{ $data->age_max }}">
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="row mb-5">
+
+                                                <div class="col-md-12">
+
+                                                    <label class="form-label">
+                                                        Google Map Link
+                                                    </label>
+
+                                                    <input type="text"
+                                                        class="form-control"
+                                                        name="map_link"
+                                                        value="{{ $data->map_link }}">
+
+                                                </div>
+
+                                            </div>
+
 
                                             {{-- รูปภาพ --}}
                                             <div class="row mb-5">
@@ -413,6 +486,7 @@
 
                                             </div>
 
+                                            
                                             <div class="text-end">
 
                                                 <a href="{{ url("$segment/$folder") }}"
