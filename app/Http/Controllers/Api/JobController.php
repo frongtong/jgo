@@ -74,17 +74,22 @@ class JobController extends Controller
             $canApply = $member && $member->type === 'applicant'
                 ? !$this->activeApplicationForMember($member->id)
                 : false;
-            $favoriteIds = $member
-                ? MemberFavoriteJob::where('member_id', $member->id)->pluck('job_id')->all()
-                : [];
 
-            $query = Job::with([
-                    'company',
-                    'province',
-                    'city',
-                    'categories.category1',
-                    'categories.category2',
-                ])
+            $with = [
+                'company',
+                'province',
+                'city',
+                'categories.category1',
+                'categories.category2',
+            ];
+
+            if ($member) {
+                $with['favoriteMembers'] = function ($favoriteQuery) use ($member) {
+                    $favoriteQuery->where('member_id', $member->id);
+                };
+            }
+
+            $query = Job::with($with)
                 ->where('status', 'on');
 
             if ($request->filled('search')) {
@@ -208,17 +213,22 @@ class JobController extends Controller
             $jobs = $query
                 ->latest()
                 ->get()
-                ->map(function ($job) use ($favoriteIds, $canApply) {
-                    $job->is_favorite = in_array($job->id, $favoriteIds);
+                ->map(function ($job) use ($member, $canApply) {
+                    $job->is_favorite = $member ? $job->favoriteMembers->isNotEmpty() : false;
                     $job->can_apply = $canApply;
+                    $job->unsetRelation('favoriteMembers');
 
                     return $job;
                 });
+            $favoriteJobs = $jobs
+                ->where('is_favorite', true)
+                ->values();
 
             return response()->json([
                 'status' => true,
                 'message' => 'ดึงข้อมูลสำเร็จ',
                 'results' => $jobs,
+                'favorite_jobs' => $favoriteJobs,
             ]);
         } catch (\Throwable $e) {
             return response()->json([

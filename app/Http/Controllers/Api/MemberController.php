@@ -341,6 +341,8 @@ class MemberController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:200'],
+            'email' => ['required', 'email', 'max:255', 'unique:members,email', 'unique:members,username'],
+            'password' => ['required', 'string', 'min:6', 'max:255'],
         ]);
 
         $member = Member::where('id', $memberId)
@@ -365,20 +367,15 @@ class MemberController extends Controller
             DB::beginTransaction();
 
             do {
-                $suffix = Str::lower(Str::random(10));
-                $username = 'parent_' . $member->id . '_' . $suffix;
-            } while (Member::where('username', $username)->exists());
-
-            do {
                 $memberCode = 'PAR' . now()->format('ymd') . random_int(100000, 999999);
             } while (Member::where('member_code', $memberCode)->exists());
 
-            $plainPassword = Str::random(12);
+            $plainPassword = $validated['password'];
 
             $parent = new Member();
             $parent->member_code = $memberCode;
-            $parent->username = $username;
-            $parent->email = $username . '@jgo.com';
+            $parent->username = $validated['email'];
+            $parent->email = $validated['email'];
             $parent->password = Hash::make($plainPassword);
             $parent->parent_plain_password = $plainPassword;
             $parent->type = 'parent';
