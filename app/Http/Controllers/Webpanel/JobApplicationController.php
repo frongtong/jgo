@@ -131,6 +131,7 @@ class JobApplicationController extends Controller
         $data = JobApplication::with([
             'member.profile',
             'member.educations',
+            'member.applicationDetail',
             'job.company',
         ])->findOrFail($id);
 

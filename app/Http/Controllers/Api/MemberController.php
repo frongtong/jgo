@@ -30,10 +30,6 @@ class MemberController extends Controller
 
         return [
             'can_apply' => !$isActiveStatus,
-            'status' => $latestStatus,
-            'active_status' => $isActiveStatus ? $latestStatus : null,
-            'statuses' => JobApplication::allStatuses(),
-            'active_statuses' => JobApplication::activeStatuses(),
         ];
     }
 
@@ -54,11 +50,10 @@ class MemberController extends Controller
         return [
             'application_id' => $application->id,
             'job_id' => $application->job_id,
-            'job' => $application->job,
             'interview_date' => optional($application->interview_date)->format('Y-m-d'),
             'interview_time' => $application->interview_time,
             'interview_location' => $application->interview_location,
-            'status' => $application->status,
+
         ];
     }
 
@@ -313,7 +308,6 @@ class MemberController extends Controller
                     ? $this->jobApplicationPermissionFor($account)
                     : null,
                 'interview_date' => $interviewAppointment['interview_date'] ?? null,
-                'interview_appointment' => $interviewAppointment,
                 'favorite_job_count' => $favoriteJobCount,
                 // 'related_members' => $relatedMembers,
                 // 'related_parents' => $relatedParents,

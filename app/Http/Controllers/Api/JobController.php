@@ -220,9 +220,7 @@ class JobController extends Controller
 
                     return $job;
                 });
-            $favoriteJobs = $jobs
-                ->where('is_favorite', true)
-                ->values();
+            $favoriteJobs = $jobs->contains('is_favorite', true);
 
             return response()->json([
                 'status' => true,
@@ -496,7 +494,7 @@ class JobController extends Controller
                 'application_id' => $application->id,
                 'old_status' => null,
                 'new_status' => JobApplication::STATUS_NEW,
-                'remark' => 'สมัครงานผ่าน API',
+                'remark' => '',
                 'created_by' => null,
             ]);
 

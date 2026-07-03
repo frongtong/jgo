@@ -20,7 +20,56 @@
     @php
         $workExperiences = json_decode($data->work_experience, true);
         $profile = $data->member?->profile;
-        $educations = $data->member?->educations ?? collect();
+        $educationOrder = [
+            'studying',
+            'lower_secondary',
+            'upper_secondary',
+            'vocational',
+            'high_vocational',
+            'bachelor',
+            'master',
+            'doctorate',
+            'other',
+        ];
+        $educationOrderMap = array_flip($educationOrder);
+        $educations = ($data->member?->educations ?? collect())
+            ->sortBy(function ($education) use ($educationOrderMap) {
+                $key = $education->study_status === 'studying'
+                    ? 'studying'
+                    : $education->education_level;
+
+                return $educationOrderMap[$key] ?? 999;
+            })
+            ->values();
+        $educationLevelLabels = [
+            'lower_secondary' => 'มัธยมศึกษาตอนต้น',
+            'upper_secondary' => 'มัธยมศึกษาตอนปลาย',
+            'vocational' => 'ปวช.',
+            'high_vocational' => 'ปวส.',
+            'bachelor' => 'ปริญญาตรี',
+            'master' => 'ปริญญาโท',
+            'doctorate' => 'ปริญญาเอก',
+            'other' => 'อื่น ๆ',
+        ];
+        $educationLevelText = function ($education) use ($educationLevelLabels, $data) {
+            $level = $education->education_level;
+            $label = $educationLevelLabels[$level] ?? ($level ?: '-');
+
+            if ($level === 'other') {
+                $other = data_get($data->member?->applicationDetail, 'education_extra.current_level_other');
+                $label = $other ? $label . ' (' . $other . ')' : $label;
+            }
+
+            if ($education->study_status === 'studying') {
+                $label .= ' (กำลังศึกษา)';
+            }
+
+            if ($education->education_type && $level !== 'vocational') {
+                $label .= ' - ' . $education->education_type;
+            }
+
+            return $label;
+        };
     @endphp
 
     <div class="d-flex flex-column flex-root app-root" id="kt_app_root">
@@ -213,7 +262,7 @@
                                                             <tbody>
                                                                 @forelse($educations as $education)
                                                                     <tr>
-                                                                        <td>{{ $education->education_level ?: '-' }}</td>
+                                                                        <td>{{ $educationLevelText($education) }}</td>
                                                                         <td>{{ $education->institution_name ?: '-' }}</td>
                                                                         <td>{{ trim(($education->faculty ?: '') . ' ' . ($education->major ?: '')) ?: '-' }}</td>
                                                                         <td>
