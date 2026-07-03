@@ -17,6 +17,7 @@ use App\Models\Backend\MemberEducation;
 use App\Models\Backend\MemberTrainingCourse;
 use App\Models\Backend\MemberApplicationDetail;
 use App\Models\Backend\JobApplication;
+use App\Models\Backend\MemberFavoriteJob;
 
 class MemberController extends Controller
 {
@@ -34,6 +35,36 @@ class MemberController extends Controller
             'statuses' => JobApplication::allStatuses(),
             'active_statuses' => JobApplication::activeStatuses(),
         ];
+    }
+
+    protected function interviewAppointmentFor(Member $member): ?array
+    {
+        $application = JobApplication::with(['job.company'])
+            ->where('member_id', $member->id)
+            ->where('status', JobApplication::STATUS_INTERVIEW)
+            ->whereNotNull('interview_date')
+            ->latest('interview_date')
+            ->latest('id')
+            ->first();
+
+        if (!$application) {
+            return null;
+        }
+
+        return [
+            'application_id' => $application->id,
+            'job_id' => $application->job_id,
+            'job' => $application->job,
+            'interview_date' => optional($application->interview_date)->format('Y-m-d'),
+            'interview_time' => $application->interview_time,
+            'interview_location' => $application->interview_location,
+            'status' => $application->status,
+        ];
+    }
+
+    protected function favoriteJobCountFor(Member $member): int
+    {
+        return MemberFavoriteJob::where('member_id', $member->id)->count();
     }
     
 
@@ -263,6 +294,13 @@ class MemberController extends Controller
             $accountData['password'] = $account->getRawOriginal('parent_plain_password');
         }
 
+        $interviewAppointment = $member->type === 'applicant'
+            ? $this->interviewAppointmentFor($account)
+            : null;
+        $favoriteJobCount = $member->type === 'applicant'
+            ? $this->favoriteJobCountFor($account)
+            : null;
+
         return response()->json([
             'status' => true,
             'message' => 'เข้าสู่ระบบสำเร็จ',
@@ -274,6 +312,9 @@ class MemberController extends Controller
                 'job_application_permission' => $member->type === 'applicant'
                     ? $this->jobApplicationPermissionFor($account)
                     : null,
+                'interview_date' => $interviewAppointment['interview_date'] ?? null,
+                'interview_appointment' => $interviewAppointment,
+                'favorite_job_count' => $favoriteJobCount,
                 // 'related_members' => $relatedMembers,
                 // 'related_parents' => $relatedParents,
             ],
@@ -710,9 +751,14 @@ class MemberController extends Controller
 
         try {
             DB::beginTransaction();
-
+            
             if ($request->filled('email')) {
                 $member->email = $request->email;
+            }
+
+
+            if ($request->filled('username')) {
+                $member->username  = $request->username;
             }
 
             if ($request->filled('password')) {

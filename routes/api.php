@@ -69,7 +69,7 @@ use App\Http\Controllers\Api\StudyFurtherController;
             );
             Route::post(
                 'profile/update',
-                [MemberController::class, 'updateProfile']
+                [MemberController::class, 'updateApplication']
             );
             Route::put(
                 'application',
