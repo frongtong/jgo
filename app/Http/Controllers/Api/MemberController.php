@@ -18,6 +18,7 @@ use App\Models\Backend\MemberTrainingCourse;
 use App\Models\Backend\MemberApplicationDetail;
 use App\Models\Backend\JobApplication;
 use App\Models\Backend\MemberFavoriteJob;
+use App\Services\MemberNotificationService;
 
 class MemberController extends Controller
 {
@@ -295,6 +296,7 @@ class MemberController extends Controller
         $favoriteJobCount = $member->type === 'applicant'
             ? $this->favoriteJobCountFor($account)
             : null;
+        $notifications = app(MemberNotificationService::class)->forMember($account);
 
         return response()->json([
             'status' => true,
@@ -309,8 +311,21 @@ class MemberController extends Controller
                     : null,
                 'interview_date' => $interviewAppointment['interview_date'] ?? null,
                 'favorite_job_count' => $favoriteJobCount,
+                'notifications' => $notifications,
                 // 'related_members' => $relatedMembers,
                 // 'related_parents' => $relatedParents,
+            ],
+        ]);
+    }
+
+    public function notifications(Request $request)
+    {
+        $member = Member::findOrFail($request->user()->id);
+
+        return response()->json([
+            'status' => true,
+            'results' => [
+                'notifications' => app(MemberNotificationService::class)->forMember($member),
             ],
         ]);
     }

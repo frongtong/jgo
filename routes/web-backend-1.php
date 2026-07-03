@@ -145,6 +145,15 @@ Route::group(['middleware' => 'Admin'], function () {
 
             Route::post('/destroy', [Webpanel\JobApplicationController::class, 'destroy']);
         });
+        Route::prefix('general-notifications')->group(function () {
+            Route::get('/', [Webpanel\GeneralNotificationController::class, 'index'])->name('webpanel.general-notifications');
+            Route::get('/add', [Webpanel\GeneralNotificationController::class, 'add'])->name('webpanel.general-notifications.add');
+            Route::post('/add', [Webpanel\GeneralNotificationController::class, 'insert']);
+            Route::get('/edit/{id}', [Webpanel\GeneralNotificationController::class, 'edit'])->where(['id' => '[0-9]+']);
+            Route::post('/edit/{id}', [Webpanel\GeneralNotificationController::class, 'update'])->where(['id' => '[0-9]+']);
+            Route::post('/destroy', [Webpanel\GeneralNotificationController::class, 'destroy']);
+            Route::post('/update-status', [Webpanel\GeneralNotificationController::class, 'updateStatus']);
+        });
 
         Route::prefix('location')->group(function () {
             // หน้าหลักรายการสถานที่ทั้งหมด

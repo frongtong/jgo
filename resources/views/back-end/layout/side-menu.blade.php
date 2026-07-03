@@ -116,6 +116,19 @@
                         @endforeach
                     @endif
 
+                    <div class="menu-item">
+                        <a class="menu-link {{ request()->is('webpanel/general-notifications*') ? 'active' : '' }}" href="{{ url('webpanel/general-notifications') }}">
+                            <span class="menu-icon">
+                                <i class="ki-duotone ki-notification-status fs-2">
+                                    <span class="path1"></span>
+                                    <span class="path2"></span>
+                                    <span class="path3"></span>
+                                </i>
+                            </span>
+                            <span class="menu-title">แจ้งเตือนรวม</span>
+                        </a>
+                    </div>
+
                     @if($roleId == 1)
                     <div class="menu-item pt-5">
                         <div class="menu-content">

@@ -1,0 +1,150 @@
+<?php
+
+namespace App\Http\Controllers\Webpanel;
+
+use App\Http\Controllers\Controller;
+use App\Models\Backend\GeneralNotification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+class GeneralNotificationController extends Controller
+{
+    protected $segment = 'webpanel';
+    protected $prefix = 'back-end';
+    protected $folder = 'general-notifications';
+
+    public function index(Request $request)
+    {
+        $items = GeneralNotification::query()
+            ->when($request->search, function ($query, $search) {
+                $query->where('title', 'like', '%' . $search . '%')
+                    ->orWhere('detail', 'like', '%' . $search . '%');
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
+        $items->pages = new \stdClass();
+        $items->pages->start = ($items->perPage() * $items->currentPage()) - $items->perPage();
+
+        return view("$this->prefix.pages.$this->folder.index", [
+            'segment' => $this->segment,
+            'prefix' => $this->prefix,
+            'folder' => $this->folder,
+            'items' => $items,
+            'navs' => $this->navs('รายการ'),
+        ]);
+    }
+
+    public function add()
+    {
+        return view("$this->prefix.pages.$this->folder.form", [
+            'segment' => $this->segment,
+            'prefix' => $this->prefix,
+            'folder' => $this->folder,
+            'data' => new GeneralNotification(['status' => 'on']),
+            'navs' => $this->navs('เพิ่ม'),
+            'action' => url("$this->segment/$this->folder/add"),
+        ]);
+    }
+
+    public function edit($id)
+    {
+        return view("$this->prefix.pages.$this->folder.form", [
+            'segment' => $this->segment,
+            'prefix' => $this->prefix,
+            'folder' => $this->folder,
+            'data' => GeneralNotification::findOrFail($id),
+            'navs' => $this->navs('แก้ไข'),
+            'action' => url("$this->segment/$this->folder/edit/$id"),
+        ]);
+    }
+
+    public function insert(Request $request)
+    {
+        return $this->store($request);
+    }
+
+    public function update(Request $request, $id)
+    {
+        return $this->store($request, $id);
+    }
+
+    protected function store(Request $request, $id = null)
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'detail' => ['nullable', 'string'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date', 'after_or_equal:start_date'],
+            'status' => ['required', 'in:on,off'],
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $item = $id
+                ? GeneralNotification::findOrFail($id)
+                : new GeneralNotification();
+            $item->fill($validated);
+            $item->save();
+
+            DB::commit();
+
+            return view("$this->prefix.alert.success", [
+                'url' => url("$this->segment/$this->folder"),
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return view("$this->prefix.alert.alert", [
+                'url' => url()->current(),
+                'title' => 'ไม่สามารถบันทึกข้อมูลได้',
+                'text' => $e->getMessage(),
+                'icon' => 'error',
+            ]);
+        }
+    }
+
+    public function destroy(Request $request)
+    {
+        $item = GeneralNotification::find($request->id);
+
+        if (!$item) {
+            return response()->json(['status' => false]);
+        }
+
+        $item->delete();
+
+        return response()->json(['status' => true]);
+    }
+
+    public function updateStatus(Request $request)
+    {
+        $item = GeneralNotification::find($request->id);
+
+        if (!$item) {
+            return response()->json(['status' => false]);
+        }
+
+        $item->status = $request->status;
+        $item->save();
+
+        return response()->json(['status' => true]);
+    }
+
+    protected function navs(string $current): array
+    {
+        return [
+            [
+                'url' => 'javascript:void(0)',
+                'name' => 'แจ้งเตือนรวม',
+                'last' => 0,
+            ],
+            [
+                'url' => "$this->segment/$this->folder",
+                'name' => $current,
+                'last' => 1,
+            ],
+        ];
+    }
+}

@@ -220,13 +220,13 @@ class JobController extends Controller
 
                     return $job;
                 });
-            $favoriteJobs = $jobs->contains('is_favorite', true);
+            $favoriteJobs = $jobs->contains('is_favorite', true) ? 1 : 0;
 
             return response()->json([
                 'status' => true,
                 'message' => 'ดึงข้อมูลสำเร็จ',
                 'results' => $jobs,
-                'favorite_jobs' => $favoriteJobs,
+                'is_favorite' => $favoriteJobs,
             ]);
         } catch (\Throwable $e) {
             return response()->json([

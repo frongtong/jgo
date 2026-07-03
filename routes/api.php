@@ -48,6 +48,7 @@ use App\Http\Controllers\Api\StudyFurtherController;
         Route::get('/alumni/{id}', [AlumniController::class, 'show'])->whereNumber('id');
         Route::get('/studyfurther', [StudyFurtherController::class, 'index']);
         Route::get('/studyfurther/{id}', [StudyFurtherController::class, 'show'])->whereNumber('id');
+        Route::get('/notifications', [MemberController::class, 'notifications']);
         Route::prefix('member')->group(function () {
             Route::post(
                 '{memberId}/parents',
