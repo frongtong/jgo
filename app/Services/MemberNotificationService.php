@@ -82,6 +82,8 @@ class MemberNotificationService
                     'type' => 'general_notice',
                     'title' => $notice->title,
                     'detail' => $notice->detail,
+                    'cover_image' => $notice->cover_image,
+                    'content_image' => $notice->content_image,
                     'notification_date' => optional($notice->start_date)->format('Y-m-d'),
                     'start_date' => optional($notice->start_date)->format('Y-m-d'),
                     'end_date' => optional($notice->end_date)->format('Y-m-d'),

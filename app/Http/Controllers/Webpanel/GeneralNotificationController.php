@@ -74,6 +74,8 @@ class GeneralNotificationController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'detail' => ['nullable', 'string'],
+            'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'content_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'status' => ['required', 'in:on,off'],
@@ -85,7 +87,21 @@ class GeneralNotificationController extends Controller
             $item = $id
                 ? GeneralNotification::findOrFail($id)
                 : new GeneralNotification();
-            $item->fill($validated);
+            $item->fill(collect($validated)->except(['cover_image', 'content_image'])->all());
+
+            foreach (['cover_image', 'content_image'] as $field) {
+                if (!$request->hasFile($field)) {
+                    continue;
+                }
+
+                $oldImage = $item->{$field};
+                $item->{$field} = $this->uploadImage($request->file($field), $field);
+
+                if ($oldImage && is_file(public_path($oldImage))) {
+                    unlink(public_path($oldImage));
+                }
+            }
+
             $item->save();
 
             DB::commit();
@@ -111,6 +127,12 @@ class GeneralNotificationController extends Controller
 
         if (!$item) {
             return response()->json(['status' => false]);
+        }
+
+        foreach (['cover_image', 'content_image'] as $field) {
+            if ($item->{$field} && is_file(public_path($item->{$field}))) {
+                unlink(public_path($item->{$field}));
+            }
         }
 
         $item->delete();
@@ -146,5 +168,19 @@ class GeneralNotificationController extends Controller
                 'last' => 1,
             ],
         ];
+    }
+
+    protected function uploadImage($file, string $field): string
+    {
+        $path = 'upload/general-notifications';
+
+        if (!is_dir(public_path($path))) {
+            mkdir(public_path($path), 0777, true);
+        }
+
+        $filename = $field . '-' . time() . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path($path), $filename);
+
+        return $path . '/' . $filename;
     }
 }

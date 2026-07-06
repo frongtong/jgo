@@ -19,7 +19,7 @@
                             </div>
                         </div>
                         <div id="kt_app_content" class="app-content flex-column-fluid">
-                            <form method="POST" action="{{ $action }}">
+                            <form method="POST" action="{{ $action }}" enctype="multipart/form-data">
                                 @csrf
                                 <div id="kt_app_content_container" class="app-container container-xxl">
                                     <div class="card">
@@ -44,6 +44,24 @@
                                                 <div class="col-md-12 mb-5">
                                                     <label class="form-label">รายละเอียดแจ้งเตือน</label>
                                                     <textarea name="detail" class="form-control" rows="5">{{ old('detail', $data->detail) }}</textarea>
+                                                </div>
+                                                <div class="col-md-6 mb-5">
+                                                    <label class="form-label">ภาพปก</label>
+                                                    <input type="file" name="cover_image" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                                                    @if($data->cover_image)
+                                                        <div class="mt-3">
+                                                            <img src="{{ asset($data->cover_image) }}" class="rounded" style="max-width: 180px;">
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                                <div class="col-md-6 mb-5">
+                                                    <label class="form-label">ภาพเนื้อหา</label>
+                                                    <input type="file" name="content_image" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                                                    @if($data->content_image)
+                                                        <div class="mt-3">
+                                                            <img src="{{ asset($data->content_image) }}" class="rounded" style="max-width: 180px;">
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 <div class="col-md-4 mb-5">
                                                     <label class="form-label required">วันที่เริ่มแจ้งเตือน</label>

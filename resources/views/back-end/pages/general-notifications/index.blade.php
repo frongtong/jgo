@@ -38,6 +38,7 @@
                                                 <thead>
                                                     <tr class="fw-bold text-gray-600">
                                                         <th width="5%" class="text-center">#</th>
+                                                        <th width="10%" class="text-center">ภาพปก</th>
                                                         <th>หัวข้อ</th>
                                                         <th width="18%">วันที่เริ่ม</th>
                                                         <th width="18%">วันที่สิ้นสุด</th>
@@ -49,6 +50,13 @@
                                                     @forelse($items as $index => $item)
                                                         <tr>
                                                             <td class="text-center">{{ $items->pages->start + $index + 1 }}</td>
+                                                            <td class="text-center">
+                                                                @if($item->cover_image)
+                                                                    <img src="{{ asset($item->cover_image) }}" class="rounded" style="max-width: 70px;">
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 <div class="fw-bold">{{ $item->title }}</div>
                                                                 <div class="text-muted fs-7">{{ $item->detail ?: '-' }}</div>
@@ -71,7 +79,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="6" class="text-center">No data found</td>
+                                                            <td colspan="7" class="text-center">No data found</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
