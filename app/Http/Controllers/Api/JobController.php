@@ -317,6 +317,48 @@ class JobController extends Controller
         }
     }
 
+    public function categories(Request $request)
+    {
+        try {
+            $categories = Category1::with(['category2' => function ($query) {
+                    $query->where('status', 'on')->orderBy('name_th');
+                }])
+                ->where('status', 'on')
+                ->orderBy('name_th')
+                ->get()
+                ->map(function ($category) {
+                    return [
+                        'id' => $category->id,
+                        'name_th' => $category->name_th,
+                        'name_en' => $category->name_en ?? null,
+                        'sub_categories' => $category->category2->map(function ($subCategory) {
+                            return [
+                                'id' => $subCategory->id,
+                                'category1_id' => $subCategory->category1_id,
+                                'name_th' => $subCategory->name_th,
+                                'name_en' => $subCategory->name_en,
+                            ];
+                        })->values(),
+                    ];
+                });
+
+            return response()->json([
+                'status' => true,
+                'message' => 'ดึงข้อมูลหมวดหมู่งานสำเร็จ',
+                'results' => [
+                    'categories' => $categories,
+                ],
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'เกิดข้อผิดพลาด',
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
+    }
+
     public function favorite(Request $request)
     {
         $member = $request->user();

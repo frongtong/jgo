@@ -31,6 +31,7 @@ use App\Http\Controllers\Api\StudyFurtherController;
     
         Route::get('/banners', [BannerController::class, 'index']);
         Route::prefix('jobs')->group(function () {
+            Route::get('/categories', [JobController::class, 'categories']);
             Route::get('/filters', [JobController::class, 'filters']);
             Route::get('/', [JobController::class, 'index']);
             Route::post('/search', [JobController::class, 'index']);
