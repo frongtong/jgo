@@ -214,13 +214,13 @@ class JobController extends Controller
                 ->latest()
                 ->get()
                 ->map(function ($job) use ($member, $canApply) {
-                    $job->is_favorite = $member ? $job->favoriteMembers->isNotEmpty() : false;
+                    $job->is_favorite = ($member && $job->favoriteMembers->isNotEmpty()) ? 1 : 0;
                     $job->can_apply = $canApply;
                     $job->unsetRelation('favoriteMembers');
 
                     return $job;
                 });
-            $favoriteJobs = $jobs->contains('is_favorite', true) ? 1 : 0;
+            $favoriteJobs = $jobs->contains('is_favorite', 1) ? 1 : 0;
 
             return response()->json([
                 'status' => true,
