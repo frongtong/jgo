@@ -38,9 +38,6 @@ class MemberController extends Controller
     {
         $application = JobApplication::with(['job.company'])
             ->where('member_id', $member->id)
-            ->where('status', JobApplication::STATUS_INTERVIEW)
-            ->whereNotNull('interview_date')
-            ->latest('interview_date')
             ->latest('id')
             ->first();
 
@@ -48,11 +45,18 @@ class MemberController extends Controller
             return null;
         }
 
+        if ($application->status !== JobApplication::STATUS_INTERVIEW) {
+            return [
+                'interview_status' => $application->status,
+            ];
+        }
+
         return [
             'application_id' => $application->id,
             'job_id' => $application->job_id,
             'interview_date' => optional($application->interview_date)->format('Y-m-d'),
             'interview_time' => $application->interview_time,
+            'interview_status' => $application->status,
             'interview_location' => $application->interview_location,
 
         ];
@@ -310,6 +314,7 @@ class MemberController extends Controller
                     ? $this->jobApplicationPermissionFor($account)
                     : null,
                 'interview_date' => $interviewAppointment['interview_date'] ?? null,
+                'interview_status' => $interviewAppointment['interview_status'] ?? null,
                 'favorite_job_count' => $favoriteJobCount,
                 'notifications' => $notifications,
                 // 'related_members' => $relatedMembers,
@@ -328,6 +333,168 @@ class MemberController extends Controller
                 'notifications' => app(MemberNotificationService::class)->forMember($member),
             ],
         ]);
+    }
+
+    public function parentHome(Request $request)
+    {
+        $parent = Member::with('profile')->findOrFail($request->user()->id);
+
+        if ($parent->type !== 'parent') {
+            return response()->json([
+                'status' => false,
+                'message' => 'เฉพาะผู้ปกครองเท่านั้น',
+            ], 403);
+        }
+
+        $child = $parent->linkedChildren()
+            ->with(['profile', 'applicationDetail'])
+            ->when($request->filled('member_id'), function ($query) use ($request) {
+                $query->where('members.id', $request->input('member_id'));
+            })
+            ->orderBy('members.id')
+            ->first();
+
+        if (!$child) {
+            return response()->json([
+                'status' => true,
+                'results' => [
+                    'parent' => $this->memberSummary($parent),
+                    'child' => null,
+                    'application_status' => null,
+                    'favorite_jobs' => [],
+                    'current_work' => null,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'results' => [
+                'parent' => $this->memberSummary($parent),
+                'child' => $this->childSummary($child),
+                'application_status' => $this->latestApplicationSummary($child),
+                'favorite_jobs' => $this->latestFavoriteJobsForChild($child),
+                'current_work' => $this->currentWorkSummary($child),
+            ],
+        ]);
+    }
+
+    protected function memberSummary(Member $member): array
+    {
+        $profile = $member->profile;
+        $name = trim(($profile->first_name_th ?? '') . ' ' . ($profile->last_name_th ?? ''));
+
+        return [
+            'id' => $member->id,
+            'member_code' => $member->member_code,
+            'name' => $name ?: ($member->name ?? $member->username),
+            'username' => $member->username,
+            'email' => $member->email,
+            'profile_image' => $profile->profile_image ?? null,
+            'profile_image_url' => !empty($profile->profile_image) ? url($profile->profile_image) : null,
+            'profile' => $profile,
+        ];
+    }
+
+    protected function childSummary(Member $child): array
+    {
+        $summary = $this->memberSummary($child);
+        $japaneseLevel = data_get($child->applicationDetail, 'language_training.japanese.level');
+
+        $summary['headline_status'] = $japaneseLevel
+            ? 'กำลังศึกษาภาษาญี่ปุ่น ระดับ ' . $japaneseLevel
+            : null;
+        $summary['japanese_level'] = $japaneseLevel;
+
+        return $summary;
+    }
+
+    protected function latestApplicationSummary(Member $child): ?array
+    {
+        $application = JobApplication::with(['job.company'])
+            ->where('member_id', $child->id)
+            ->latest('id')
+            ->first();
+
+        if (!$application) {
+            return null;
+        }
+
+        return [
+            'id' => $application->id,
+            'status' => $application->status,
+            'status_label' => JobApplication::statusLabels()[$application->status] ?? $application->status,
+            'interview_date' => optional($application->interview_date)->format('Y-m-d'),
+            'interview_time' => $application->interview_time,
+            'interview_location' => $application->interview_location,
+            'job' => $this->jobSummary($application->job),
+        ];
+    }
+
+    protected function latestFavoriteJobsForChild(Member $child)
+    {
+        $passedJobIds = JobApplication::where('member_id', $child->id)
+            ->where('status', JobApplication::STATUS_PASSED)
+            ->pluck('job_id')
+            ->filter()
+            ->all();
+
+        return MemberFavoriteJob::with([
+                'job.company',
+                'job.province',
+                'job.city',
+            ])
+            ->where('member_id', $child->id)
+            ->when($passedJobIds, function ($query) use ($passedJobIds) {
+                $query->whereNotIn('job_id', $passedJobIds);
+            })
+            ->latest('id')
+            ->get()
+            ->pluck('job')
+            ->filter()
+            ->values()
+            ->map(function ($job) {
+                return $this->jobSummary($job);
+            });
+    }
+
+    protected function currentWorkSummary(Member $child): ?array
+    {
+        $application = JobApplication::with(['job.company', 'job.province', 'job.city'])
+            ->where('member_id', $child->id)
+            ->where('status', JobApplication::STATUS_PASSED)
+            ->latest('id')
+            ->first();
+
+        if (!$application) {
+            return null;
+        }
+
+        return [
+            'application_id' => $application->id,
+            'status' => $application->status,
+            'status_label' => JobApplication::statusLabels()[$application->status] ?? $application->status,
+            'job' => $this->jobSummary($application->job),
+        ];
+    }
+
+    protected function jobSummary($job): ?array
+    {
+        if (!$job) {
+            return null;
+        }
+
+        return [
+            'id' => $job->id,
+            'title_th' => $job->title_th,
+            'title_en' => $job->title_en,
+            'job_type' => $job->job_type,
+            'logo' => $job->logo,
+            'logo_url' => $job->logo ? url($job->logo) : null,
+            'company' => $job->company,
+            'province' => $job->province,
+            'city' => $job->city,
+        ];
     }
         /*
         |--------------------------------------------------------------------------

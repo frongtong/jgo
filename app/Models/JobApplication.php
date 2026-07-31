@@ -53,6 +53,7 @@ class JobApplication extends Model
     public const STATUS_INTERVIEW = 'interview';
     public const STATUS_PASSED = 'passed';
     public const STATUS_FAILED = 'failed';
+    public const STATUS_CANCELLED = 'cancelled';
 
     protected $casts = [
         'interview_date' => 'date',
@@ -75,12 +76,14 @@ class JobApplication extends Model
             self::STATUS_INTERVIEW,
             self::STATUS_PASSED,
             self::STATUS_FAILED,
+            self::STATUS_CANCELLED,
         ];
     }
 
     public static function statusLabels(): array
     {
         return [
+            self::STATUS_CANCELLED => 'ยกเลิกการสมัคร',
             self::STATUS_NEW => 'สมัครใหม่',
             self::STATUS_REVIEWING => 'รอตรวจสอบ',
             self::STATUS_INTERVIEW => 'นัดสัมภาษณ์',

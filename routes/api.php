@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AlumniController;
 use App\Http\Controllers\Api\StudyFurtherController;
+use App\Http\Controllers\Api\LearningCenterController;
 
 
 
@@ -41,6 +42,7 @@ use App\Http\Controllers\Api\StudyFurtherController;
             Route::post('/favorite/{jobId}/remove', [JobController::class, 'unfavorite'])->whereNumber('jobId');
             Route::post('/apply', [JobController::class, 'apply']);
             Route::get('/applications', [JobController::class, 'applications']);
+            Route::post('/applications/{applicationId}/cancel', [JobController::class, 'cancelApplication'])->whereNumber('applicationId');
         });
         Route::get('/vocabulary', [VocabularyController::class, 'index']);
         Route::get('/video', [VideoController::class, 'index']);
@@ -49,7 +51,9 @@ use App\Http\Controllers\Api\StudyFurtherController;
         Route::get('/alumni/{id}', [AlumniController::class, 'show'])->whereNumber('id');
         Route::get('/studyfurther', [StudyFurtherController::class, 'index']);
         Route::get('/studyfurther/{id}', [StudyFurtherController::class, 'show'])->whereNumber('id');
+        Route::get('/learning-center/banner', [LearningCenterController::class, 'banner']);
         Route::get('/notifications', [MemberController::class, 'notifications']);
+        Route::get('/parent/home', [MemberController::class, 'parentHome']);
         Route::prefix('member')->group(function () {
             Route::post(
                 '{memberId}/parents',

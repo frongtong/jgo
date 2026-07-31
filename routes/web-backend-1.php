@@ -154,6 +154,10 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/destroy', [Webpanel\GeneralNotificationController::class, 'destroy']);
             Route::post('/update-status', [Webpanel\GeneralNotificationController::class, 'updateStatus']);
         });
+        Route::prefix('learning-center')->group(function () {
+            Route::get('/', [Webpanel\LearningCenterController::class, 'index'])->name('webpanel.learning-center');
+            Route::post('/', [Webpanel\LearningCenterController::class, 'update']);
+        });
 
         Route::prefix('location')->group(function () {
             // หน้าหลักรายการสถานที่ทั้งหมด
