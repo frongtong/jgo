@@ -44,4 +44,14 @@ public function subCategory()
         'sub_category_id'
     );
 }
+
+public function items()
+{
+    return $this->hasMany(
+        VocabularyItem::class,
+        'vocabulary_id'
+    )
+    ->orderBy('sort_order')
+    ->orderBy('id');
+}
 }

@@ -209,6 +209,14 @@ Route::group(['middleware' => 'Admin'], function () {
             Route::post('/destroy', [Webpanel\VocabularyController::class, 'destroy']);
             Route::post('/update-status', [Webpanel\VocabularyController::class, 'updateStatus']);
             Route::post('/update-sort-order', [Webpanel\VocabularyController::class, 'updateSortOrder']); //หลิว
+
+            Route::get('/{vocabulary}/items', [Webpanel\VocabularyItemController::class, 'index'])->name('webpanel.vocabulary.items');
+            Route::get('/{vocabulary}/items/add', [Webpanel\VocabularyItemController::class, 'create'])->name('webpanel.vocabulary.items.add');
+            Route::post('/{vocabulary}/items/add', [Webpanel\VocabularyItemController::class, 'store'])->name('webpanel.vocabulary.items.store');
+            Route::get('/{vocabulary}/items/{vocabularyItem}/edit', [Webpanel\VocabularyItemController::class, 'edit'])->name('webpanel.vocabulary.items.edit');
+            Route::put('/{vocabulary}/items/{vocabularyItem}', [Webpanel\VocabularyItemController::class, 'update'])->name('webpanel.vocabulary.items.update');
+            Route::delete('/{vocabulary}/items/{vocabularyItem}', [Webpanel\VocabularyItemController::class, 'destroy'])->name('webpanel.vocabulary.items.destroy');
+            Route::patch('/{vocabulary}/items/{vocabularyItem}/status', [Webpanel\VocabularyItemController::class, 'updateStatus'])->name('webpanel.vocabulary.items.status');
         });
         Route::prefix('video')->group(function () {
 

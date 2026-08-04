@@ -27,7 +27,7 @@ class VocabularyController extends Controller
         $query = Vocabulary::with([
             'mainCategory',
             'subCategory'
-        ]);
+        ])->withCount('items');
 
         if ($search) {
 
@@ -284,6 +284,18 @@ class VocabularyController extends Controller
         $item = Vocabulary::find($request->id);
 
         if ($item) {
+
+            $item->load('items');
+
+            foreach ($item->items as $vocabularyItem) {
+                if ($vocabularyItem->word_audio_url) {
+                    @unlink(public_path($vocabularyItem->word_audio_url));
+                }
+
+                if ($vocabularyItem->example_audio_url) {
+                    @unlink(public_path($vocabularyItem->example_audio_url));
+                }
+            }
 
             @unlink(
                 public_path(
