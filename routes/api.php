@@ -45,6 +45,7 @@ use App\Http\Controllers\Api\LearningCenterController;
             Route::post('/applications/{applicationId}/cancel', [JobController::class, 'cancelApplication'])->whereNumber('applicationId');
         });
         Route::get('/vocabulary', [VocabularyController::class, 'index']);
+        Route::get('/vocabulary/{id}', [VocabularyController::class, 'show'])->whereNumber('id');
         Route::get('/video', [VideoController::class, 'index']);
         Route::get('/article', [ArticleController::class, 'index']);
         Route::get('/alumni', [AlumniController::class, 'index']);
