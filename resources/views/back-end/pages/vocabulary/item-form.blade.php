@@ -45,32 +45,17 @@
                     <textarea name="example_thai" class="form-control" rows="2" placeholder="ฉันทำงานอยู่ในโรงงาน">{{ old('example_thai', $data->example_thai) }}</textarea>
                 </div>
 
-                <div class="col-md-12"><hr><h4 class="mb-5">ไฟล์เสียง</h4></div>
+                <div class="col-md-12"><hr><h4 class="mb-5">รูปภาพคำศัพท์</h4></div>
                 <div class="col-md-6 mb-5">
-                    <label class="form-label">เสียงคำศัพท์</label>
-                    @if($data->word_audio_url)
-                        <div class="mb-2"><audio controls src="{{ asset($data->word_audio_url) }}"></audio></div>
+                    <label class="form-label">รูปภาพ</label>
+                    @if($data->image_url)
+                        <div class="mb-3">
+                            <img src="{{ asset($data->image_url) }}" width="200" height="140"
+                                class="rounded object-fit-cover border" alt="{{ $data->japanese_word }}">
+                        </div>
                     @endif
-                    <input type="file" name="word_audio" class="form-control" accept=".mp3,.wav,.m4a,.ogg">
-                </div>
-                <div class="col-md-6 mb-5">
-                    <label class="form-label">เสียงประโยคตัวอย่าง</label>
-                    @if($data->example_audio_url)
-                        <div class="mb-2"><audio controls src="{{ asset($data->example_audio_url) }}"></audio></div>
-                    @endif
-                    <input type="file" name="example_audio" class="form-control" accept=".mp3,.wav,.m4a,.ogg">
-                </div>
-
-                <div class="col-md-3 mb-5">
-                    <label class="form-label">ลำดับแสดงผล</label>
-                    <input type="number" min="0" name="sort_order" class="form-control" value="{{ old('sort_order', $data->sort_order ?? 0) }}">
-                </div>
-                <div class="col-md-3 mb-5">
-                    <label class="form-label required">สถานะ</label>
-                    <select name="status" class="form-select" required>
-                        <option value="on" {{ old('status', $data->status) === 'on' ? 'selected' : '' }}>เปิดใช้งาน</option>
-                        <option value="off" {{ old('status', $data->status) === 'off' ? 'selected' : '' }}>ปิดใช้งาน</option>
-                    </select>
+                    <input type="file" name="image" class="form-control" accept=".jpg,.jpeg,.png,.webp">
+                    <div class="form-text">รองรับไฟล์ JPG, JPEG, PNG และ WEBP ขนาดไม่เกิน 5 MB</div>
                 </div>
             </div>
         </div>

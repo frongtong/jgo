@@ -295,6 +295,10 @@ class VocabularyController extends Controller
                 if ($vocabularyItem->example_audio_url) {
                     @unlink(public_path($vocabularyItem->example_audio_url));
                 }
+
+                if ($vocabularyItem->image_url) {
+                    @unlink(public_path($vocabularyItem->image_url));
+                }
             }
 
             @unlink(

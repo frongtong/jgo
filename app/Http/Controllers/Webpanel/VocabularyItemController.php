@@ -37,10 +37,7 @@ class VocabularyItemController extends Controller
     public function create(Vocabulary $vocabulary)
     {
         return view("$this->prefix.pages.$this->folder.item-form", $this->viewData($vocabulary, [
-            'data' => new VocabularyItem([
-                'status' => 'on',
-                'sort_order' => ($vocabulary->items()->max('sort_order') ?? 0) + 1,
-            ]),
+            'data' => new VocabularyItem(),
         ]));
     }
 
@@ -49,8 +46,9 @@ class VocabularyItemController extends Controller
         $validated = $this->validateData($request);
 
         DB::transaction(function () use ($request, $validated, $vocabulary) {
-            $validated['word_audio_url'] = $this->storeAudio($request, 'word_audio', 'word');
-            $validated['example_audio_url'] = $this->storeAudio($request, 'example_audio', 'example');
+            $validated['image_url'] = $this->storeImage($request);
+            $validated['status'] = 'on';
+            $validated['sort_order'] = ($vocabulary->items()->max('sort_order') ?? 0) + 1;
             $vocabulary->items()->create($validated);
         });
 
@@ -73,14 +71,9 @@ class VocabularyItemController extends Controller
         $validated = $this->validateData($request);
 
         DB::transaction(function () use ($request, $validated, $vocabularyItem) {
-            foreach ([
-                'word_audio' => ['column' => 'word_audio_url', 'prefix' => 'word'],
-                'example_audio' => ['column' => 'example_audio_url', 'prefix' => 'example'],
-            ] as $input => $config) {
-                if ($request->hasFile($input)) {
-                    $this->deletePublicFile($vocabularyItem->{$config['column']});
-                    $validated[$config['column']] = $this->storeAudio($request, $input, $config['prefix']);
-                }
+            if ($request->hasFile('image')) {
+                $this->deletePublicFile($vocabularyItem->image_url);
+                $validated['image_url'] = $this->storeImage($request);
             }
 
             $vocabularyItem->update($validated);
@@ -97,6 +90,7 @@ class VocabularyItemController extends Controller
         DB::transaction(function () use ($vocabularyItem) {
             $this->deletePublicFile($vocabularyItem->word_audio_url);
             $this->deletePublicFile($vocabularyItem->example_audio_url);
+            $this->deletePublicFile($vocabularyItem->image_url);
             $vocabularyItem->delete();
         });
 
@@ -123,23 +117,20 @@ class VocabularyItemController extends Controller
             'example_japanese' => ['nullable', 'string'],
             'example_reading' => ['nullable', 'string'],
             'example_thai' => ['nullable', 'string'],
-            'word_audio' => ['nullable', 'file', 'mimes:mp3,wav,m4a,ogg', 'max:10240'],
-            'example_audio' => ['nullable', 'file', 'mimes:mp3,wav,m4a,ogg', 'max:10240'],
-            'status' => ['required', Rule::in(['on', 'off'])],
-            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ]);
     }
 
-    private function storeAudio(Request $request, $input, $prefix)
+    private function storeImage(Request $request)
     {
-        if (!$request->hasFile($input)) {
+        if (!$request->hasFile('image')) {
             return null;
         }
 
         $path = 'upload/vocabulary-items';
         File::ensureDirectoryExists(public_path($path));
-        $file = $request->file($input);
-        $filename = $prefix . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file = $request->file('image');
+        $filename = 'image-' . uniqid() . '.' . $file->getClientOriginalExtension();
         $file->move(public_path($path), $filename);
 
         return $path . '/' . $filename;

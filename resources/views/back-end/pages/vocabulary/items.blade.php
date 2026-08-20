@@ -49,7 +49,7 @@
                         <th>คำอ่าน</th>
                         <th>คำแปลไทย</th>
                         <th>ประโยคตัวอย่าง</th>
-                        <th class="text-center">เสียง</th>
+                        <th class="text-center">รูปภาพ</th>
                         <th class="text-center">สถานะ</th>
                         <th class="text-end">จัดการ</th>
                     </tr>
@@ -69,8 +69,9 @@
                                 @else - @endif
                             </td>
                             <td class="text-center text-nowrap">
-                                @if($item->word_audio_url)
-                                    <audio controls preload="none" style="width:120px;height:32px"><source src="{{ asset($item->word_audio_url) }}"></audio>
+                                @if($item->image_url)
+                                    <img src="{{ asset($item->image_url) }}" width="80" height="60"
+                                        class="rounded object-fit-cover border" alt="{{ $item->japanese_word }}">
                                 @else - @endif
                             </td>
                             <td class="text-center">
