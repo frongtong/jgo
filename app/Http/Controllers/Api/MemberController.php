@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use App\Models\Authuse\MemberAuth;
 
@@ -33,34 +34,63 @@ class MemberController extends Controller
             'can_apply' => !$isActiveStatus,
         ];
     }
+	
+	protected function interviewAppointmentFor(Member $member): ?array
+{
+    $application = JobApplication::with(['job.company'])
+        ->where('member_id', $member->id)
+        ->whereIn('status', JobApplication::activeStatuses())
+        ->latest('id')
+        ->first();
 
-    protected function interviewAppointmentFor(Member $member): ?array
-    {
-        $application = JobApplication::with(['job.company'])
-            ->where('member_id', $member->id)
-            ->latest('id')
-            ->first();
+    if (!$application) {
+        return null;
+    }
 
-        if (!$application) {
-            return null;
-        }
-
-        if ($application->status !== JobApplication::STATUS_INTERVIEW) {
-            return [
-                'interview_status' => $application->status,
-            ];
-        }
-
+    if ($application->status !== JobApplication::STATUS_INTERVIEW) {
         return [
-            'application_id' => $application->id,
-            'job_id' => $application->job_id,
-            'interview_date' => optional($application->interview_date)->format('Y-m-d'),
-            'interview_time' => $application->interview_time,
             'interview_status' => $application->status,
-            'interview_location' => $application->interview_location,
-
         ];
     }
+
+    return [
+        'application_id' => $application->id,
+        'job_id' => $application->job_id,
+        'interview_date' =>
+            optional($application->interview_date)->format('Y-m-d'),
+        'interview_time' => $application->interview_time,
+        'interview_status' => $application->status,
+        'interview_location' => $application->interview_location,
+    ];
+}
+
+//    protected function interviewAppointmentFor(Member $member): ?array
+//    {
+//        $application = JobApplication::with(['job.company'])
+//            ->where('member_id', $member->id)
+//            ->latest('id')
+//            ->first();
+//
+//        if (!$application) {
+//            return null;
+//        }
+//
+//        if ($application->status !== JobApplication::STATUS_INTERVIEW) {
+//            return [
+//                'interview_status' => $application->status,
+//            ];
+//        }
+//
+//        return [
+//            'application_id' => $application->id,
+//            'job_id' => $application->job_id,
+//            'interview_date' => optional($application->interview_date)->format('Y-m-d'),
+//            'interview_time' => $application->interview_time,
+//            'interview_status' => $application->status,
+//            'interview_location' => $application->interview_location,
+//
+//        ];
+//    }
 
     protected function favoriteJobCountFor(Member $member): int
     {
@@ -319,6 +349,129 @@ class MemberController extends Controller
                 'notifications' => $notifications,
                 // 'related_members' => $relatedMembers,
                 // 'related_parents' => $relatedParents,
+            ],
+        ]);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'max:255'],
+        ]);
+
+        $member = Member::where(function ($query) use ($validated) {
+            $query->where('email', $validated['email'])
+                ->orWhere('username', $validated['email']);
+        })->first();
+
+        if (!$member) {
+            return response()->json([
+                'status' => false,
+                'message' => 'ไม่พบข้อมูลบัญชีผู้ใช้งาน',
+            ], 404);
+        }
+
+        if ($member->status === 'inactive') {
+            return response()->json([
+                'status' => false,
+                'message' => 'บัญชีนี้ถูกระงับการใช้งาน',
+            ], 403);
+        }
+
+        $temporaryPassword = Str::random(8);
+
+        try {
+            DB::beginTransaction();
+
+            $member->password = Hash::make($temporaryPassword);
+
+            if ($member->type === 'parent') {
+                $member->parent_plain_password = $temporaryPassword;
+            }
+
+            $member->tokens()->delete();
+            $member->save();
+
+            Mail::send(
+                'emails.member-forgot-password',
+                [
+                    'member' => $member,
+                    'temporaryPassword' => $temporaryPassword,
+                    'logoUrl' => url('dist/images/logo.png'),
+                ],
+                function ($message) use ($member) {
+                    $message->to($member->email)
+                        ->subject('แจ้งรหัสผ่านชั่วคราว');
+                }
+            );
+
+            DB::commit();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'ส่งรหัสผ่านชั่วคราวไปยังอีเมลเรียบร้อยแล้ว',
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            report($e);
+
+            return response()->json([
+                'status' => false,
+                'message' => 'ไม่สามารถดำเนินการลืมรหัสผ่านได้',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function cancelAccount(Request $request)
+    {
+        $request->merge([
+            'member_id' => $request->input('member_id', $request->input('id')),
+        ]);
+
+        $validated = $request->validate([
+            'member_id' => ['required', 'integer', 'exists:members,id'],
+        ]);
+
+        $member = Member::find($validated['member_id']);
+        $currentUser = $request->user();
+
+        $isOwner = (int) $currentUser->id === (int) $member->id;
+        $isLinkedParent = $currentUser->type === 'parent'
+            && DB::table('member_parent')
+                ->where('member_id', $member->id)
+                ->where('parent_id', $currentUser->id)
+                ->exists();
+
+        if (!$isOwner && !$isLinkedParent) {
+            return response()->json([
+                'status' => false,
+                'message' => 'ไม่มีสิทธิ์ยกเลิกบัญชีนี้',
+            ], 403);
+        }
+
+        if ($member->status === 'inactive') {
+            return response()->json([
+                'status' => true,
+                'message' => 'บัญชีนี้ถูกยกเลิกแล้ว',
+                'results' => [
+                    'member_id' => $member->id,
+                    'status' => $member->status,
+                ],
+            ]);
+        }
+
+        $member->status = 'inactive';
+        $member->save();
+        $member->tokens()->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'ยกเลิกบัญชีเรียบร้อยแล้ว',
+            'results' => [
+                'member_id' => $member->id,
+                'status' => $member->status,
             ],
         ]);
     }

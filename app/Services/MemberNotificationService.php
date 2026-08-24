@@ -59,6 +59,7 @@ class MemberNotificationService
                     'interview_location' => $application->interview_location,
                     'application_id' => $application->id,
                     'job_id' => $application->job_id,
+					'work_id' => $application->job_id,
                 ];
             });
     }
@@ -82,6 +83,7 @@ class MemberNotificationService
                     'type' => 'general_notice',
                     'title' => $notice->title,
                     'detail' => $notice->detail,
+					'work_id' => $notice->work_id,
                     'cover_image' => $notice->cover_image,
                     'content_image' => $notice->content_image,
                     'notification_date' => optional($notice->start_date)->format('Y-m-d'),

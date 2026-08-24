@@ -461,16 +461,37 @@ class JobController extends Controller
             'note' => ['nullable', 'string'],
         ]);
 
-        $activeApplication = $this->activeApplicationForMember($member->id);
-        if ($activeApplication) {
-            return response()->json([
-                'status' => false,
-                'message' => 'ยังไม่สามารถสมัครงานใหม่ได้ เนื่องจากมีใบสมัครที่ยังไม่สิ้นสุดสถานะ',
-                'results' => [
-                    'job_application_permission' => $this->canApplyPayload($member),
-                ],
-            ], 422);
-        }
+//        $activeApplication = $this->activeApplicationForMember($member->id);
+//        if ($activeApplication) {
+//            return response()->json([
+//                'status' => false,
+//                'message' => 'ยังไม่สามารถสมัครงานใหม่ได้ เนื่องจากมีใบสมัครที่ยังไม่สิ้นสุดสถานะ',
+//                'results' => [
+//                    'job_application_permission' => $this->canApplyPayload($member),
+//                ],
+//            ], 422);
+//        }
+		
+		$activeApplication = $this->activeApplicationForMember($member->id);
+
+if ($activeApplication) {
+    // ถ้ากดงานเดิมซ้ำ ให้ยกเลิกใบสมัคร
+    if ((int) $activeApplication->job_id === (int) $validated['job_id']) {
+        return $this->cancelApplication(
+            $request,
+            $activeApplication->id
+        );
+    }
+
+    // ถ้าสมัครงานอื่นค้างอยู่ ไม่ให้สมัครงานใหม่
+    return response()->json([
+        'status' => false,
+        'message' => 'ยังไม่สามารถสมัครงานใหม่ได้ เนื่องจากมีใบสมัครที่ยังไม่สิ้นสุดสถานะ',
+        'results' => [
+            'job_application_permission' => $this->canApplyPayload($member),
+        ],
+    ], 422);
+}
 
         $job = Job::with('company')->findOrFail($validated['job_id']);
 
@@ -563,92 +584,187 @@ class JobController extends Controller
         }
     }
 
-    public function cancelApplication(Request $request, int $applicationId)
-    {
-        $authMember = $request->user();
+//    public function cancelApplication(Request $request, int $applicationId)
+//    {
+//        $authMember = $request->user();
+//
+//        if ($authMember->type !== 'applicant') {
+//            return response()->json([
+//                'status' => false,
+//                'message' => 'ไม่มีสิทธิ',
+//            ], 403);
+//        }
+//
+//        $validated = $request->validate([
+//            'remark' => ['nullable', 'string'],
+//        ]);
+//
+//        $member = Member::findOrFail($authMember->id);
+//
+//        $application = JobApplication::with(['job.company'])
+//            ->where('member_id', $member->id)
+//            ->find($applicationId);
+//
+//        if (!$application) {
+//            return response()->json([
+//                'status' => false,
+//                'message' => 'ไม่พบข้อมูลการสมัครงาน',
+//            ], 404);
+//        }
+//
+//        if ($application->status === JobApplication::STATUS_CANCELLED) {
+//            return response()->json([
+//                'status' => true,
+//                'message' => 'ใบสมัครนี้ถูกยกเลิกแล้ว',
+//                'results' => [
+//                    'application' => $application,
+//                    'job_application_permission' => $this->canApplyPayload($member),
+//                ],
+//            ]);
+//        }
+//
+//        if (!in_array($application->status, JobApplication::activeStatuses(), true)) {
+//            return response()->json([
+//                'status' => false,
+//                'message' => 'ไม่สามารถยกเลิกใบสมัครสถานะนี้ได้',
+//                'results' => [
+//                    'application' => $application,
+//                ],
+//            ], 422);
+//        }
+//
+//        DB::beginTransaction();
+//
+//        try {
+//            $oldStatus = $application->status;
+//            $application->status = JobApplication::STATUS_CANCELLED;
+//            $application->save();
+//
+//            JobApplicationLog::create([
+//                'application_id' => $application->id,
+//                'old_status' => $oldStatus,
+//                'new_status' => JobApplication::STATUS_CANCELLED,
+//                'remark' => $validated['remark'] ?? 'Cancelled by applicant',
+//                'created_by' => null,
+//            ]);
+//
+//            DB::commit();
+//
+//            return response()->json([
+//                'status' => true,
+//                'message' => 'ยกเลิกการสมัครงานสำเร็จ',
+//                'results' => [
+//                    'application' => $application->fresh(['job.company']),
+//                    'job_application_permission' => $this->canApplyPayload($member),
+//                ],
+//            ]);
+//        } catch (\Throwable $e) {
+//            DB::rollBack();
+//
+//            report($e);
+//
+//            return response()->json([
+//                'status' => false,
+//                'message' => 'ไม่สามารถยกเลิกการสมัครงานได้',
+//                'error' => $e->getMessage(),
+//            ], 500);
+//        }
+//    }
+	
+	public function cancelApplication(Request $request, int $applicationId)
+{
+    $authMember = $request->user();
 
-        if ($authMember->type !== 'applicant') {
-            return response()->json([
-                'status' => false,
-                'message' => 'ไม่มีสิทธิ',
-            ], 403);
-        }
+    if ($authMember->type !== 'applicant') {
+        return response()->json([
+            'status' => false,
+            'message' => 'ไม่มีสิทธิ',
+        ], 403);
+    }
 
-        $validated = $request->validate([
-            'remark' => ['nullable', 'string'],
+    $validated = $request->validate([
+        'remark' => ['nullable', 'string'],
+    ]);
+
+    $member = Member::findOrFail($authMember->id);
+
+    $application = JobApplication::with(['job.company'])
+        ->where('member_id', $member->id)
+        ->find($applicationId);
+
+    if (!$application) {
+        return response()->json([
+            'status' => false,
+            'message' => 'ไม่พบข้อมูลการสมัครงาน',
+        ], 404);
+    }
+
+    if ($application->status === JobApplication::STATUS_CANCELLED) {
+        return response()->json([
+            'status' => true,
+            'message' => 'ใบสมัครนี้ถูกยกเลิกแล้ว',
+            'results' => [
+                'application' => $application,
+                'job_application_permission' =>
+                    $this->canApplyPayload($member),
+            ],
+        ]);
+    }
+
+    if (!in_array(
+        $application->status,
+        JobApplication::activeStatuses(),
+        true
+    )) {
+        return response()->json([
+            'status' => false,
+            'message' => 'ไม่สามารถยกเลิกใบสมัครสถานะนี้ได้',
+        ], 422);
+    }
+
+    DB::beginTransaction();
+
+    try {
+        $oldStatus = $application->status;
+
+        // เปลี่ยนสถานะ ไม่ลบใบสมัคร
+        $application->status = JobApplication::STATUS_CANCELLED;
+        $application->save();
+
+        // เก็บประวัติการเปลี่ยนสถานะ
+        JobApplicationLog::create([
+            'application_id' => $application->id,
+            'old_status' => $oldStatus,
+            'new_status' => JobApplication::STATUS_CANCELLED,
+            'remark' =>
+                $validated['remark'] ?? 'Cancelled by applicant',
+            'created_by' => null,
         ]);
 
-        $member = Member::findOrFail($authMember->id);
+        DB::commit();
 
-        $application = JobApplication::with(['job.company'])
-            ->where('member_id', $member->id)
-            ->find($applicationId);
+        return response()->json([
+            'status' => true,
+            'message' => 'ยกเลิกการสมัครงานสำเร็จ',
+            'results' => [
+                'application' =>
+                    $application->fresh(['job.company']),
+                'job_application_permission' =>
+                    $this->canApplyPayload($member),
+            ],
+        ]);
+    } catch (\Throwable $e) {
+        DB::rollBack();
 
-        if (!$application) {
-            return response()->json([
-                'status' => false,
-                'message' => 'ไม่พบข้อมูลการสมัครงาน',
-            ], 404);
-        }
+        report($e);
 
-        if ($application->status === JobApplication::STATUS_CANCELLED) {
-            return response()->json([
-                'status' => true,
-                'message' => 'ใบสมัครนี้ถูกยกเลิกแล้ว',
-                'results' => [
-                    'application' => $application,
-                    'job_application_permission' => $this->canApplyPayload($member),
-                ],
-            ]);
-        }
-
-        if (!in_array($application->status, JobApplication::activeStatuses(), true)) {
-            return response()->json([
-                'status' => false,
-                'message' => 'ไม่สามารถยกเลิกใบสมัครสถานะนี้ได้',
-                'results' => [
-                    'application' => $application,
-                ],
-            ], 422);
-        }
-
-        DB::beginTransaction();
-
-        try {
-            $oldStatus = $application->status;
-            $application->status = JobApplication::STATUS_CANCELLED;
-            $application->save();
-
-            JobApplicationLog::create([
-                'application_id' => $application->id,
-                'old_status' => $oldStatus,
-                'new_status' => JobApplication::STATUS_CANCELLED,
-                'remark' => $validated['remark'] ?? 'Cancelled by applicant',
-                'created_by' => null,
-            ]);
-
-            DB::commit();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'ยกเลิกการสมัครงานสำเร็จ',
-                'results' => [
-                    'application' => $application->fresh(['job.company']),
-                    'job_application_permission' => $this->canApplyPayload($member),
-                ],
-            ]);
-        } catch (\Throwable $e) {
-            DB::rollBack();
-
-            report($e);
-
-            return response()->json([
-                'status' => false,
-                'message' => 'ไม่สามารถยกเลิกการสมัครงานได้',
-                'error' => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'status' => false,
+            'message' => 'ไม่สามารถยกเลิกการสมัครงานได้',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
 
     public function applications(Request $request)
     {

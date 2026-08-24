@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Webpanel;
 
 use App\Http\Controllers\Controller;
 use App\Models\Backend\GeneralNotification;
+use App\Models\Backend\Job;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class GeneralNotificationController extends Controller
 {
@@ -42,6 +44,7 @@ class GeneralNotificationController extends Controller
             'prefix' => $this->prefix,
             'folder' => $this->folder,
             'data' => new GeneralNotification(['status' => 'on']),
+            'jobs' => $this->availableJobs(),
             'navs' => $this->navs('เพิ่ม'),
             'action' => url("$this->segment/$this->folder/add"),
         ]);
@@ -54,6 +57,7 @@ class GeneralNotificationController extends Controller
             'prefix' => $this->prefix,
             'folder' => $this->folder,
             'data' => GeneralNotification::findOrFail($id),
+            'jobs' => $this->availableJobs(),
             'navs' => $this->navs('แก้ไข'),
             'action' => url("$this->segment/$this->folder/edit/$id"),
         ]);
@@ -76,6 +80,14 @@ class GeneralNotificationController extends Controller
             'detail' => ['nullable', 'string'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'content_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'work_id' => [
+                'nullable',
+                Rule::exists('jobs', 'id')
+                    ->where('status', 'on')
+                    ->where(function ($query) {
+                        $query->whereDate('date', '>=', now()->toDateString());
+                    }),
+            ],
             'start_date' => ['required', 'date'],
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'status' => ['required', 'in:on,off'],
@@ -168,6 +180,16 @@ class GeneralNotificationController extends Controller
                 'last' => 1,
             ],
         ];
+    }
+
+    protected function availableJobs()
+    {
+        return Job::with('company')
+            ->where('status', 'on')
+            ->whereDate('date', '>=', now()->toDateString())
+            ->orderBy('date', 'asc')
+            ->orderBy('title_th', 'asc')
+            ->get();
     }
 
     protected function uploadImage($file, string $field): string

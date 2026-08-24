@@ -45,6 +45,23 @@
                                                     <label class="form-label">รายละเอียดแจ้งเตือน</label>
                                                     <textarea name="detail" class="form-control" rows="5">{{ old('detail', $data->detail) }}</textarea>
                                                 </div>
+                                                <div class="col-md-12 mb-5">
+                                                    <label class="form-label">งานรับสมัคร</label>
+                                                    <select name="work_id" class="form-select">
+                                                        <option value="">เลือกงานรับสมัคร</option>
+                                                        @foreach($jobs as $job)
+                                                            <option value="{{ $job->id }}" {{ old('work_id', $data->work_id) == $job->id ? 'selected' : '' }}>
+                                                                {{ $job->title_th ?: $job->title_en }}
+                                                                @if(optional($job->company)->name_th)
+                                                                    - {{ $job->company->name_th }}
+                                                                @endif
+                                                                @if($job->date)
+                                                                    (ปิดรับ {{ \Carbon\Carbon::parse($job->date)->format('d/m/Y') }})
+                                                                @endif
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
                                                 <div class="col-md-6 mb-5">
                                                     <label class="form-label">ภาพปก</label>
                                                     <input type="file" name="cover_image" class="form-control" accept=".jpg,.jpeg,.png,.webp">

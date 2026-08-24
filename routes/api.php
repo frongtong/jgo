@@ -23,6 +23,11 @@ use App\Http\Controllers\Api\LearningCenterController;
         'login',
         [MemberController::class, 'login']
     );
+
+    Route::post(
+        'forgot-password',
+        [MemberController::class, 'forgotPassword']
+    );
     
     Route::middleware([
             'auth:api_member'
@@ -97,6 +102,10 @@ use App\Http\Controllers\Api\LearningCenterController;
             Route::post(
                 'logout',
                 [MemberController::class, 'logout']
+            );
+            Route::post(
+                'cancel-account',
+                [MemberController::class, 'cancelAccount']
             );
 
         });

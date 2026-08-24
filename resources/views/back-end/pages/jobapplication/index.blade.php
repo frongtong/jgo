@@ -118,13 +118,13 @@
                                                 <thead>
                                                     <tr class="fw-bold text-gray-600">
                                                         <th width="5%">#</th>
-                                                        <th>ผู้สมัคร</th>
+                                                        <th>ชื่อ-นามสกุล</th>
                                                         <th>งานที่สมัคร</th>
                                                         <th>เบอร์โทร</th>
                                                         <th>อีเมล</th>
                                                         <th>สถานะ</th>
                                                         <th>วันที่สมัคร</th>
-                                                        <th>นัดสัมภาษณ์</th>
+                                                        <th>วันที่สัมภาษณ์/วันที่เข้าคอร์ส </th>
                                                         <th width="12%" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>
