@@ -375,10 +375,9 @@
         height: 320,
         versionCheck: false,
         extraPlugins: 'uploadimage',
-        filebrowserBrowseUrl: '/apps/ckfinder/3.4.5/ckfinder.html',
-        filebrowserImageBrowseUrl: '/apps/ckfinder/3.4.5/ckfinder.html?type=Images',
-        filebrowserUploadUrl: '/apps/ckfinder/3.4.5/core/connector/php/connector.php?command=QuickUpload&type=Files',
-        filebrowserImageUploadUrl: '/apps/ckfinder/3.4.5/core/connector/php/connector.php?command=QuickUpload&type=Images',
+        filebrowserUploadUrl: "{{ url('/upload-image') }}?_token={{ csrf_token() }}",
+        filebrowserImageUploadUrl: "{{ url('/upload-image') }}?_token={{ csrf_token() }}",
+        uploadUrl: "{{ url('/upload-image') }}?_token={{ csrf_token() }}",
         removeButtons: 'PasteFromWord'
     });
     $('#main_category_id').change(function() {

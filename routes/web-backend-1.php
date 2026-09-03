@@ -14,20 +14,59 @@ Route::get(
     [Webpanel\CompanyController::class, 'getCity']
 );
 Route::group(['middleware' => 'Admin'], function () {
+    $uploadTextEditorImage = function (Request $request) {
+        $file = $request->file('upload') ?: $request->file('file');
 
-
-    Route::post('/upload-image', function (Request $request) {
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('storage/uploads'), $filename);
-
-            $url = asset('storage/uploads/' . $filename);
-            return response()->json(['url' => $url]);
+        if (!$file || !$file->isValid()) {
+            return response()->json([
+                'uploaded' => 0,
+                'error' => ['message' => 'No file uploaded'],
+            ], 400);
         }
 
-        return response()->json(['error' => 'No file uploaded'], 400);
-    });
+        $extension = strtolower($file->getClientOriginalExtension());
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
+
+        if (!in_array($extension, $allowedExtensions, true)) {
+            return response()->json([
+                'uploaded' => 0,
+                'error' => ['message' => 'Invalid image type'],
+            ], 422);
+        }
+
+        $path = 'upload/CKEDITOR';
+        $uploadPath = public_path($path);
+
+        if (!file_exists($uploadPath)) {
+            mkdir($uploadPath, 0777, true);
+        }
+
+        $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $safeName = preg_replace('/[^A-Za-z0-9_-]/', '-', $originalName);
+        $filename = trim($safeName, '-') . '-' . time() . '.' . $extension;
+        $file->move($uploadPath, $filename);
+
+        $url = asset($path . '/' . $filename);
+        $funcNum = $request->input('CKEditorFuncNum');
+
+        if ($funcNum) {
+            return response(
+                "<script>window.parent.CKEDITOR.tools.callFunction($funcNum, '$url', 'Upload completed')</script>",
+                200,
+                ['Content-Type' => 'text/html; charset=utf-8']
+            );
+        }
+
+        return response()->json([
+            'uploaded' => 1,
+            'fileName' => $filename,
+            'url' => $url,
+        ]);
+    };
+
+    Route::post('/upload-image', $uploadTextEditorImage);
+    Route::post('/th/upload-image', $uploadTextEditorImage);
+    Route::post('/webpanel/upload-image', $uploadTextEditorImage);
 
     Route::prefix('webpanel')->group(function () {
         Route::get('/', [Webpanel\DashboardController::class, 'index']);
