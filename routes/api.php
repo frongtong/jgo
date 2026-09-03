@@ -11,7 +11,12 @@ use App\Http\Controllers\Api\ArticleController;
 use App\Http\Controllers\Api\AlumniController;
 use App\Http\Controllers\Api\StudyFurtherController;
 use App\Http\Controllers\Api\LearningCenterController;
+use App\Http\Controllers\Api\PrivacyPolicyController;
 
+    Route::get(
+        'privacy-policy',
+        [PrivacyPolicyController::class, 'show']
+    );
 
 
     Route::post(

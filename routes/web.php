@@ -25,6 +25,11 @@ Route::get('/clc', function () {
     return "Cleared!";
 });
 
+Route::view('/privacy-policy', 'privacy-policy');
+Route::view('/privacy', 'privacy-policy');
+Route::view('/th/privacy-policy', 'privacy-policy');
+Route::view('/th/privacy', 'privacy-policy');
+
 Route::redirect('/', '/webpanel');
 require('web-backend-1.php');
 
