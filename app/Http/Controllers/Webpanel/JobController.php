@@ -348,9 +348,11 @@ class JobController extends Controller
             $data->start_work_date =
                 $request->start_work_date;
 
-            $data->detail = $request->detail;
+            $data->is_sample = $request->has('is_sample') ? 1 : 0;
 
-            $data->welfare = $request->welfare;
+            $data->detail = $data->is_sample ? null : $request->detail;
+
+            $data->welfare = $data->is_sample ? null : $request->welfare;
 
             $data->map_link = $request->map_link;
 

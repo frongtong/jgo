@@ -53,6 +53,7 @@ class Job extends Model
 
         'detail',
         'welfare',
+        'is_sample',
 
         'map_link',
 
@@ -60,6 +61,10 @@ class Job extends Model
 
         'status',
 
+    ];
+
+    protected $casts = [
+        'is_sample' => 'boolean',
     ];
 
     /*

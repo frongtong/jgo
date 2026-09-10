@@ -131,6 +131,29 @@
 
                                             </div>
 
+                                            <div class="row mb-5">
+
+                                                <div class="col-md-12">
+
+                                                    <label class="form-check form-check-custom form-check-solid">
+
+                                                        <input class="form-check-input"
+                                                            type="checkbox"
+                                                            id="is_sample"
+                                                            name="is_sample"
+                                                            value="1"
+                                                            {{ $data->is_sample ? 'checked' : '' }}>
+
+                                                        <span class="form-check-label">
+                                                            ตัวอย่างงาน
+                                                        </span>
+
+                                                    </label>
+
+                                                </div>
+
+                                            </div>
+
                                             {{-- หมวดหมู่ --}}
                                             <div class="row mb-5">
 
@@ -423,7 +446,7 @@
                                             </div>
 
                                             {{-- รายละเอียด --}}
-                                            <div class="row mb-5">
+                                            <div class="row mb-5" id="detail_row">
 
                                                 <div class="col-md-12">
 
@@ -441,7 +464,7 @@
                                             </div>
 
                                             {{-- สวัสดิการ --}}
-                                            <div class="row mb-5">
+                                            <div class="row mb-5" id="welfare_row">
 
                                                 <div class="col-md-12">
 
@@ -559,6 +582,27 @@
         filebrowserImageUploadUrl: '/apps/ckfinder/3.4.5/core/connector/php/connector.php?command=QuickUpload&type=Images',
         removeButtons: 'PasteFromWord'
     });
+
+    function toggleSampleJobFields()
+    {
+        var isSample = $('#is_sample').is(':checked');
+
+        $('#detail_row, #welfare_row').toggle(!isSample);
+
+        if (isSample) {
+            if (CKEDITOR.instances.detail) {
+                CKEDITOR.instances.detail.setData('');
+            }
+
+            if (CKEDITOR.instances.welfare) {
+                CKEDITOR.instances.welfare.setData('');
+            }
+        }
+    }
+
+    $('#is_sample').on('change', toggleSampleJobFields);
+
+    toggleSampleJobFields();
 </script>
 
 </html>
