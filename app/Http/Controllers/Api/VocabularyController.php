@@ -17,9 +17,17 @@ class VocabularyController extends Controller
 {
     public function index(Request $request)
     {
-        try {
+        $type = $request->query('type');
 
-            $data = Vocabulary::with([
+        if ($type !== null && !in_array($type, ['normal', 'audio'], true)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'ประเภทคำศัพท์ไม่ถูกต้อง กรุณาระบุ normal หรือ audio'
+            ], 422);
+        }
+
+        try {
+            $query = Vocabulary::with([
                 'mainCategory',
                 'subCategory'
             ])
@@ -28,9 +36,26 @@ class VocabularyController extends Controller
                     $query->where('status', 'on');
                 }
             ])
-            ->where('status', 'on')
-            ->latest()
-            ->get();
+            ->where('status', 'on');
+
+            if ($type === 'audio') {
+                $query->whereHas('items', function ($query) {
+                    $query->where('status', 'on');
+                });
+            } elseif ($type === 'normal') {
+                $query->whereDoesntHave('items', function ($query) {
+                    $query->where('status', 'on');
+                });
+            }
+
+            $data = $query->latest()->get();
+
+            $data->each(function ($vocabulary) {
+                $vocabulary->setAttribute(
+                    'type',
+                    $vocabulary->items_count > 0 ? 'audio' : 'normal'
+                );
+            });
 
             return response()->json([
                 'status' => true,
@@ -62,6 +87,11 @@ class VocabularyController extends Controller
                         ->orderBy('id');
                 }
             ])
+            ->withCount([
+                'items as items_count' => function ($query) {
+                    $query->where('status', 'on');
+                }
+            ])
             ->where('status', 'on')
             ->find($id);
 
@@ -71,6 +101,11 @@ class VocabularyController extends Controller
                     'message' => 'ไม่พบบทความคำศัพท์'
                 ], 404);
             }
+
+            $data->setAttribute(
+                'type',
+                $data->items_count > 0 ? 'audio' : 'normal'
+            );
 
             return response()->json([
                 'status' => true,
