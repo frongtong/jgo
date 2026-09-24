@@ -3,6 +3,210 @@ $profile = $row?->profile;
 $detail = $applicationDetail ? $applicationDetail->toArray() : [];
 $training = $row?->trainingCourses?->first();
 
+$copyDetail = function ($from, $to) use (&$detail) {
+    $value = data_get($detail, $from);
+
+    if ($value !== null && $value !== '' && blank(data_get($detail, $to))) {
+        data_set($detail, $to, $value);
+    }
+};
+
+foreach ([
+    'personal.job_type' => 'personal.application_type',
+    'personal.house_type' => 'personal.housing_type',
+    'personal.live_with' => 'personal.living_with',
+    'education_extra.education_remark' => 'education_extra.study_gap_reason',
+    'additional.japan_reason' => 'additional.japan_purpose',
+    'additional.japan_duration' => 'additional.japan_stay_duration',
+    'additional.favorite_activity' => 'additional.hobby',
+    'additional.special_skill' => 'additional.special_ability',
+    'responsibility.parent_accept' => 'responsibility.parent_approval',
+    'responsibility.parent_reason' => 'responsibility.parents_live_with_when_japan',
+    'responsibility.child_caretaker' => 'responsibility.has_children.caretaker',
+    'responsibility.debt_from' => 'responsibility.debt.lender',
+    'responsibility.debt_reason' => 'responsibility.debt.purpose',
+    'responsibility.debt_amount' => 'responsibility.debt.amount',
+    'responsibility.military_year' => 'responsibility.military.territorial_defense_year',
+    'guarantor.guarantee_cash' => 'guarantor.asset_detail.เงินสด',
+    'guarantor.land_deed' => 'guarantor.asset_detail.โฉนดที่ดิน',
+    'guarantor.guarantee_other' => 'guarantor.asset_detail.อื่น ๆ',
+    'guarantor.land_owner' => 'guarantor.asset_owner',
+    'guarantor.land_area' => 'guarantor.land_area_rai',
+    'guarantor.land_pledge' => 'guarantor.mortgage_status',
+    'goals.goal_japan' => 'goals.japan_goal',
+    'goals.goal_life' => 'goals.return_plan',
+    'goals.goal_after' => 'goals.after_three_years',
+] as $from => $to) {
+    $copyDetail($from, $to);
+}
+
+foreach ([
+    'height' => 'height_cm',
+    'weight' => 'weight_kg',
+    'waist' => 'waist_inch',
+    'shirt_size' => 'shirt_size',
+    'blood_group' => 'blood_type',
+    'vision_help' => 'eyewear_type',
+    'dominant_hand' => 'dominant_hand',
+    'alcohol' => 'alcohol_status',
+    'alcohol_amount' => 'alcohol_detail',
+    'smoking' => 'smoking_status',
+    'smoking_amount' => 'smoking_detail',
+    'tattoo' => 'tattoo_status',
+    'tattoo_detail' => 'tattoo_detail',
+    'tattoo_size' => 'tattoo_size',
+] as $from => $to) {
+    $copyDetail('health.' . $from, 'health.body.' . $to);
+    $copyDetail('health.' . $from, 'health.other.' . $to);
+}
+
+foreach ([
+    'surgery_history' => 'operation',
+    'hospital_history' => 'admission',
+    'accident_history' => 'serious_accident',
+    'fracture_history' => 'chronic_family',
+] as $from => $to) {
+    $value = data_get($detail, 'health.' . $from);
+
+    if ($value !== null && blank(data_get($detail, 'health.history.' . $to . '.answer'))) {
+        if ($to === 'chronic_family') {
+            data_set($detail, 'health.history.' . $to . '.answer', $value);
+        } else {
+            data_set($detail, 'health.history.' . $to . '.answer', str_contains($value, 'ไม่') ? 'ไม่มี' : 'มี');
+        }
+    }
+}
+
+foreach ([
+    'surgery_detail' => 'operation',
+    'hospital_detail' => 'admission',
+    'accident_detail' => 'serious_accident',
+] as $from => $to) {
+    $copyDetail('health.' . $from, 'health.history.' . $to . '.detail');
+}
+
+foreach ([
+    'hepatitis_b' => 'hepatitis_b',
+    'other_disease' => 'other',
+] as $from => $to) {
+    $copyDetail('health.' . $from, 'health.chronic_diseases.' . $to . '.answer');
+}
+$copyDetail('health.disease_detail', 'health.chronic_diseases.other.detail');
+
+if (data_get($detail, 'health.color_blind') && blank(data_get($detail, 'health.body.color_vision'))) {
+    data_set($detail, 'health.body.color_vision', data_get($detail, 'health.color_blind') === 'ตาบอดสี' ? 'มี' : data_get($detail, 'health.color_blind'));
+}
+
+foreach (['left_eye', 'right_eye'] as $eye) {
+    $eyeStatus = data_get($detail, 'health.' . $eye . '.status');
+    if ($eyeStatus && blank(data_get($detail, 'health.body.' . $eye))) {
+        data_set($detail, 'health.body.' . $eye, $eyeStatus);
+        data_set($detail, 'health.body.' . $eye . '_normal', $eyeStatus === 'ปกติ' ? '1' : '0');
+    }
+}
+
+if (blank(data_get($detail, 'language_training.japanese')) && data_get($detail, 'language_training.language_tests.0')) {
+    data_set($detail, 'language_training.japanese', data_get($detail, 'language_training.language_tests.0'));
+}
+
+if (blank(data_get($detail, 'language_training.other_language')) && data_get($detail, 'language_training.language_tests.1')) {
+    data_set($detail, 'language_training.other_language', data_get($detail, 'language_training.language_tests.1'));
+}
+
+foreach (['care_1' => 'nursing_1', 'care_2' => 'nursing_2'] as $careKey => $nursingKey) {
+    if (blank(data_get($detail, 'language_training.care.' . $careKey . '.institution_name'))) {
+        $copyDetail('language_training.nursing.' . $nursingKey . '.institution_name', 'language_training.care.' . $careKey . '.institution_name');
+    }
+}
+
+if (blank(data_get($detail, 'work_family.work_experiences')) && is_array(data_get($detail, 'work_family.work_history'))) {
+    data_set($detail, 'work_family.work_experiences', collect(data_get($detail, 'work_family.work_history'))->map(function ($work) {
+        return [
+            'company_name' => data_get($work, 'company'),
+            'business_type' => data_get($work, 'business'),
+            'position' => data_get($work, 'position'),
+            'job_description' => data_get($work, 'detail'),
+            'employment_type' => data_get($work, 'type'),
+            'salary' => data_get($work, 'salary'),
+        ];
+    })->all());
+}
+
+if (is_array(data_get($detail, 'work_family.spouse_children'))) {
+    data_set($detail, 'work_family.spouse_children', collect(data_get($detail, 'work_family.spouse_children'))->map(function ($person) {
+        return array_replace($person, [
+            'first_name' => data_get($person, 'first_name', data_get($person, 'firstname')),
+            'last_name' => data_get($person, 'last_name', data_get($person, 'lastname')),
+            'relationship' => data_get($person, 'relationship', data_get($person, 'relation')),
+            'occupation_or_education' => data_get($person, 'occupation_or_education', data_get($person, 'job')),
+        ]);
+    })->all());
+}
+
+if (is_array(data_get($detail, 'work_family.family_members'))) {
+    data_set($detail, 'work_family.family_members', collect(data_get($detail, 'work_family.family_members'))->map(function ($person) {
+        return array_replace($person, [
+            'first_name' => data_get($person, 'first_name', data_get($person, 'firstname')),
+            'last_name' => data_get($person, 'last_name', data_get($person, 'lastname')),
+            'relationship' => data_get($person, 'relationship', data_get($person, 'relation')),
+            'occupation' => data_get($person, 'occupation', data_get($person, 'job')),
+            'workplace' => data_get($person, 'workplace', data_get($person, 'company')),
+        ]);
+    })->all());
+}
+
+foreach ([
+    'contact_relative' => 'thai_contact.has_contact',
+    'contact.firstname' => 'thai_contact.first_name',
+    'contact.lastname' => 'thai_contact.last_name',
+    'contact.relation' => 'thai_contact.relationship',
+    'contact.age' => 'thai_contact.age',
+    'contact.address' => 'thai_contact.address',
+    'contact.japan_since' => 'thai_contact.japan_years',
+    'contact.phone' => 'thai_contact.phone',
+    'contact.visa' => 'thai_contact.visa_type',
+    'contact.other' => 'thai_contact.other_detail',
+] as $from => $to) {
+    $copyDetail('work_family.' . $from, 'work_family.' . $to);
+}
+
+foreach ([
+    'been_japan' => 'been_to_japan.answer',
+    'has_passport' => 'passport.answer',
+    'changed_name' => 'changed_first_name.answer',
+    'changed_name_times' => 'changed_first_name.count',
+    'changed_lastname' => 'changed_last_name.answer',
+    'applied_japan_before' => 'applied_japan_other_company.answer',
+    'criminal_history' => 'criminal_case.answer',
+    'criminal_detail' => 'criminal_case.detail',
+    'driving_license' => 'driver_license.answer',
+] as $from => $to) {
+    $copyDetail('additional.' . $from, 'additional.' . $to);
+}
+
+if (blank(data_get($detail, 'additional.driver_license.types'))) {
+    $licenseTypes = [];
+    if ((string) data_get($detail, 'additional.license_motorcycle') === '1') {
+        $licenseTypes[] = 'รถจักรยานยนต์';
+    }
+    if ((string) data_get($detail, 'additional.license_car') === '1') {
+        $licenseTypes[] = 'รถยนต์';
+    }
+    if ($licenseTypes) {
+        data_set($detail, 'additional.driver_license.types', $licenseTypes);
+    }
+}
+
+$hasChildrenValue = data_get($detail, 'responsibility.has_children');
+if (!is_array($hasChildrenValue) && $hasChildrenValue !== null && blank(data_get($detail, 'responsibility.has_children.answer'))) {
+    data_set($detail, 'responsibility.has_children.answer', $hasChildrenValue);
+}
+
+$hasDebtValue = data_get($detail, 'responsibility.has_debt');
+if (!is_array($hasDebtValue) && $hasDebtValue !== null && blank(data_get($detail, 'responsibility.debt.answer'))) {
+    data_set($detail, 'responsibility.debt.answer', $hasDebtValue);
+}
+
 $d = function ($path, $default = '') use ($detail) {
 return old('application_detail.' . $path, data_get($detail, $path, $default));
 };
@@ -44,8 +248,12 @@ $months = [
 $educationBlocks = [
 'lower_secondary' => 'มัธยมศึกษาตอนต้น',
 'upper_secondary' => 'มัธยมศึกษาตอนปลาย/ปวช.',
-'vocational' => 'ปวส.',
+'vocational' => 'ปวช.',
+'high_vocational' => 'ปวส.',
 'bachelor' => 'ปริญญาตรี/กศน.',
+'master' => 'ปริญญาโท',
+'doctorate' => 'ปริญญาเอก',
+'other' => 'อื่น ๆ',
 ];
 
 $workExperiences = old('application_detail.work_family.work_experiences', data_get($detail, 'work_family.work_experiences', [[]]));
@@ -108,6 +316,9 @@ $jobApplicationStatuses = $jobApplicationStatuses ?? [];
                             <option value="caregiver" {{ $detailSelected('personal.application_type', 'caregiver') }}>ผู้ดูแล</option>
                             <option value="worker" {{ $detailSelected('personal.application_type', 'worker') }}>แรงงาน/ฝึกงาน</option>
                             <option value="other" {{ $detailSelected('personal.application_type', 'other') }}>อื่น ๆ</option>
+                            @if($d('personal.application_type') && !in_array($d('personal.application_type'), ['caregiver', 'worker', 'other']))
+                            <option value="{{ $d('personal.application_type') }}" selected>{{ $d('personal.application_type') }}</option>
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-6 mb-5">
@@ -274,7 +485,7 @@ $jobApplicationStatuses = $jobApplicationStatuses ?? [];
                     <input type="hidden" name="{{ $key }}[id]" value="{{ $educationValue($key, 'id') }}">
                     <h4 class="mb-4">{{ $label }}</h4>
 
-                    @if($key === 'vocational')
+                    @if(in_array($key, ['vocational', 'high_vocational'], true))
                     <div class="mb-4">
                         @foreach(['ปกติ', 'ทวิภาคี'] as $type)
                         <label class="form-check form-check-inline">
@@ -293,6 +504,14 @@ $jobApplicationStatuses = $jobApplicationStatuses ?? [];
                         <div class="col-md-6 mb-5">
                             <label class="form-label">สาย/สาขา</label>
                             <input type="text" name="{{ $key }}[major]" class="form-control" value="{{ $educationValue($key, 'major') }}">
+                        </div>
+                        <div class="col-md-6 mb-5">
+                            <label class="form-label">คณะ</label>
+                            <input type="text" name="{{ $key }}[faculty]" class="form-control" value="{{ $educationValue($key, 'faculty') }}">
+                        </div>
+                        <div class="col-md-6 mb-5">
+                            <label class="form-label">เกรดเฉลี่ย</label>
+                            <input type="text" name="{{ $key }}[gpa]" class="form-control" value="{{ $educationValue($key, 'gpa') }}">
                         </div>
                         <div class="col-md-3 mb-5">
                             <label class="form-label">เริ่มเรียน (เดือน)</label>
@@ -319,6 +538,10 @@ $jobApplicationStatuses = $jobApplicationStatuses ?? [];
                         <div class="col-md-3 mb-5">
                             <label class="form-label">จบการศึกษา (ปี พ.ศ.)</label>
                             <input type="number" name="{{ $key }}[end_year]" class="form-control" value="{{ $educationValue($key, 'end_year') }}">
+                        </div>
+                        <div class="col-md-12 mb-5">
+                            <label class="form-label">หมายเหตุ</label>
+                            <textarea name="{{ $key }}[note]" class="form-control" rows="3">{{ $educationValue($key, 'note') }}</textarea>
                         </div>
                     </div>
                 </div>

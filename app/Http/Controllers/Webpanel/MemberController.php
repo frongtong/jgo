@@ -336,6 +336,15 @@ $educationData = [
             'training.institution_name' => ['nullable', 'string', 'max:255'],
             'training.start_month_year' => ['nullable', 'date_format:Y-m'],
             'training.end_month_year' => ['nullable', 'date_format:Y-m'],
+            'studying' => ['nullable', 'array'],
+            'lower_secondary' => ['nullable', 'array'],
+            'upper_secondary' => ['nullable', 'array'],
+            'vocational' => ['nullable', 'array'],
+            'high_vocational' => ['nullable', 'array'],
+            'bachelor' => ['nullable', 'array'],
+            'master' => ['nullable', 'array'],
+            'doctorate' => ['nullable', 'array'],
+            'other' => ['nullable', 'array'],
         ]);
 
         try {
@@ -519,6 +528,9 @@ $educationData = [
             $path = 'upload/member';
 
             if ($request->file('profile_image')) {
+                if (!is_dir(public_path($path))) {
+                    mkdir(public_path($path), 0777, true);
+                }
 
                 $file = $request->file('profile_image');
 
@@ -532,12 +544,12 @@ $educationData = [
                 }
 
                 $fileName =
-                    $path . '/member-' . time() . '.' .
+                    'member-' . Str::uuid() . '.' .
                     $file->getClientOriginalExtension();
 
                 $file->move(public_path($path), $fileName);
 
-                $profile->profile_image = $fileName;
+                $profile->profile_image = $path . '/' . $fileName;
             }
 
             $profile->save();
@@ -551,9 +563,9 @@ $educationData = [
                 }
 
                 $file = $request->file('tattoo_attachment') ?: $request->file('health_attachment');
-                $fileName = $healthPath . '/tattoo-' . $member->id . '-' . time() . '.' . $file->getClientOriginalExtension();
+                $fileName = 'tattoo-' . $member->id . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
                 $file->move(public_path($healthPath), $fileName);
-                $applicationDetailInput['health']['other']['tattoo_attachment_path'] = $fileName;
+                $applicationDetailInput['health']['other']['tattoo_attachment_path'] = $healthPath . '/' . $fileName;
             }
 
             $applicationDetail = MemberApplicationDetail::firstOrNew(['member_id' => $member->id]);
@@ -583,48 +595,51 @@ $educationData = [
 
        $educationData = [
 
-    'studying' => $request->studying,
+    'studying' => $request->input('studying'),
 
-    'lower_secondary' => $request->lower_secondary,
+    'lower_secondary' => $request->input('lower_secondary'),
 
-    'upper_secondary' => $request->upper_secondary,
+    'upper_secondary' => $request->input('upper_secondary'),
 
-    'vocational' => $request->vocational,
+    'vocational' => $request->input('vocational'),
 
-    'high_vocational' => $request->high_vocational,
+    'high_vocational' => $request->input('high_vocational'),
 
-    'bachelor' => $request->bachelor,
+    'bachelor' => $request->input('bachelor'),
 
-    'master' => $request->master,
+    'master' => $request->input('master'),
 
-    'doctorate' => $request->doctorate,
+    'doctorate' => $request->input('doctorate'),
 
-    'other' => $request->other,
+    'other' => $request->input('other'),
 
 ];
 
        foreach ($educationData as $level => $data) {
 
-    if (empty($data)) {
+    if (empty($data) || !is_array($data)) {
         continue;
     }
 
-    // ข้ามถ้าไม่มีข้อมูลเลย
-    if (
-        empty($data['institution_name']) &&
-        empty($data['faculty']) &&
-        empty($data['major']) &&
-        empty($data['gpa']) &&
-        empty($data['start_month']) &&
-        empty($data['start_year']) &&
-        empty($data['end_month']) &&
-        empty($data['end_year']) &&
-        empty($data['note'])
-    ) {
+    $hasEducationData = collect([
+        'education_level',
+        'education_type',
+        'institution_name',
+        'faculty',
+        'major',
+        'gpa',
+        'start_month',
+        'start_year',
+        'end_month',
+        'end_year',
+        'note',
+    ])->contains(fn ($field) => !empty($data[$field]));
+
+    if (!$hasEducationData) {
         continue;
     }
 
-    $educationLevel = $level == 'studying'
+    $educationLevel = $level === 'studying'
         ? ($data['education_level'] ?? null)
         : $level;
 
@@ -632,14 +647,7 @@ $educationData = [
         continue;
     }
 
-    MemberEducation::updateOrCreate(
-
-        [
-            'id' => $data['id'] ?? null,
-            'member_id' => $member->id,
-        ],
-
-        [
+    $educationPayload = [
             'member_id'        => $member->id,
 
             // กรณี studying ให้ใช้ค่าที่ผู้ใช้เลือก
@@ -667,11 +675,25 @@ $educationData = [
 
             'note'             => $data['note'] ?? null,
 
-            'study_status'     => $level == 'studying'
+            'study_status'     => $level === 'studying'
                 ? 'studying'
                 : 'graduated',
-        ]
-    );
+        ];
+
+    if (!empty($data['id'])) {
+        MemberEducation::where('member_id', $member->id)
+            ->where('id', $data['id'])
+            ->update($educationPayload);
+    } else {
+        MemberEducation::updateOrCreate(
+            [
+                'member_id' => $member->id,
+                'education_level' => $educationPayload['education_level'],
+                'study_status' => $educationPayload['study_status'],
+            ],
+            $educationPayload
+        );
+    }
 }
 
             $training = $request->input('training', []);
