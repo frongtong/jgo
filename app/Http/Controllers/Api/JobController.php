@@ -67,6 +67,26 @@ class JobController extends Controller
         ];
     }
 
+    protected function appendTypeOfWork(?Job $job): ?Job
+    {
+        if (!$job) {
+            return null;
+        }
+
+        if (!$job->relationLoaded('categories')) {
+            $job->load('categories.category2');
+        }
+
+        $typeOfWork = $job->categories
+            ->firstWhere('category1_id', 18)
+            ?->category2
+            ?->name_th;
+
+        $job->setAttribute('typeofwork', $typeOfWork);
+
+        return $job;
+    }
+
     public function index(Request $request)
     {
         try {
@@ -214,6 +234,7 @@ class JobController extends Controller
                 ->latest()
                 ->get()
                 ->map(function ($job) use ($member, $canApply) {
+                    $this->appendTypeOfWork($job);
                     $job->is_favorite = ($member && $job->favoriteMembers->isNotEmpty()) ? 1 : 0;
                     $job->can_apply = $canApply;
                     $job->unsetRelation('favoriteMembers');
@@ -327,7 +348,7 @@ class JobController extends Controller
                 ->orderBy('name_th')
                 ->get()
                 ->map(function ($category) {
-                    return [
+                    $payload = [
                         'id' => $category->id,
                         'name_th' => $category->name_th,
                         'name_en' => $category->name_en ?? null,
@@ -340,6 +361,15 @@ class JobController extends Controller
                             ];
                         })->values(),
                     ];
+
+                    if ((int) $category->id === 18) {
+                        $payload['Type of work'] = $category->category2
+                            ->pluck('name_th')
+                            ->filter()
+                            ->values();
+                    }
+
+                    return $payload;
                 });
 
             return response()->json([
@@ -399,11 +429,14 @@ class JobController extends Controller
         $favorites = MemberFavoriteJob::with([
                 'job.company',
                 'job.province',
+                'job.categories.category2',
             ])
             ->where('member_id', $member->id)
             ->latest('id')
             ->get()
             ->map(function ($favorite) {
+                $this->appendTypeOfWork($favorite->job);
+
                 return [
                     'id' => $favorite->id,
                     'job_id' => $favorite->job_id,
@@ -493,7 +526,7 @@ if ($activeApplication) {
     ], 422);
 }
 
-        $job = Job::with('company')->findOrFail($validated['job_id']);
+        $job = Job::with(['company', 'categories.category2'])->findOrFail($validated['job_id']);
 
         $existingSameJob = JobApplication::where('member_id', $member->id)
             ->where('job_id', $job->id)
@@ -567,7 +600,10 @@ if ($activeApplication) {
                 'status' => true,
                 'message' => 'สมัครงานสำเร็จ',
                 'results' => [
-                    'application' => $application->load('job.company'),
+                    'application' => tap(
+                        $application->load('job.company', 'job.categories.category2'),
+                        fn ($loadedApplication) => $this->appendTypeOfWork($loadedApplication->job)
+                    ),
                   
                 ],
             ], 201);
@@ -688,7 +724,7 @@ if ($activeApplication) {
 
     $member = Member::findOrFail($authMember->id);
 
-    $application = JobApplication::with(['job.company'])
+    $application = JobApplication::with(['job.company', 'job.categories.category2'])
         ->where('member_id', $member->id)
         ->find($applicationId);
 
@@ -704,7 +740,10 @@ if ($activeApplication) {
             'status' => true,
             'message' => 'ใบสมัครนี้ถูกยกเลิกแล้ว',
             'results' => [
-                'application' => $application,
+                'application' => tap(
+                    $application,
+                    fn ($loadedApplication) => $this->appendTypeOfWork($loadedApplication->job)
+                ),
                 'job_application_permission' =>
                     $this->canApplyPayload($member),
             ],
@@ -747,8 +786,10 @@ if ($activeApplication) {
             'status' => true,
             'message' => 'ยกเลิกการสมัครงานสำเร็จ',
             'results' => [
-                'application' =>
-                    $application->fresh(['job.company']),
+                'application' => tap(
+                    $application->fresh(['job.company', 'job.categories.category2']),
+                    fn ($loadedApplication) => $this->appendTypeOfWork($loadedApplication->job)
+                ),
                 'job_application_permission' =>
                     $this->canApplyPayload($member),
             ],
@@ -777,10 +818,13 @@ if ($activeApplication) {
             ], 403);
         }
 
-        $applications = JobApplication::with(['job.company'])
+        $applications = JobApplication::with(['job.company', 'job.categories.category2'])
             ->where('member_id', $member->id)
             ->latest('id')
-            ->get();
+            ->get()
+            ->each(function ($application) {
+                $this->appendTypeOfWork($application->job);
+            });
 
         return response()->json([
             'status' => true,

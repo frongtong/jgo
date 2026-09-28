@@ -121,17 +121,19 @@
 
                                                                 </a>
 
-                                                                <button type="button"
-                                                                    onclick="deleteItem({{ $item->id }})"
-                                                                    class="btn btn-icon btn-light-danger btn-sm">
+                                                                @if((int) $item->id !== 18)
+                                                                    <button type="button"
+                                                                        onclick="deleteItem({{ $item->id }})"
+                                                                        class="btn btn-icon btn-light-danger btn-sm">
 
-                                                                    <i class="ki-duotone ki-trash fs-2">
-                                                                        <span class="path1"></span>
-                                                                        <span class="path2"></span>
-                                                                        <span class="path3"></span>
-                                                                    </i>
+                                                                        <i class="ki-duotone ki-trash fs-2">
+                                                                            <span class="path1"></span>
+                                                                            <span class="path2"></span>
+                                                                            <span class="path3"></span>
+                                                                        </i>
 
-                                                                </button>
+                                                                    </button>
+                                                                @endif
                                                             </td>
                                                         </tr>
                                                     @endforeach

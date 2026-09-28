@@ -87,18 +87,55 @@
 
                                             <form method="get">
 
-                                                <div class="d-flex align-items-center position-relative my-1">
+                                                <div class="d-flex align-items-center flex-wrap gap-3 my-1">
 
-                                                    <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
-                                                        <span class="path1"></span>
-                                                        <span class="path2"></span>
-                                                    </i>
+                                                    <div class="position-relative">
 
-                                                    <input type="text"
-                                                        class="form-control form-control-solid w-250px ps-12"
-                                                        name="search"
-                                                        value="{{ request()->get('search') }}"
-                                                        placeholder="ค้นหาบริษัท">
+                                                        <i class="ki-duotone ki-magnifier fs-3 position-absolute ms-4">
+                                                            <span class="path1"></span>
+                                                            <span class="path2"></span>
+                                                        </i>
+
+                                                        <input type="text"
+                                                            class="form-control form-control-solid w-250px ps-12"
+                                                            name="search"
+                                                            value="{{ request()->get('search') }}"
+                                                            placeholder="ค้นหาบริษัท">
+
+                                                    </div>
+
+                                                    <select name="province_id"
+                                                        class="form-select form-select-solid w-200px">
+
+                                                        <option value="">ทุกจังหวัด</option>
+
+                                                        @foreach($provinces as $province)
+
+                                                            <option value="{{ $province->id }}"
+                                                                @if(request()->get('province_id') == $province->id)
+                                                                    selected
+                                                                @endif>
+
+                                                                {{ $province->name }}
+
+                                                            </option>
+
+                                                        @endforeach
+
+                                                    </select>
+
+                                                    <button class="btn btn-success">
+
+                                                        Search
+
+                                                    </button>
+
+                                                    <a href="{{ url("$segment/$folder") }}"
+                                                        class="btn btn-light">
+
+                                                        Clear
+
+                                                    </a>
 
                                                 </div>
 
@@ -148,6 +185,28 @@
 
 
 
+                                        @php
+                                            $sortUrl = function ($column) {
+                                                $direction = request('sort') === $column && request('direction') === 'asc'
+                                                    ? 'desc'
+                                                    : 'asc';
+
+                                                return request()->fullUrlWithQuery([
+                                                    'sort' => $column,
+                                                    'direction' => $direction,
+                                                    'page' => 1,
+                                                ]);
+                                            };
+
+                                            $sortIcon = function ($column) {
+                                                if (request('sort') !== $column) {
+                                                    return '';
+                                                }
+
+                                                return request('direction') === 'asc' ? ' ▲' : ' ▼';
+                                            };
+                                        @endphp
+
                                         <div class="table-responsive">
 
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
@@ -170,21 +229,47 @@
 
                                                         </th>
 
-                                                        <th style="width:25%;">
+                                                        <th style="width:20%;">
 
-                                                            ชื่อบริษัท
+                                                            <a href="{{ $sortUrl('name_th') }}"
+                                                                class="text-gray-400 text-hover-primary">
+
+                                                                ชื่อบริษัท{{ $sortIcon('name_th') }}
+
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:20%;">
 
-                                                            จังหวัด
+                                                            <a href="{{ $sortUrl('address') }}"
+                                                                class="text-gray-400 text-hover-primary">
+
+                                                                ที่อยู่{{ $sortIcon('address') }}
+
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:15%;">
 
-                                                            Website
+                                                            <a href="{{ $sortUrl('province') }}"
+                                                                class="text-gray-400 text-hover-primary">
+
+                                                                จังหวัด{{ $sortIcon('province') }}
+
+                                                            </a>
+
+                                                        </th>
+
+                                                        <th style="width:15%;">
+
+                                                            <a href="{{ $sortUrl('website') }}"
+                                                                class="text-gray-400 text-hover-primary">
+
+                                                                Website{{ $sortIcon('website') }}
+
+                                                            </a>
 
                                                         </th>
 
@@ -195,7 +280,7 @@
 
                                                         </th> -->
 
-                                                        <th style="width:15%;"
+                                                        <th style="width:10%;"
                                                             class="text-center">
 
                                                             Action
@@ -275,6 +360,15 @@
 
 
                                                             <!-- LOCATION -->
+                                                            <td>
+
+                                                                {{ $item->address ?: '-' }}
+
+                                                            </td>
+
+
+
+                                                            <!-- PROVINCE -->
                                                             <td>
 
                                                                 @if($item->province)

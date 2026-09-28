@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Models\Backend\Job;
 use App\Models\Backend\JobApplication;
 use App\Models\Backend\JobApplicationLog;
+use App\Models\Backend\CompanyModel;
 
 class JobApplicationController extends Controller
 {
@@ -38,6 +39,7 @@ class JobApplicationController extends Controller
         $search = Arr::get($parameters, 'search', Arr::get($parameters, 'keyword'));
         $status = Arr::get($parameters, 'status');
         $jobId = Arr::get($parameters, 'job_id');
+        $companyId = Arr::get($parameters, 'company_id');
         $dateFrom = Arr::get($parameters, 'date_from');
         $dateTo = Arr::get($parameters, 'date_to');
 
@@ -61,6 +63,12 @@ class JobApplicationController extends Controller
 
         if ($jobId) {
             $query->where('job_id', $jobId);
+        }
+
+        if ($companyId) {
+            $query->whereHas('job', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            });
         }
 
         if ($dateFrom) {
@@ -88,7 +96,10 @@ class JobApplicationController extends Controller
     public function index(Request $request)
     {
         $items = $this->items($request->all());
-        $jobs = Job::orderBy('title_th', 'asc')->get();
+        $jobs = Job::where('status', 'on')
+            ->orderBy('title_th', 'asc')
+            ->get();
+        $companies = CompanyModel::orderBy('name_th', 'asc')->get();
         $statuses = $this->statuses();
 
         $items->pages = new \stdClass();
@@ -111,7 +122,7 @@ class JobApplicationController extends Controller
 
         return view(
             "$this->prefix.pages.$this->folder.index",
-            compact('items', 'jobs', 'statuses', 'navs')
+            compact('items', 'jobs', 'companies', 'statuses', 'navs')
             + [
                 'segment' => $this->segment,
                 'prefix' => $this->prefix,
@@ -260,6 +271,7 @@ class JobApplicationController extends Controller
                 'เบอร์โทร',
                 'อีเมล',
                 'ตำแหน่งที่สมัคร',
+                'บริษัท',
                 'วันที่สมัคร',
                 'สถานะ',
                 'วันที่สัมภาษณ์',
@@ -276,6 +288,7 @@ class JobApplicationController extends Controller
                     $application->phone,
                     $application->email,
                     $application->job->title_th ?? '',
+                    $application->job->company->name_th ?? '',
                     optional($application->created_at)->format('d/m/Y H:i'),
                     $statuses[$application->status] ?? $application->status,
                     optional($application->interview_date)->format('d/m/Y'),

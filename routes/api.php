@@ -63,6 +63,7 @@ use App\Http\Controllers\Api\PrivacyPolicyController;
         Route::get('/studyfurther', [StudyFurtherController::class, 'index']);
         Route::get('/studyfurther/{id}', [StudyFurtherController::class, 'show'])->whereNumber('id');
         Route::get('/learning-center/banner', [LearningCenterController::class, 'banner']);
+        Route::get('/', [LearningCenterController::class, 'banner']);
         Route::get('/notifications', [MemberController::class, 'notifications']);
         Route::get('/parent/home', [MemberController::class, 'parentHome']);
         Route::prefix('member')->group(function () {

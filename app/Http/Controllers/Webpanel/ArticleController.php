@@ -35,6 +35,46 @@ class ArticleController extends Controller
             );
         }
 
+        if ($request->article_category1_id) {
+
+            $items->where(
+                'article_category1_id',
+                $request->article_category1_id
+            );
+        }
+
+        if ($request->article_category2_id) {
+
+            $items->where(
+                'article_category2_id',
+                $request->article_category2_id
+            );
+        }
+
+        if ($request->status) {
+
+            $items->where(
+                'status',
+                $request->status
+            );
+        }
+
+        $mainCategories = ArticleCategory1::orderBy(
+            'name_th'
+        )->get();
+
+        $subCategories = ArticleCategory2::when(
+            $request->article_category1_id,
+            function ($query) use ($request) {
+                $query->where(
+                    'category1_id',
+                    $request->article_category1_id
+                );
+            }
+        )
+            ->orderBy('name_th')
+            ->get();
+
         $items = $items
             ->orderBy('id', 'desc')
             ->paginate(10);
@@ -68,7 +108,9 @@ class ArticleController extends Controller
                 'segment' => $this->segment,
                 'folder'  => $this->folder,
                 'navs'    => $navs,
-                'items'   => $items
+                'items'   => $items,
+                'mainCategories' => $mainCategories,
+                'subCategories' => $subCategories
             ]
         );
     }

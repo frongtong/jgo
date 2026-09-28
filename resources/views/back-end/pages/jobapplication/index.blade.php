@@ -53,7 +53,7 @@
                                     <div class="card-body pt-0">
                                         <form method="GET" class="mb-8">
                                             <div class="row g-5">
-                                                <div class="col-md-3">
+                                                <div class="col-md-2">
                                                     <label class="form-label">ค้นหา</label>
                                                     <input type="text"
                                                         name="search"
@@ -64,11 +64,27 @@
 
                                                 <div class="col-md-3">
                                                     <label class="form-label">ตำแหน่งงาน</label>
-                                                    <select name="job_id" class="form-select form-select-solid">
+                                                    <select name="job_id"
+                                                        class="form-select form-select-solid searchable-select"
+                                                        data-placeholder="เลือกตำแหน่งงาน">
                                                         <option value="">ทั้งหมด</option>
                                                         @foreach($jobs as $job)
                                                             <option value="{{ $job->id }}" {{ (string) request('job_id') === (string) $job->id ? 'selected' : '' }}>
                                                                 {{ $job->title_th }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+                                                <div class="col-md-3">
+                                                    <label class="form-label">บริษัท</label>
+                                                    <select name="company_id"
+                                                        class="form-select form-select-solid searchable-select"
+                                                        data-placeholder="เลือกบริษัท">
+                                                        <option value="">ทั้งหมด</option>
+                                                        @foreach($companies as $company)
+                                                            <option value="{{ $company->id }}" {{ (string) request('company_id') === (string) $company->id ? 'selected' : '' }}>
+                                                                {{ $company->name_th }}
                                                             </option>
                                                         @endforeach
                                                     </select>
@@ -120,6 +136,7 @@
                                                         <th width="5%">#</th>
                                                         <th>ชื่อ-นามสกุล</th>
                                                         <th>งานที่สมัคร</th>
+                                                        <th>บริษัท</th>
                                                         <th>เบอร์โทร</th>
                                                         <th>อีเมล</th>
                                                         <th>สถานะ</th>
@@ -147,7 +164,10 @@
                                                             </td>
                                                             <td>
                                                                 <div class="fw-bold">{{ $item->job->title_th ?? '-' }}</div>
-                                                                <div class="text-muted fs-7">{{ $item->job->company->name_th ?? '-' }}</div>
+                                                                <div class="text-muted fs-7">{{ $item->job->job_type ?? '' }}</div>
+                                                            </td>
+                                                            <td>
+                                                                {{ $item->job->company->name_th ?? '-' }}
                                                             </td>
                                                             <td>{{ $item->phone ?: '-' }}</td>
                                                             <td>{{ $item->email ?: '-' }}</td>
@@ -194,7 +214,7 @@
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="9" class="text-center">ไม่พบข้อมูล</td>
+                                                            <td colspan="10" class="text-center">ไม่พบข้อมูล</td>
                                                         </tr>
                                                     @endforelse
                                                 </tbody>
@@ -219,9 +239,22 @@
     </div>
 
     @include("$prefix.layout.script")
+    <script src="{{ asset('backend/libs/select2/js/select2.full.min.js') }}"></script>
 
     <script>
         var fullUrl = window.location.origin + window.location.pathname;
+
+        $(function () {
+            if ($.fn.select2) {
+                $('.searchable-select').select2({
+                    width: '100%',
+                    allowClear: true,
+                    placeholder: function () {
+                        return $(this).data('placeholder') || 'ทั้งหมด';
+                    }
+                });
+            }
+        });
 
         function deleteItem(id) {
             Swal.fire({

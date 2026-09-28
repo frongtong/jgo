@@ -35,6 +35,46 @@ class VideoController extends Controller
             );
         }
 
+        if ($request->main_category_id) {
+
+            $items->where(
+                'main_category_id',
+                $request->main_category_id
+            );
+        }
+
+        if ($request->sub_category_id) {
+
+            $items->where(
+                'sub_category_id',
+                $request->sub_category_id
+            );
+        }
+
+        if ($request->status) {
+
+            $items->where(
+                'status',
+                $request->status
+            );
+        }
+
+        $mainCategories = VideoCategory1::orderBy(
+            'name_th'
+        )->get();
+
+        $subCategories = VideoCategory2::when(
+            $request->main_category_id,
+            function ($query) use ($request) {
+                $query->where(
+                    'category1_id',
+                    $request->main_category_id
+                );
+            }
+        )
+            ->orderBy('name_th')
+            ->get();
+
         $items = $items
             ->orderBy('id', 'desc')
             ->paginate(10);
@@ -68,7 +108,9 @@ class VideoController extends Controller
                 'segment' => $this->segment,
                 'folder'  => $this->folder,
                 'navs'    => $navs,
-                'items'   => $items
+                'items'   => $items,
+                'mainCategories' => $mainCategories,
+                'subCategories' => $subCategories
             ]
         );
     }

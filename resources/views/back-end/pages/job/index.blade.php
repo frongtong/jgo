@@ -96,7 +96,7 @@
 
                                             <div class="row mb-5">
 
-                                                <div class="col-md-4">
+                                                <div class="col-md-3">
 
                                                     Keywords
 
@@ -138,7 +138,7 @@
 
                                                 </div>
 
-                                                <div class="col-md-3">
+                                                <div class="col-md-2">
 
                                                     จังหวัด
 
@@ -163,6 +163,50 @@
                                                             </option>
 
                                                         @endforeach
+
+                                                    </select>
+
+                                                </div>
+
+                                                <div class="col-md-2">
+
+                                                    เพศ
+
+                                                    <select name="gender"
+                                                        class="form-select form-select-solid">
+
+                                                        <option value="">
+
+                                                            ทั้งหมด
+
+                                                        </option>
+
+                                                        <option value="all"
+                                                            @if(Request::get('gender') == 'all')
+                                                                selected
+                                                            @endif>
+
+                                                            ทุกเพศ
+
+                                                        </option>
+
+                                                        <option value="male"
+                                                            @if(Request::get('gender') == 'male')
+                                                                selected
+                                                            @endif>
+
+                                                            ชาย
+
+                                                        </option>
+
+                                                        <option value="female"
+                                                            @if(Request::get('gender') == 'female')
+                                                                selected
+                                                            @endif>
+
+                                                            หญิง
+
+                                                        </option>
 
                                                     </select>
 
@@ -228,19 +272,19 @@
 
                                                         </th>
 
-                                                        <th style="width:25%;">
+                                                        <th style="width:20%;">
 
                                                             ตำแหน่งงาน
 
                                                         </th>
 
-                                                        <th style="width:15%;">
+                                                        <th style="width:12%;">
 
                                                             บริษัท
 
                                                         </th>
 
-                                                        <th style="width:15%;">
+                                                        <th style="width:12%;">
 
                                                             จังหวัด
 
@@ -256,11 +300,46 @@
                                                         <th style="width:10%;"
                                                             class="text-center">
 
-                                                            Status
+                                                            จำนวนรับ
+
+                                                        </th>
+
+                                                        <th style="width:8%;"
+                                                            class="text-center">
+
+                                                            อายุขั้นต่ำ
+
+                                                        </th>
+
+                                                        <th style="width:8%;"
+                                                            class="text-center">
+
+                                                            อายุสูงสุด
 
                                                         </th>
 
                                                         <th style="width:10%;"
+                                                            class="text-center">
+
+                                                            วันที่
+
+                                                        </th>
+
+                                                        <th style="width:8%;"
+                                                            class="text-center">
+
+                                                            เพศ
+
+                                                        </th>
+
+                                                        <th style="width:8%;"
+                                                            class="text-center">
+
+                                                            Status
+
+                                                        </th>
+
+                                                        <th style="width:8%;"
                                                             class="text-center">
 
                                                             Action
@@ -348,6 +427,66 @@
                                                                     -
 
                                                                 @endif
+
+                                                            </td>
+
+
+
+                                                            <!-- QTY -->
+                                                            <td class="text-center">
+
+                                                                {{ $item->qty ?: '-' }}
+
+                                                            </td>
+
+
+
+                                                            <!-- AGE MIN -->
+                                                            <td class="text-center">
+
+                                                                {{ $item->age_min ?: '-' }}
+
+                                                            </td>
+
+
+
+                                                            <!-- AGE MAX -->
+                                                            <td class="text-center">
+
+                                                                {{ $item->age_max ?: '-' }}
+
+                                                            </td>
+
+
+
+                                                            <!-- DATE -->
+                                                            <td class="text-center">
+
+                                                                {{ $item->date ? \Carbon\Carbon::parse($item->date)->format('d/m/Y') : '-' }}
+
+                                                            </td>
+
+
+
+                                                            <!-- GENDER -->
+                                                            <td class="text-center">
+
+                                                                @switch($item->gender)
+                                                                    @case('male')
+                                                                        ชาย
+                                                                        @break
+
+                                                                    @case('female')
+                                                                        หญิง
+                                                                        @break
+
+                                                                    @case('all')
+                                                                        ทุกเพศ
+                                                                        @break
+
+                                                                    @default
+                                                                        -
+                                                                @endswitch
 
                                                             </td>
 

@@ -63,9 +63,9 @@
 
                                         <form method="GET">
 
-                                            <div class="row mb-5">
+                                            <div class="row mb-5 g-4">
 
-                                                <div class="col-md-6">
+                                                <div class="col-md-3">
 
                                                     Title
 
@@ -78,15 +78,103 @@
 
                                                 </div>
 
-                                                <div class="col-md-4">
+                                                <div class="col-md-2">
+
+                                                    หมวดหมู่หลัก
+
+                                                    <select
+                                                        class="form-select"
+                                                        name="article_category1_id">
+
+                                                        <option value="">ทั้งหมด</option>
+
+                                                        @foreach($mainCategories as $category)
+
+                                                            <option value="{{ $category->id }}"
+                                                                @if((string) request('article_category1_id') === (string) $category->id)
+                                                                    selected
+                                                                @endif>
+
+                                                                {{ $category->name_th }}
+
+                                                            </option>
+
+                                                        @endforeach
+
+                                                    </select>
+
+                                                </div>
+
+                                                <div class="col-md-2">
+
+                                                    หมวดหมู่รอง
+
+                                                    <select
+                                                        class="form-select"
+                                                        name="article_category2_id">
+
+                                                        <option value="">ทั้งหมด</option>
+
+                                                        @foreach($subCategories as $category)
+
+                                                            <option value="{{ $category->id }}"
+                                                                @if((string) request('article_category2_id') === (string) $category->id)
+                                                                    selected
+                                                                @endif>
+
+                                                                {{ $category->name_th }}
+
+                                                            </option>
+
+                                                        @endforeach
+
+                                                    </select>
+
+                                                </div>
+
+                                                <div class="col-md-2">
+
+                                                    สถานะ
+
+                                                    <select
+                                                        class="form-select"
+                                                        name="status">
+
+                                                        <option value="">ทั้งหมด</option>
+
+                                                        <option value="on"
+                                                            @if(request('status') === 'on')
+                                                                selected
+                                                            @endif>
+                                                            เปิดใช้งาน
+                                                        </option>
+
+                                                        <option value="off"
+                                                            @if(request('status') === 'off')
+                                                                selected
+                                                            @endif>
+                                                            ปิดใช้งาน
+                                                        </option>
+
+                                                    </select>
+
+                                                </div>
+
+                                                <div class="col-md-3 d-flex align-items-end gap-3">
 
                                                     <button
-                                                        style="margin-top:15px;"
                                                         class="btn btn-success">
 
                                                         Search
 
                                                     </button>
+
+                                                    <a href="{{ url("$segment/$folder") }}"
+                                                        class="btn btn-light">
+
+                                                        Clear
+
+                                                    </a>
 
                                                 </div>
 

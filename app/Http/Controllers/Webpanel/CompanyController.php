@@ -34,10 +34,31 @@ class CompanyController extends Controller
     public function items($parameters)
     {
         $search = Arr::get($parameters, 'search');
+        $provinceId = Arr::get($parameters, 'province_id');
+        $sort = Arr::get($parameters, 'sort', 'id');
+        $direction = Arr::get($parameters, 'direction', 'desc');
 
         $paginate = Arr::get($parameters, 'total', 15);
 
-        $query = new CompanyModel;
+        $sortableColumns = [
+            'id' => 'companies.id',
+            'name_th' => 'companies.name_th',
+            'address' => 'companies.address',
+            'province' => 'province_locations.name',
+            'website' => 'companies.website',
+        ];
+
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+        $direction = $direction === 'asc' ? 'asc' : 'desc';
+
+        $query = CompanyModel::with('province')
+            ->leftJoin(
+                'locations as province_locations',
+                'companies.province_id',
+                '=',
+                'province_locations.id'
+            )
+            ->select('companies.*');
 
         if ($search) {
 
@@ -63,7 +84,15 @@ class CompanyController extends Controller
             });
         }
 
-        $query = $query->orderBy('id', 'desc');
+        if ($provinceId) {
+
+            $query = $query->where(
+                'companies.province_id',
+                $provinceId
+            );
+        }
+
+        $query = $query->orderBy($sortColumn, $direction);
 
         $results = $query->paginate($paginate);
 
@@ -88,6 +117,10 @@ class CompanyController extends Controller
             ($items->perPage() * $items->currentPage())
             - $items->perPage();
 
+        $provinces = Location::whereNull('parent_id')
+            ->orderBy('name', 'asc')
+            ->get();
+
         $navs = [
             '0' => [
                 'url' => "javascript:void(0)",
@@ -109,6 +142,7 @@ class CompanyController extends Controller
                 'prefix' => $this->prefix,
                 'folder' => $this->folder,
                 'items' => $items,
+                'provinces' => $provinces,
                 'navs' => $navs
             ]
         );

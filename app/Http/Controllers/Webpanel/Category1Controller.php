@@ -90,6 +90,14 @@ class Category1Controller extends Controller
     public function destroy(Request $request)
     {
         $id = $request->input('id');
+
+        if ((int) $id === 18) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This job category cannot be deleted.',
+            ], 403);
+        }
+
         $item = Category1::find($id);
 
         if ($item) {

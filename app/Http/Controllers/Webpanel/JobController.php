@@ -33,6 +33,9 @@ class JobController extends Controller
     public function items($parameters)
     {
         $search = Arr::get($parameters, 'search');
+        $companyId = Arr::get($parameters, 'company_id');
+        $provinceId = Arr::get($parameters, 'province_id');
+        $gender = Arr::get($parameters, 'gender');
         $paginate = Arr::get($parameters, 'total', 15);
 
         $query = Job::with([
@@ -53,6 +56,30 @@ class JobController extends Controller
 
             });
 
+        }
+
+        if ($companyId) {
+
+            $query = $query->where(
+                'company_id',
+                $companyId
+            );
+        }
+
+        if ($provinceId) {
+
+            $query = $query->where(
+                'province_id',
+                $provinceId
+            );
+        }
+
+        if ($gender) {
+
+            $query = $query->where(
+                'gender',
+                $gender
+            );
         }
 
         $query = $query->orderBy('id', 'desc');
@@ -441,10 +468,31 @@ class JobController extends Controller
                 $data->id
             )->delete();
 
-            if ($request->category2_id) {
+            $category2Ids = $request->input('category2_id', []);
+
+            if ($category2Ids) {
+                $category18Selected = Category2::whereIn('id', $category2Ids)
+                    ->where('category1_id', 18)
+                    ->pluck('id')
+                    ->map(fn ($categoryId) => (int) $categoryId)
+                    ->all();
+
+                if (count($category18Selected) > 1) {
+                    $allowedCategory18Id = $category18Selected[0];
+                    $category2Ids = collect($category2Ids)
+                        ->reject(function ($categoryId) use ($allowedCategory18Id, $category18Selected) {
+                            return in_array((int) $categoryId, $category18Selected, true)
+                                && (int) $categoryId !== $allowedCategory18Id;
+                        })
+                        ->values()
+                        ->all();
+                }
+            }
+
+            if ($category2Ids) {
 
                 foreach (
-                    $request->category2_id
+                    $category2Ids
                     as $category2
                 ) {
 

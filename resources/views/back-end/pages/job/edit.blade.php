@@ -188,6 +188,7 @@
                                                                         <input type="checkbox"
                                                                             class="form-check-input"
                                                                             name="category2_id[]"
+                                                                            data-category1-id="{{ $cat1->id }}"
                                                                             value="{{ $cat2->id }}"
                                                                             {{ in_array($cat2->id,$jobCategories)?'checked':'' }}>
 
@@ -603,6 +604,15 @@
     $('#is_sample').on('change', toggleSampleJobFields);
 
     toggleSampleJobFields();
+
+    $('input[name="category2_id[]"][data-category1-id="18"]').on('change', function() {
+        if (this.checked) {
+            $('input[name="category2_id[]"][data-category1-id="18"]').not(this).prop('checked', false);
+        }
+    });
+
+    var checkedCategory18 = $('input[name="category2_id[]"][data-category1-id="18"]:checked');
+    checkedCategory18.slice(1).prop('checked', false);
 </script>
 
 </html>
