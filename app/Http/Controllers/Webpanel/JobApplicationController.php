@@ -30,8 +30,28 @@ class JobApplicationController extends Controller
         $paginate = Arr::get($parameters, 'total', 15);
 
         return $this->query($parameters)
-            ->orderBy('id', 'desc')
+            ->orderBy(
+                $this->sortColumn($parameters),
+                Arr::get($parameters, 'direction') === 'asc' ? 'asc' : 'desc'
+            )
             ->paginate($paginate);
+    }
+
+    protected function sortColumn($parameters): string
+    {
+        $sortableColumns = [
+            'id' => 'job_applications.id',
+            'name' => 'job_applications.first_name',
+            'job' => 'jobs.title_th',
+            'company' => 'companies.name_th',
+            'phone' => 'job_applications.phone',
+            'email' => 'job_applications.email',
+            'status' => 'job_applications.status',
+            'created_at' => 'job_applications.created_at',
+            'interview_date' => 'job_applications.interview_date',
+        ];
+
+        return $sortableColumns[Arr::get($parameters, 'sort')] ?? $sortableColumns['id'];
     }
 
     protected function query($parameters)
@@ -46,23 +66,36 @@ class JobApplicationController extends Controller
         $query = JobApplication::with([
             'member',
             'job.company',
-        ]);
+        ])
+            ->leftJoin(
+                'jobs',
+                'job_applications.job_id',
+                '=',
+                'jobs.id'
+            )
+            ->leftJoin(
+                'companies',
+                'jobs.company_id',
+                '=',
+                'companies.id'
+            )
+            ->select('job_applications.*');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'LIKE', "%{$search}%")
-                    ->orWhere('last_name', 'LIKE', "%{$search}%")
-                    ->orWhere('email', 'LIKE', "%{$search}%")
-                    ->orWhere('phone', 'LIKE', "%{$search}%");
+                $q->where('job_applications.first_name', 'LIKE', "%{$search}%")
+                    ->orWhere('job_applications.last_name', 'LIKE', "%{$search}%")
+                    ->orWhere('job_applications.email', 'LIKE', "%{$search}%")
+                    ->orWhere('job_applications.phone', 'LIKE', "%{$search}%");
             });
         }
 
         if ($status) {
-            $query->where('status', $status);
+            $query->where('job_applications.status', $status);
         }
 
         if ($jobId) {
-            $query->where('job_id', $jobId);
+            $query->where('job_applications.job_id', $jobId);
         }
 
         if ($companyId) {
@@ -72,11 +105,11 @@ class JobApplicationController extends Controller
         }
 
         if ($dateFrom) {
-            $query->whereDate('created_at', '>=', $dateFrom);
+            $query->whereDate('job_applications.created_at', '>=', $dateFrom);
         }
 
         if ($dateTo) {
-            $query->whereDate('created_at', '<=', $dateTo);
+            $query->whereDate('job_applications.created_at', '<=', $dateTo);
         }
 
         return $query;
@@ -259,7 +292,7 @@ class JobApplicationController extends Controller
         $fileName = 'job-applications-' . now()->format('Ymd-His') . '.xls';
         $statuses = $this->statuses();
         $applications = $this->query($request->all())
-            ->orderBy('id', 'desc')
+            ->orderBy('job_applications.id', 'desc')
             ->get();
 
         return response()->streamDownload(function () use ($applications, $statuses) {

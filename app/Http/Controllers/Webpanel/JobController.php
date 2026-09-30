@@ -36,13 +36,45 @@ class JobController extends Controller
         $companyId = Arr::get($parameters, 'company_id');
         $provinceId = Arr::get($parameters, 'province_id');
         $gender = Arr::get($parameters, 'gender');
+        $sort = Arr::get($parameters, 'sort', 'id');
+        $direction = Arr::get($parameters, 'direction', 'desc');
         $paginate = Arr::get($parameters, 'total', 15);
+
+        $sortableColumns = [
+            'id' => 'jobs.id',
+            'title_th' => 'jobs.title_th',
+            'company' => 'companies.name_th',
+            'province' => 'province_locations.name',
+            'salary_min' => 'jobs.salary_min',
+            'qty' => 'jobs.qty',
+            'age_min' => 'jobs.age_min',
+            'age_max' => 'jobs.age_max',
+            'date' => 'jobs.date',
+            'gender' => 'jobs.gender',
+            'status' => 'jobs.status',
+        ];
+
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+        $direction = $direction === 'asc' ? 'asc' : 'desc';
 
         $query = Job::with([
             'company',
             'province',
             'city'
-        ]);
+        ])
+            ->leftJoin(
+                'companies',
+                'jobs.company_id',
+                '=',
+                'companies.id'
+            )
+            ->leftJoin(
+                'locations as province_locations',
+                'jobs.province_id',
+                '=',
+                'province_locations.id'
+            )
+            ->select('jobs.*');
 
         if ($search) {
 
@@ -82,7 +114,7 @@ class JobController extends Controller
             );
         }
 
-        $query = $query->orderBy('id', 'desc');
+        $query = $query->orderBy($sortColumn, $direction);
 
         $results = $query->paginate($paginate);
 

@@ -129,19 +129,86 @@
                                             พบ {{ number_format($items->total()) }} รายการ
                                         </div>
 
+                                        @php
+                                            $sortUrl = function ($column) {
+                                                $direction = request('sort') === $column && request('direction') === 'asc'
+                                                    ? 'desc'
+                                                    : 'asc';
+
+                                                return request()->fullUrlWithQuery([
+                                                    'sort' => $column,
+                                                    'direction' => $direction,
+                                                    'page' => 1,
+                                                ]);
+                                            };
+
+                                            $sortIcon = function ($column) {
+                                                if (request('sort') !== $column) {
+                                                    return '';
+                                                }
+
+                                                return request('direction') === 'asc' ? ' ▲' : ' ▼';
+                                            };
+                                        @endphp
+
                                         <div class="table-responsive">
                                             <table class="table table-row-dashed align-middle">
                                                 <thead>
                                                     <tr class="fw-bold text-gray-600">
-                                                        <th width="5%">#</th>
-                                                        <th>ชื่อ-นามสกุล</th>
-                                                        <th>งานที่สมัคร</th>
-                                                        <th>บริษัท</th>
-                                                        <th>เบอร์โทร</th>
-                                                        <th>อีเมล</th>
-                                                        <th>สถานะ</th>
-                                                        <th>วันที่สมัคร</th>
-                                                        <th>วันที่สัมภาษณ์/วันที่เข้าคอร์ส </th>
+                                                        <th width="5%">
+                                                            <a href="{{ $sortUrl('id') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                #{{ $sortIcon('id') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('name') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                ชื่อ-นามสกุล{{ $sortIcon('name') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('job') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                งานที่สมัคร{{ $sortIcon('job') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('company') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                บริษัท{{ $sortIcon('company') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('phone') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                เบอร์โทร{{ $sortIcon('phone') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('email') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                อีเมล{{ $sortIcon('email') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('status') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                สถานะ{{ $sortIcon('status') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('created_at') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                วันที่สมัคร{{ $sortIcon('created_at') }}
+                                                            </a>
+                                                        </th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('interview_date') }}"
+                                                                class="text-gray-600 text-hover-primary">
+                                                                วันที่สัมภาษณ์/วันที่เข้าคอร์ส {{ $sortIcon('interview_date') }}
+                                                            </a>
+                                                        </th>
                                                         <th width="12%" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>

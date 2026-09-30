@@ -30,12 +30,33 @@ class MemberController extends Controller
     public function items($parameters)
     {
         $search = Arr::get($parameters, 'keyword');
+        $sort = Arr::get($parameters, 'sort', 'id');
+        $direction = Arr::get($parameters, 'direction', 'desc');
         $paginate = Arr::get($parameters, 'total', 15);
 
-        $query = Member::query();
+        $sortableColumns = [
+            'id' => 'members.id',
+            'member' => 'member_profiles.first_name_th',
+            'phone' => 'member_profiles.phone',
+            'parents' => 'parents_count',
+            'status' => 'members.status',
+            'apply_date' => 'members.apply_date',
+        ];
+
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+        $direction = $direction === 'asc' ? 'asc' : 'desc';
+
+        $query = Member::query()
+            ->leftJoin(
+                'member_profiles',
+                'members.id',
+                '=',
+                'member_profiles.member_id'
+            )
+            ->select('members.*');
 
         $query = $query->with('profile')->withCount('parents');
-        $query = $query->where('type', '=', 'applicant');
+        $query = $query->where('members.type', '=', 'applicant');
         if ($search) {
 
             $query = $query->where(function ($q) use ($search) {
@@ -51,7 +72,7 @@ class MemberController extends Controller
             });
         }
 
-        $query = $query->orderBy('id', 'desc');
+        $query = $query->orderBy($sortColumn, $direction);
 
         return $query->paginate($paginate);
     }

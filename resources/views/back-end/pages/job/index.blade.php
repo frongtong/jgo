@@ -249,6 +249,28 @@
 
 
 
+                                        @php
+                                            $sortUrl = function ($column) {
+                                                $direction = request('sort') === $column && request('direction') === 'asc'
+                                                    ? 'desc'
+                                                    : 'asc';
+
+                                                return request()->fullUrlWithQuery([
+                                                    'sort' => $column,
+                                                    'direction' => $direction,
+                                                    'page' => 1,
+                                                ]);
+                                            };
+
+                                            $sortIcon = function ($column) {
+                                                if (request('sort') !== $column) {
+                                                    return '';
+                                                }
+
+                                                return request('direction') === 'asc' ? ' ▲' : ' ▼';
+                                            };
+                                        @endphp
+
                                         <!-- TABLE -->
                                         <div class="table-responsive">
 
@@ -261,7 +283,10 @@
                                                         <th style="width:5%;"
                                                             class="text-center">
 
-                                                            #
+                                                            <a href="{{ $sortUrl('id') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                #{{ $sortIcon('id') }}
+                                                            </a>
 
                                                         </th>
 
@@ -274,68 +299,98 @@
 
                                                         <th style="width:20%;">
 
-                                                            ตำแหน่งงาน
+                                                            <a href="{{ $sortUrl('title_th') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                ตำแหน่งงาน{{ $sortIcon('title_th') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:12%;">
 
-                                                            บริษัท
+                                                            <a href="{{ $sortUrl('company') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                บริษัท{{ $sortIcon('company') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:12%;">
 
-                                                            จังหวัด
+                                                            <a href="{{ $sortUrl('province') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                จังหวัด{{ $sortIcon('province') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:10%;"
                                                             class="text-center">
 
-                                                            เงินเดือน
+                                                            <a href="{{ $sortUrl('salary_min') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                เงินเดือน{{ $sortIcon('salary_min') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:10%;"
                                                             class="text-center">
 
-                                                            จำนวนรับ
+                                                            <a href="{{ $sortUrl('qty') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                จำนวนรับ{{ $sortIcon('qty') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:8%;"
                                                             class="text-center">
 
-                                                            อายุขั้นต่ำ
+                                                            <a href="{{ $sortUrl('age_min') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                อายุขั้นต่ำ{{ $sortIcon('age_min') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:8%;"
                                                             class="text-center">
 
-                                                            อายุสูงสุด
+                                                            <a href="{{ $sortUrl('age_max') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                อายุสูงสุด{{ $sortIcon('age_max') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:10%;"
                                                             class="text-center">
 
-                                                            วันที่
+                                                            <a href="{{ $sortUrl('date') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                วันที่{{ $sortIcon('date') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:8%;"
                                                             class="text-center">
 
-                                                            เพศ
+                                                            <a href="{{ $sortUrl('gender') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                เพศ{{ $sortIcon('gender') }}
+                                                            </a>
 
                                                         </th>
 
                                                         <th style="width:8%;"
                                                             class="text-center">
 
-                                                            Status
+                                                            <a href="{{ $sortUrl('status') }}"
+                                                                class="text-gray-400 text-hover-primary">
+                                                                Status{{ $sortIcon('status') }}
+                                                            </a>
 
                                                         </th>
 

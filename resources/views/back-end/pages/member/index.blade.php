@@ -76,6 +76,28 @@
                                         <div class="hidden md:block mx-auto text-slate-500"><b>Showing
                                                 {{ $items->currentPage() }} to {{ $items->total() }} of
                                                 {{ $items->total() }} entries</b></div>
+                                        @php
+                                            $sortUrl = function ($column) {
+                                                $direction = request('sort') === $column && request('direction') === 'asc'
+                                                    ? 'desc'
+                                                    : 'asc';
+
+                                                return request()->fullUrlWithQuery([
+                                                    'sort' => $column,
+                                                    'direction' => $direction,
+                                                    'page' => 1,
+                                                ]);
+                                            };
+
+                                            $sortIcon = function ($column) {
+                                                if (request('sort') !== $column) {
+                                                    return '';
+                                                }
+
+                                                return request('direction') === 'asc' ? ' ▲' : ' ▼';
+                                            };
+                                        @endphp
+
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5">
 
@@ -83,24 +105,46 @@
 
                                                     <tr class="text-start text-muted fw-bold fs-7 text-uppercase gs-0">
 
-                                                        <th class="w-50px text-center">#</th>
+                                                        <th class="w-50px text-center">
+                                                            <a href="{{ $sortUrl('id') }}"
+                                                                class="text-muted text-hover-primary">
+                                                                #{{ $sortIcon('id') }}
+                                                            </a>
+                                                        </th>
 
-                                                        <th>Member</th>
+                                                        <th>
+                                                            <a href="{{ $sortUrl('member') }}"
+                                                                class="text-muted text-hover-primary">
+                                                                Member{{ $sortIcon('member') }}
+                                                            </a>
+                                                        </th>
 
                                                         <th class="text-center w-150px">
-                                                            Phone
+                                                            <a href="{{ $sortUrl('phone') }}"
+                                                                class="text-muted text-hover-primary">
+                                                                Phone{{ $sortIcon('phone') }}
+                                                            </a>
                                                         </th>
 
                                                         <th class="text-center w-100px">
-                                                            Parents
+                                                            <a href="{{ $sortUrl('parents') }}"
+                                                                class="text-muted text-hover-primary">
+                                                                Parents{{ $sortIcon('parents') }}
+                                                            </a>
                                                         </th>
 
                                                         <th class="text-center w-150px">
-                                                            Status
+                                                            <a href="{{ $sortUrl('status') }}"
+                                                                class="text-muted text-hover-primary">
+                                                                Status{{ $sortIcon('status') }}
+                                                            </a>
                                                         </th>
 
                                                         <th class="text-center w-175px">
-                                                            Apply Date
+                                                            <a href="{{ $sortUrl('apply_date') }}"
+                                                                class="text-muted text-hover-primary">
+                                                                Apply Date{{ $sortIcon('apply_date') }}
+                                                            </a>
                                                         </th>
 
                                                         <th class="text-center w-200px">
