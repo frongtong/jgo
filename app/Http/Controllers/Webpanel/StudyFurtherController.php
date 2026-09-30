@@ -20,20 +20,28 @@ class StudyFurtherController extends Controller
 
     public function index(Request $request)
     {
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id' => 'studyfurther.id',
+            'title' => 'studyfurther.title',
+        ];
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+
         $items = StudyFurther::with([
         ]);
 
         if ($request->search) {
 
             $items->where(
-                'title',
+                'studyfurther.title',
                 'like',
                 '%' . $request->search . '%'
             );
         }
 
         $items = $items
-            ->orderBy('id', 'desc')
+            ->orderBy($sortColumn, $direction)
             ->paginate(10);
 
         if ($items->total() > 0) {

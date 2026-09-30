@@ -23,18 +23,44 @@ class VocabularyController extends Controller
     {
         $search = Arr::get($parameters, 'search');
         $paginate = Arr::get($parameters, 'total', 15);
+        $sort = Arr::get($parameters, 'sort', 'id');
+        $direction = Arr::get($parameters, 'direction') === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id' => 'vocabulary.id',
+            'title' => 'vocabulary.title',
+            'main_category' => 'vocabulary_category1.name_th',
+            'sub_category' => 'vocabulary_category2.name_th',
+            'published_at' => 'vocabulary.published_at',
+            'status' => 'vocabulary.status',
+            'items_count' => 'items_count',
+        ];
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
 
         $query = Vocabulary::with([
             'mainCategory',
             'subCategory'
-        ])->withCount('items');
+        ])
+            ->leftJoin(
+                'vocabulary_category1',
+                'vocabulary.main_category_id',
+                '=',
+                'vocabulary_category1.id'
+            )
+            ->leftJoin(
+                'vocabulary_category2',
+                'vocabulary.sub_category_id',
+                '=',
+                'vocabulary_category2.id'
+            )
+            ->select('vocabulary.*')
+            ->withCount('items');
 
         if ($search) {
 
             $query->where(function ($q) use ($search) {
 
                 $q->where(
-                    'title',
+                    'vocabulary.title',
                     'LIKE',
                     '%' . trim($search) . '%'
                 );
@@ -42,7 +68,7 @@ class VocabularyController extends Controller
         }
 
         return $query
-            ->orderBy('id', 'desc')
+            ->orderBy($sortColumn, $direction)
             ->paginate($paginate);
     }
 

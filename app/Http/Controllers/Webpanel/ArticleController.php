@@ -21,15 +21,40 @@ class ArticleController extends Controller
 
     public function index(Request $request)
     {
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id' => 'article.id',
+            'title' => 'article.title',
+            'main_category' => 'article_category1.name_th',
+            'sub_category' => 'article_category2.name_th',
+            'published_at' => 'article.published_at',
+            'status' => 'article.status',
+        ];
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+
         $items = Article::with([
             'mainCategory',
             'subCategory'
-        ]);
+        ])
+            ->leftJoin(
+                'article_category1',
+                'article.article_category1_id',
+                '=',
+                'article_category1.id'
+            )
+            ->leftJoin(
+                'article_category2',
+                'article.article_category2_id',
+                '=',
+                'article_category2.id'
+            )
+            ->select('article.*');
 
         if ($request->search) {
 
             $items->where(
-                'title',
+                'article.title',
                 'like',
                 '%' . $request->search . '%'
             );
@@ -38,7 +63,7 @@ class ArticleController extends Controller
         if ($request->article_category1_id) {
 
             $items->where(
-                'article_category1_id',
+                'article.article_category1_id',
                 $request->article_category1_id
             );
         }
@@ -46,7 +71,7 @@ class ArticleController extends Controller
         if ($request->article_category2_id) {
 
             $items->where(
-                'article_category2_id',
+                'article.article_category2_id',
                 $request->article_category2_id
             );
         }
@@ -54,7 +79,7 @@ class ArticleController extends Controller
         if ($request->status) {
 
             $items->where(
-                'status',
+                'article.status',
                 $request->status
             );
         }
@@ -76,7 +101,7 @@ class ArticleController extends Controller
             ->get();
 
         $items = $items
-            ->orderBy('id', 'desc')
+            ->orderBy($sortColumn, $direction)
             ->paginate(10);
 
         if ($items->total() > 0) {

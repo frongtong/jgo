@@ -182,6 +182,21 @@
 
                                         </form>
 
+                                        @php
+                                            $sortLink = function ($column, $label) {
+                                                $currentSort = request('sort', 'id');
+                                                $currentDirection = request('direction', 'desc');
+                                                $nextDirection = $currentSort === $column && $currentDirection === 'asc' ? 'desc' : 'asc';
+                                                $arrow = $currentSort === $column ? ($currentDirection === 'asc' ? ' ▲' : ' ▼') : '';
+
+                                                return '<a href="' . request()->fullUrlWithQuery([
+                                                    'sort' => $column,
+                                                    'direction' => $nextDirection,
+                                                    'page' => 1,
+                                                ]) . '" class="text-dark text-hover-primary">' . $label . $arrow . '</a>';
+                                            };
+                                        @endphp
+
                                         <div class="table-responsive">
 
                                             <table class="table align-middle table-row-dashed">
@@ -190,19 +205,19 @@
 
                                                     <tr>
 
-                                                        <th width="5%" class="text-center">#</th>
+                                                        <th width="5%" class="text-center">{!! $sortLink('id', '#') !!}</th>
 
                                                         <th width="10%" class="text-center">รูปปก</th>
 
-                                                        <th>ชื่อ</th>
+                                                        <th>{!! $sortLink('title', 'ชื่อ') !!}</th>
 
-                                                        <th width="15%">หมวดหมู่หลัก</th>
+                                                        <th width="15%">{!! $sortLink('main_category', 'หมวดหมู่หลัก') !!}</th>
 
-                                                        <th width="15%">หมวดหมู่รอง</th>
+                                                        <th width="15%">{!! $sortLink('sub_category', 'หมวดหมู่รอง') !!}</th>
 
-                                                        <th width="15%">วันที่แสดง</th>
+                                                        <th width="15%">{!! $sortLink('published_at', 'วันที่แสดง') !!}</th>
 
-                                                        <th width="12%" class="text-center">สถานะ</th>
+                                                        <th width="12%" class="text-center">{!! $sortLink('status', 'สถานะ') !!}</th>
 
                                                         <th width="10%" class="text-center">
                                                             #

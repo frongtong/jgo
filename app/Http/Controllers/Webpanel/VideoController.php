@@ -21,15 +21,40 @@ class VideoController extends Controller
 
     public function index(Request $request)
     {
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id' => 'videos.id',
+            'title' => 'videos.title',
+            'main_category' => 'video_category1.name_th',
+            'sub_category' => 'video_category2.name_th',
+            'published_at' => 'videos.published_at',
+            'status' => 'videos.status',
+        ];
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+
         $items = Video::with([
             'mainCategory',
             'subCategory'
-        ]);
+        ])
+            ->leftJoin(
+                'video_category1',
+                'videos.main_category_id',
+                '=',
+                'video_category1.id'
+            )
+            ->leftJoin(
+                'video_category2',
+                'videos.sub_category_id',
+                '=',
+                'video_category2.id'
+            )
+            ->select('videos.*');
 
         if ($request->search) {
 
             $items->where(
-                'title',
+                'videos.title',
                 'like',
                 '%' . $request->search . '%'
             );
@@ -38,7 +63,7 @@ class VideoController extends Controller
         if ($request->main_category_id) {
 
             $items->where(
-                'main_category_id',
+                'videos.main_category_id',
                 $request->main_category_id
             );
         }
@@ -46,7 +71,7 @@ class VideoController extends Controller
         if ($request->sub_category_id) {
 
             $items->where(
-                'sub_category_id',
+                'videos.sub_category_id',
                 $request->sub_category_id
             );
         }
@@ -54,7 +79,7 @@ class VideoController extends Controller
         if ($request->status) {
 
             $items->where(
-                'status',
+                'videos.status',
                 $request->status
             );
         }
@@ -76,7 +101,7 @@ class VideoController extends Controller
             ->get();
 
         $items = $items
-            ->orderBy('id', 'desc')
+            ->orderBy($sortColumn, $direction)
             ->paginate(10);
 
         if ($items->total() > 0) {
