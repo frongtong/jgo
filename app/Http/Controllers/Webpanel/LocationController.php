@@ -29,7 +29,36 @@ class LocationController extends Controller
     }
     public function index(Request $request)
     {
-       $items = Location::query()->paginate(15);
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id' => 'locations.id',
+            'name' => 'locations.name',
+            'parent' => 'parent_locations.name',
+        ];
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+
+        $items = Location::query()
+            ->with('parent')
+            ->leftJoin(
+                'locations as parent_locations',
+                'locations.parent_id',
+                '=',
+                'parent_locations.id'
+            )
+            ->select('locations.*');
+
+        if ($request->filled('keyword')) {
+            $keyword = trim($request->keyword);
+            $items->where(function ($query) use ($keyword) {
+                $query->where('locations.name', 'LIKE', '%' . $keyword . '%')
+                    ->orWhere('parent_locations.name', 'LIKE', '%' . $keyword . '%');
+            });
+        }
+
+        $items = $items
+            ->orderBy($sortColumn, $direction)
+            ->paginate(15);
         $items->pages = new Location();
         $items->pages->start = ($items->perPage() * $items->currentPage()) - $items->perPage();
         

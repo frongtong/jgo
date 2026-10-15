@@ -82,16 +82,31 @@
                                         <div class="hidden md:block mx-auto text-slate-500"><b>Showing
                                                 {{ $items->currentPage() }} to {{ $items->total() }} of
                                                 {{ $items->total() }} entries</b></div>
+                                        @php
+                                            $sortLink = function ($column, $label) {
+                                                $currentSort = request('sort', 'id');
+                                                $currentDirection = request('direction', 'desc');
+                                                $nextDirection = $currentSort === $column && $currentDirection === 'asc' ? 'desc' : 'asc';
+                                                $arrow = $currentSort === $column ? ($currentDirection === 'asc' ? ' ▲' : ' ▼') : '';
+
+                                                return '<a href="' . request()->fullUrlWithQuery([
+                                                    'sort' => $column,
+                                                    'direction' => $nextDirection,
+                                                    'page' => 1,
+                                                ]) . '" class="text-dark text-hover-primary">' . $label . $arrow . '</a>';
+                                            };
+                                        @endphp
+
                                         <div class="table-responsive">
                                             <table class="table align-middle table-row-dashed fs-6 gy-5"
                                                 id="kt_ecommerce_products_table">
                                                 <thead>
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                                        <th style="width:5%;" class="text-center">#</th>
-                                                        <th style="width:30%;" class="text-left">ชื่อ</th>
+                                                        <th style="width:5%;" class="text-center">{!! $sortLink('id', '#') !!}</th>
+                                                        <th style="width:30%;" class="text-left">{!! $sortLink('name', 'ชื่อ') !!}</th>
                                                         <!-- <th style="width:30%;" class="text-left">Name</th> -->
                                                         <th style="width:15%;" class="text-center">หมวดหมู่รอง</th>
-                                                        <th style="width:10%;" class="text-center">Status</th>
+                                                        <th style="width:10%;" class="text-center">{!! $sortLink('status', 'Status') !!}</th>
                                                         <th style="width:10%;" class="text-center">Action</th>
                                                     </tr>
                                                 </thead>

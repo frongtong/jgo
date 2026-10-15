@@ -40,7 +40,18 @@ class Category1Controller extends Controller
     public function index(Request $request)
     {
 
-        $items = Category1::query()->paginate(15);
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id' => 'id',
+            'name' => 'name_th',
+            'status' => 'status',
+        ];
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+
+        $items = Category1::query()
+            ->orderBy($sortColumn, $direction)
+            ->paginate(15);
         $items->pages = new Category1();
         $items->pages->start = ($items->perPage() * $items->currentPage()) - $items->perPage();
         $navs = [

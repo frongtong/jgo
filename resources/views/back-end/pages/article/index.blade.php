@@ -78,6 +78,7 @@
 
                                                 </div>
 
+                                                @if($showCategories ?? true)
                                                 <div class="col-md-2">
 
                                                     หมวดหมู่หลัก
@@ -131,6 +132,7 @@
                                                     </select>
 
                                                 </div>
+                                                @endif
 
                                                 <div class="col-md-2">
 

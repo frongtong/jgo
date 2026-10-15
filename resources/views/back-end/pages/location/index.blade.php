@@ -79,6 +79,21 @@
                                         </form>
                                         <!-- End Search -->
 
+                                        @php
+                                            $sortLink = function ($column, $label) {
+                                                $currentSort = request('sort', 'id');
+                                                $currentDirection = request('direction', 'desc');
+                                                $nextDirection = $currentSort === $column && $currentDirection === 'asc' ? 'desc' : 'asc';
+                                                $arrow = $currentSort === $column ? ($currentDirection === 'asc' ? ' ▲' : ' ▼') : '';
+
+                                                return '<a href="' . request()->fullUrlWithQuery([
+                                                    'sort' => $column,
+                                                    'direction' => $nextDirection,
+                                                    'page' => 1,
+                                                ]) . '" class="text-dark text-hover-primary">' . $label . $arrow . '</a>';
+                                            };
+                                        @endphp
+
                                         <div class="hidden md:block mx-auto text-slate-500"><b>Showing
                                                 {{ $items->currentPage() }} to {{ $items->total() }} of
                                                 {{ $items->total() }} entries</b></div>
@@ -86,9 +101,9 @@
                                             <table class="table align-middle table-row-dashed fs-6 gy-5" id="kt_ecommerce_products_table">
                                                 <thead>
                                                     <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
-                                                        <th style="width:5%;" class="text-center">#</th>
-                                                        <th style="width:25%;" class="text-left">ชื่อ (Location Name)</th>
-                                                        <th style="width:25%;" class="text-left">สังกัด (Parent/Province)</th>
+                                                        <th style="width:5%;" class="text-center">{!! $sortLink('id', '#') !!}</th>
+                                                        <th style="width:25%;" class="text-left">{!! $sortLink('name', 'ชื่อ (Location Name)') !!}</th>
+                                                        <th style="width:25%;" class="text-left">{!! $sortLink('parent', 'สังกัด (Parent/Province)') !!}</th>
 
                                                         <th style="width:10%;" class="text-center">Action</th>
                                                     </tr>

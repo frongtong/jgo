@@ -46,7 +46,19 @@ class ArticleCategory2Controller extends Controller
     public function index(Request $request, $category1_id)
     {
 
-        $items = ArticleCategory2::query()->where('category1_id', $category1_id)->paginate(15);
+        $sort = $request->get('sort', 'id');
+        $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+        $sortableColumns = [
+            'id' => 'id',
+            'name' => 'name_th',
+            'status' => 'status',
+        ];
+        $sortColumn = $sortableColumns[$sort] ?? $sortableColumns['id'];
+
+        $items = ArticleCategory2::query()
+            ->where('category1_id', $category1_id)
+            ->orderBy($sortColumn, $direction)
+            ->paginate(15);
         $items->pages = new ArticleCategory2();
         $items->pages->start = ($items->perPage() * $items->currentPage()) - $items->perPage();
         $navs = [
