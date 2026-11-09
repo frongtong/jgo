@@ -205,6 +205,10 @@
                                                                     </a>
 
                                                                     <span class="text-muted fs-7">
+                                                                        Username: {{ $item->username ?: '-' }}
+                                                                    </span>
+
+                                                                    <span class="text-muted fs-7">
 
                                                                         {{ $item->member_code }}
 

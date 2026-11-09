@@ -34,9 +34,7 @@ use App\Http\Controllers\Api\PrivacyPolicyController;
         [MemberController::class, 'forgotPassword']
     );
     
-    Route::middleware([
-            'auth:api_member'
-        ])->group(function () {
+ 
 
 
     
@@ -116,4 +114,3 @@ use App\Http\Controllers\Api\PrivacyPolicyController;
 
         });
 
-    });

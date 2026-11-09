@@ -72,10 +72,10 @@
 									<span class="w-125px text-gray-500 fw-semibold fs-7">JGO Backend</span>
 								</div>
 								<div class="fv-row mb-8">
-									<input type="text" placeholder="Username & Email" id="username" name="username" value="admin" autocomplete="off" class="form-control bg-transparent" />
+									<input type="text" placeholder="Username & Email" id="username" name="username" value="" autocomplete="off" class="form-control bg-transparent" />
 								</div>
 								<div class="fv-row mb-3">
-									<input type="password" placeholder="Password" id="password" name="password" value="1234" autocomplete="off" class="form-control bg-transparent" />
+									<input type="password" placeholder="Password" id="password" name="password" value="" autocomplete="off" class="form-control bg-transparent" />
 								</div>
 								<div class="d-flex flex-stack flex-wrap gap-3 fs-base fw-semibold mb-8">
 									<div></div>
